@@ -52,4 +52,5 @@ jobs:
           echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$archivo" | sha256sum -c -
           tar -xzf "$RUNNER_TEMP/$archivo" -C "$RUNNER_TEMP" gitleaks
       - name: Buscar secretos en todo el historial
-        run: "$RUNNER_TEMP/gitleaks" git --redact --no-banner .
+        run: |
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner .

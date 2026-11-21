@@ -52,6 +52,8 @@ for (const { nombre, texto } of workflows) {
     assert.doesNotMatch(activo, /pull_request_target|workflow_run/);
     assert.doesNotMatch(activo, /run:.*\$\{\{\s*github\.event\.(issue|pull_request|comment)\.(title|body)/);
     assert.doesNotMatch(activo, /echo .*\$\{\{\s*secrets\./);
+    // YAML inválido que GitHub rechaza sin ejecutar nada: un escalar entre comillas seguido de más texto.
+    assert.doesNotMatch(activo, /^\s*(-\s*)?run:\s*"[^"\n]*"\s+\S/m, 'run: "…" seguido de texto; usa run: |');
   });
 }
 
