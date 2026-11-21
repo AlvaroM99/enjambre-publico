@@ -14,7 +14,7 @@
 | R4 | **PR de agentes con `GITHUB_TOKEN` no disparan la CI.** | CI también con `labeled` y `ready_for_review`; el implementador pasa pruebas antes de abrir el PR. Solución completa: GitHub App `enjambre-bot` (S16). | Mitigado |
 | R5 | **Plugin privado no instalable desde Actions.** | Repositorio público `AlvaroM99/enjambre-publico` con instantáneas sin historial (el historial privado lleva el correo personal), publicadas por `herramientas/publicar.mjs`, que se niega si detecta correos, tokens o claves (ADR 0006). | Resuelto |
 | R6 | **`seccomp=unconfined` en el devcontainer** para que funcione el sandbox. | Perfil seccomp propio que solo permita `unshare`/`clone` de espacios de nombres (S43). En CI no aplica: los runners son efímeros. | Planificado (F5) |
-| R7 | **`prueba.mjs` de lobby lee `.dev.vars` y `datos/.clave-local`.** | Credenciales sintéticas para pruebas: el workflow genera un token aleatorio y escribe un `.dev.vars` de prueba en el runner; en local, un `.dev.vars.test` (S42, por PR en lobby). | Planificado |
+| R7 | **`prueba.mjs` de lobby lee `.dev.vars` y `datos/.clave-local`.** | En CI, credenciales sintéticas generadas en el runner con las propias herramientas de lobby (`clave.mjs --local`, `token.mjs --solo-local`) y prueba de humo independiente de los datos (`humo.mjs`), en verde en lobby#1. La prueba completa necesita una semilla sintética (M8). | Mitigado |
 | R8 | **F1 cerrada sin el piloto en lobby.** | Puerta de F2: prueba de humo (R1) y 2 historias de lobby de punta a punta antes de activar workflows de agentes (ADR 0005). | Planificado |
 
 ## Riesgos del plan (§9.1), con la solución actual

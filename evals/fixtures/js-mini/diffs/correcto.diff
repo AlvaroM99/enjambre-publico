@@ -1,0 +1,23 @@
+diff --git a/src/descuento.mjs b/src/descuento.mjs
+--- a/src/descuento.mjs
++++ b/src/descuento.mjs
+@@ -1,4 +1,7 @@
+ // Aplica un descuento en porcentaje (0-100) a un precio.
+ export function aplicarDescuento(precio, porcentaje) {
++  if (!(porcentaje >= 0 && porcentaje <= 100)) {
++    throw new RangeError('El porcentaje debe estar entre 0 y 100');
++  }
+   return precio - (precio * porcentaje) / 100;
+ }
+diff --git a/test/descuento.test.mjs b/test/descuento.test.mjs
+--- a/test/descuento.test.mjs
++++ b/test/descuento.test.mjs
+@@ -6,3 +6,8 @@ import { aplicarDescuento } from '../src/descuento.mjs';
+ test('un 20 % de descuento sobre 50 € deja 40 €', () => {
+   assert.equal(aplicarDescuento(50, 20), 40);
+ });
++
++test('porcentajes fuera de 0-100 lanzan RangeError', () => {
++  assert.throws(() => aplicarDescuento(50, -5), RangeError);
++  assert.throws(() => aplicarDescuento(50, 120), RangeError);
++});

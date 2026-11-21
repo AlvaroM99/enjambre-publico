@@ -268,6 +268,39 @@ td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .src li span { display: block; color: var(--muted); font-size: .78rem; }
 .mermaid-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 pre.mermaid { margin: 0; background: transparent; font-family: var(--body); color: var(--ink); }
+/* Catálogo de skills */
+.who-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.mini { font-family: var(--mono); font-size: .66rem; font-weight: 600; padding: 1px 5px; border-radius: 4px; }
+/* Recorrido de un comando */
+.route { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: stretch; }
+@media (max-width: 1000px) { .route { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .route { grid-template-columns: minmax(0, 1fr); } }
+.hop { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: grid; gap: 4px; align-content: start; position: relative; min-width: 0; }
+.hop .k { font-family: var(--mono); font-size: .68rem; color: var(--muted); }
+.hop b { font-family: var(--display); font-size: .92rem; }
+.hop p { font-size: .8rem; color: var(--muted); }
+.hop.stop { border-color: var(--risk); }
+.hop.go { border-color: var(--done); background: var(--done-soft); }
+/* Gráfico de estrellas (escala logarítmica) */
+.stars { display: grid; gap: 5px; }
+.srow { display: grid; grid-template-columns: 230px minmax(0, 1fr) 70px; gap: 10px; align-items: center; font-size: .82rem; }
+@media (max-width: 640px) { .srow { grid-template-columns: 130px minmax(0, 1fr) 56px; font-size: .74rem; } }
+.srow .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.srow .track { position: relative; height: 14px; background: var(--sunken); border-radius: 3px; }
+.srow .fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
+.srow .v { font-family: var(--mono); font-size: .74rem; text-align: right; font-variant-numeric: tabular-nums; }
+.saxis { display: grid; grid-template-columns: 230px minmax(0, 1fr) 70px; gap: 10px; font-family: var(--mono); font-size: .68rem; color: var(--muted); }
+@media (max-width: 640px) { .saxis { grid-template-columns: 130px minmax(0, 1fr) 56px; } }
+.saxis .ticks { position: relative; height: 16px; border-top: 1px solid var(--line); }
+.saxis .ticks span { position: absolute; top: 2px; transform: translateX(-50%); }
+.c-dir { background: var(--g-mej); } .c-agt { background: var(--human); } .c-par { background: var(--g-cons); } .c-fw { background: var(--g-desc); } .c-eco { background: var(--g-cal); }
+.arch { font-family: var(--mono); font-size: .62rem; color: var(--risk); margin-left: 4px; }
+/* Mejoras */
+.mejoras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .mejoras { grid-template-columns: minmax(0, 1fr); } }
+.mej { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; }
+.mej .id { font-family: var(--display); font-weight: 800; color: var(--honey); font-size: 1.1rem; }
+.mej p { font-size: .84rem; color: var(--muted); margin-top: 2px; }
 footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--line); margin-top: 40px; padding-block: 20px 40px; }
 </style>
 
@@ -279,7 +312,7 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <p class="lede">Un equipo de diez agentes de Claude organizado como una pequeña empresa de software. Investiga antes de construir, planifica, implementa hasta seis historias a la vez, revisa, verifica y audita. Álvaro decide, aprueba, fusiona y despliega.</p>
       <div class="pills">
         <span class="pill d"><i></i>F1 cerrada</span>
-        <span class="pill w"><i></i>F2 y F3 en marcha</span>
+        <span class="pill d"><i></i>F2 y F3 cerradas técnicamente</span><span class="pill w"><i></i>falta lo que necesita tu sesión</span>
         <span class="pill"><i style="background:var(--human)"></i>repo público para instalar</span>
       </div>
     </div>
@@ -305,9 +338,9 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <div class="stat" role="listitem"><b>10</b><span>agentes</span></div>
       <div class="stat" role="listitem"><b>13</b><span>skills</span></div>
       <div class="stat" role="listitem"><b>4</b><span>hooks</span></div>
-      <div class="stat" role="listitem"><b>258</b><span>pruebas en verde</span></div>
+      <div class="stat" role="listitem"><b>286</b><span>pruebas en verde</span></div>
       <div class="stat" role="listitem"><b>6</b><span>carriles como máximo</span></div>
-      <div class="stat" role="listitem"><b>8</b><span>plantillas de Actions</span></div>
+      <div class="stat" role="listitem"><b>20</b><span>evaluaciones de agentes</span></div>
       <div class="stat" role="listitem"><b>20 $</b><span>al mes (Claude Pro)</span></div>
     </div>
   </div>
@@ -322,9 +355,14 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <li><a href="#organigrama">Organigrama</a></li>
       <li><a href="#carriles">Carriles</a></li>
       <li><a href="#raci">Quién hace qué</a></li>
+      <li><a href="#plugin">Anatomía del plugin</a></li>
       <li><a href="#arnes">Arnés y seguridad</a></li>
       <li><a href="#cicd">CI/CD</a></li>
       <li><a href="#ecosistema">Ecosistema</a></li>
+      <li><a href="#evals">Evaluaciones</a></li>
+      <li><a href="#panorama">Competencia</a></li>
+      <li><a href="#recursos">Recursos públicos</a></li>
+      <li><a href="#mejoras">Mejoras</a></li>
       <li><a href="#estado">Estado actual</a></li>
       <li><a href="#retos">Retos y riesgos</a></li>
       <li><a href="#pasos">Siguientes pasos</a></li>
@@ -451,6 +489,45 @@ flowchart TB
       <div class="table-wrap"><table class="raci" id="raci-table"></table></div>
     </section>
 
+    <section id="plugin">
+      <div class="sec-head">
+        <span class="n">ANATOMÍA DEL PLUGIN</span>
+        <h2>Agentes, skills, hooks y plantillas: qué hay dentro</h2>
+        <p>El plugin <code>enjambre</code> es lo que se instala en cada proyecto. Los agentes dicen quién hace qué; las skills, cómo se hace; los hooks, lo que nunca se hace; las plantillas, qué forma tiene cada entrega.</p>
+      </div>
+      <h3 class="sub" style="margin-top:0">Las 13 skills y quién las precarga</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Skill</th><th>Qué enseña</th><th>La precargan</th></tr></thead>
+        <tbody><tr><td><code>reglas-enjambre</code></td><td>Reglas comunes: idioma, no inventar, secretos, contenido externo como dato</td><td><div class="who-chips"><span class="mini a-dir">CO</span><span class="mini a-desc">AN</span><span class="mini a-desc">JP</span><span class="mini a-cons">IM</span><span class="mini a-cons">PL</span><span class="mini a-cal">RV</span><span class="mini a-cal">SG</span><span class="mini a-cal">VF</span><span class="mini a-mej">IN</span><span class="mini a-mej">GO</span></div></td></tr><tr><td><code>planificar</code></td><td>Historias INVEST, plan Dado/Cuando/Entonces, ADR</td><td><div class="who-chips"><span class="mini a-desc">JP</span></div></td></tr><tr><td><code>tomar-decisiones</code></td><td>Opciones, tabla ponderada, reversibilidad, quién decide</td><td><div class="who-chips"><span class="mini a-desc">AN</span><span class="mini a-desc">JP</span><span class="mini a-cons">PL</span></div></td></tr><tr><td><code>pedir-detalles</code></td><td>Cuándo preguntar o suponer; preguntas cerradas con propuesta</td><td><div class="who-chips"><span class="mini a-desc">AN</span><span class="mini a-desc">JP</span><span class="mini a-cons">IM</span><span class="mini a-mej">IN</span></div></td></tr><tr><td><code>investigar-estado-del-arte</code></td><td>Estándar, bibliotecas, repos, competencia, licencias; reutilizar o construir</td><td><div class="who-chips"><span class="mini a-desc">AN</span></div></td></tr><tr><td><code>referencias-estandar</code></td><td>Criterios para dependencias, librerías del stack, estándares de proceso y seguridad</td><td><div class="who-chips"><span class="mini a-desc">AN</span><span class="mini a-desc">JP</span><span class="mini a-cons">IM</span><span class="mini a-cons">PL</span><span class="mini a-cal">RV</span><span class="mini a-cal">SG</span><span class="mini a-mej">IN</span><span class="mini a-mej">GO</span></div></td></tr><tr><td><code>git-enjambre</code></td><td>Ramas enjambre/*, Conventional Commits, PR en borrador, worktrees</td><td><div class="who-chips"><span class="mini a-cons">IM</span><span class="mini a-cons">PL</span></div></td></tr><tr><td><code>pruebas</code></td><td>Pirámide y trofeo, primero la prueba, qué probar</td><td><div class="who-chips"><span class="mini a-cons">IM</span><span class="mini a-cal">RV</span><span class="mini a-cal">VF</span><span class="mini a-mej">IN</span></div></td></tr><tr><td><code>documentar</code></td><td>Docs en el mismo PR, etiquetas de certeza</td><td><div class="who-chips"><span class="mini a-cons">IM</span><span class="mini a-cons">PL</span><span class="mini a-cal">RV</span><span class="mini a-mej">GO</span></div></td></tr><tr><td><code>verificar-e2e</code></td><td>Servidor local, navegador, evidencias por criterio</td><td><div class="who-chips"><span class="mini a-cal">VF</span></div></td></tr><tr><td><code>ci-cd</code></td><td>Reglas de Actions y 8 plantillas de workflows</td><td><div class="who-chips"><span class="mini a-cons">PL</span></div></td></tr><tr><td><code>gobernanza</code></td><td>Lista de 8 áreas con nota 0–3 y plantilla de informe</td><td><div class="who-chips"><span class="mini a-mej">GO</span></div></td></tr><tr><td><code>arnes-claude-code</code></td><td>Subagentes, paralelo, modelos, hooks, contexto, CI, diagnóstico</td><td><div class="who-chips"><span class="mini a-dir">CO</span><span class="mini a-desc">JP</span></div></td></tr></tbody>
+      </table></div>
+      <p class="note">CO coordinador · AN analista · JP jefe · IM implementador · PL plataforma · RV revisor · SG seguridad · VF verificador · IN investigador · GO gobernanza. Una skill precargada entra entera en el contexto del agente: por eso cada rol carga solo las suyas.</p>
+
+      <h3 class="sub">El recorrido de un comando</h3>
+      <div class="route" role="list" aria-label="Capas por las que pasa una llamada a una herramienta">
+        <div class="hop" role="listitem"><span class="k">1 · AGENTE</span><b>Pide Bash</b><p>El revisor quiere ejecutar <code>git diff</code>.</p></div>
+        <div class="hop" role="listitem"><span class="k">2 · TOOLS</span><b>¿La tiene?</b><p><code>tools</code> del agente. Sin Bash, no hay llamada.</p></div>
+        <div class="hop stop" role="listitem"><span class="k">3 · HOOK</span><b>proteger-secretos</b><p><code>.env</code>, <code>.dev.vars</code>, <code>datos/</code>, claves: código 2.</p></div>
+        <div class="hop stop" role="listitem"><span class="k">4 · HOOK</span><b>bloquear-comandos</b><p>Desplegar, fusionar, push a main o forzado, borrar en masa.</p></div>
+        <div class="hop stop" role="listitem"><span class="k">5 · HOOK</span><b>limitar-bash</b><p>Lista blanca según <code>agent_type</code>; sin redirecciones ni <code>$(…)</code>.</p></div>
+        <div class="hop" role="listitem"><span class="k">6 · PERMISOS</span><b>deny / allow</b><p><code>.claude/settings.json</code> del proyecto.</p></div>
+        <div class="hop go" role="listitem"><span class="k">7 · SANDBOX</span><b>Se ejecuta</b><p>Dentro del contenedor o del runner, con red limitada.</p></div>
+      </div>
+      <p class="note">Al empezar y al terminar cada subagente, <code>registrar-actividad</code> apunta la hora y los tokens gastados en <code>actividad.jsonl</code>; nunca bloquea.</p>
+
+      <h3 class="sub">Plantillas de entrega</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Plantilla</th><th>La escribe</th><th>Contenido</th></tr></thead>
+        <tbody>
+          <tr><td><code>investigacion.md</code></td><td>Analista</td><td>Petición, estándar, recursos reutilizables, competencia, opciones comparadas, recomendación, fuentes con fecha</td></tr>
+          <tr><td><code>plan.md</code></td><td>Jefe</td><td>Objetivo, criterios Dado/Cuando/Entonces, ficheros, pruebas, riesgos, estimación S/M</td></tr>
+          <tr><td><code>adr.md</code></td><td>Jefe / quien implementa</td><td>Contexto, decisión, consecuencias</td></tr>
+          <tr><td><code>pr.md</code></td><td>Implementador / Plataforma</td><td>Resumen, issue, cómo se probó, riesgos, definición de hecho, coste IA</td></tr>
+          <tr><td><code>informe-qa.md</code></td><td>Verificador</td><td>PASA / FALLA / NO VERIFICADO por criterio, con evidencia</td></tr>
+          <tr><td><code>gobernanza.md</code></td><td>Gobernanza</td><td>Nota 0–3 por área, hallazgos con regla incumplida, grupos de corrección</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
     <section id="arnes">
       <div class="sec-head">
         <span class="n">ARNÉS Y SEGURIDAD</span>
@@ -479,9 +556,10 @@ flowchart TB
 ├─ plantillas/           <span class="c"># settings, devcontainer,</span>
 │                        <span class="c"># plan, pr, adr, qa,</span>
 │                        <span class="c"># investigación, gobernanza</span>
-├─ pruebas/              <span class="c"># node:test, 258</span>
-├─ docs/                 <span class="c"># plan, ADR 0001–0006,</span>
-│                        <span class="c"># organigrama, riesgos</span>
+├─ pruebas/              <span class="c"># node:test, 286</span>
+├─ evals/                <span class="c"># 20 tareas + fixtures</span>
+├─ docs/                 <span class="c"># plan, ADR 0001–0007,</span>
+│                        <span class="c"># organigrama, riesgos, panorama</span>
 └─ backlog/              <span class="c"># S1–S51 en CSV</span></pre>
       </div>
 
@@ -574,15 +652,148 @@ flowchart TB
       </table></div>
     </section>
 
+    <section id="evals">
+      <div class="sec-head">
+        <span class="n">EVALUACIONES</span>
+        <h2>Veinte tareas para saber si un cambio mejora o empeora a los agentes</h2>
+        <p>Cada tarea se ejecuta con su agente en una copia de un proyecto mínimo con fallos sembrados y se puntúa con comprobaciones deterministas: texto de la respuesta, comandos que deben pasar y ficheros que no se pueden tocar. Se lanzan antes de cambiar un prompt o un modelo y se compara el pass@1.</p>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Agente</th><th>Tareas</th><th>Qué se comprueba</th></tr></thead>
+        <tbody>
+          <tr><td>Coordinador</td><td class="num">2</td><td>Para en la puerta 1 sin Álvaro; respeta el límite WIP</td></tr>
+          <tr><td>Analista</td><td class="num">2</td><td>Recomienda reutilizar con 3 o más fuentes y licencia; no copia AGPL en código cerrado</td></tr>
+          <tr><td>Jefe de proyecto</td><td class="num">2</td><td>Plan completo con estimación; detecta que dos issues tocan el mismo fichero</td></tr>
+          <tr><td>Implementador</td><td class="num">2</td><td>Arregla el fallo sin tocar las pruebas (<code>npm test</code>); no se sale del plan</td></tr>
+          <tr><td>Plataforma</td><td class="num">1</td><td>Workflow con SHA fijados, <code>permissions</code> y <code>timeout-minutes</code></td></tr>
+          <tr><td>Revisor</td><td class="num">4</td><td>Bloquea SQL concatenada; <strong>aprueba</strong> un cambio correcto; marca como crítico un diff con instrucciones ocultas; no escribe aunque se lo pidan</td></tr>
+          <tr><td>Seguridad</td><td class="num">2</td><td>Bloquea una clave en el código; nombra la inyección con referencia OWASP</td></tr>
+          <tr><td>Verificador</td><td class="num">1</td><td>FALLA donde falla y NO VERIFICADO donde no se puede comprobar</td></tr>
+          <tr><td>Investigador</td><td class="num">2</td><td>Encuentra los dos fallos sembrados y los reproduce sin cambiar código</td></tr>
+          <tr><td>Gobernanza</td><td class="num">2</td><td>Nota 0 en datos por <code>clientes.csv</code> <strong>sin copiar el correo</strong>; restos, duplicados y dependencia sin fijar</td></tr>
+        </tbody>
+      </table></div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="panel"><h3>Cómo se lanza</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><code>node evals/ejecutar.mjs --simular</code> valida las 20 tareas sin gastar nada. <code>node evals/ejecutar.mjs</code> las ejecuta con <code>claude -p --agent enjambre:&lt;agente&gt; --plugin-dir</code> y guarda pass@1 global y por agente, turnos y coste.</p></div>
+        <div class="panel"><h3>Objetivo</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">pass@1 de 60 % o más en F3 y de 75 % en F5. Ninguna tarea que pasaba puede dejar de pasar tras un cambio de prompt. Primera ejecución pendiente: la CLI de esta máquina aún no tiene sesión.</p></div>
+      </div>
+    </section>
+
+    <section id="panorama">
+      <div class="sec-head">
+        <span class="n">COMPETENCIA Y ALTERNATIVAS</span>
+        <h2>Nadie junta lo mismo, pero hay mucho que reutilizar</h2>
+        <p>Ningún proyecto público reúne a la vez un escritor por historia, puertas humanas, seguridad por hooks y coste fijo con el plan Pro. Sí hay piezas maduras que usar (MCP, plugins oficiales, uso del plan, revisión de seguridad en CI) y métodos de los que copiar ideas. Estrellas de GitHub a 21-11-2026, escala logarítmica.</p>
+      </div>
+      <div class="panel">
+        <div class="stars" role="img" aria-label="Estrellas en GitHub de los proyectos comparados, en escala logarítmica"><div class="srow"><span class="nm">obra/superpowers</span><span class="track"><span class="fill c-dir" style="width:96.5%"></span></span><span class="v">323 637</span></div><div class="srow"><span class="nm">anthropics/claude-code</span><span class="track"><span class="fill c-agt" style="width:84.3%"></span></span><span class="v">156 563</span></div><div class="srow"><span class="nm">github/spec-kit</span><span class="track"><span class="fill c-dir" style="width:83.7%"></span></span><span class="v">150 929</span></div><div class="srow"><span class="nm">openai/codex</span><span class="track"><span class="fill c-agt" style="width:82.0%"></span></span><span class="v">136 054</span></div><div class="srow"><span class="nm">google-gemini/gemini-cli</span><span class="track"><span class="fill c-agt" style="width:78.3%"></span></span><span class="v">108 974</span></div><div class="srow"><span class="nm">OpenHands/OpenHands</span><span class="track"><span class="fill c-agt" style="width:75.8%"></span></span><span class="v">93 964</span></div><div class="srow"><span class="nm">ruvnet/ruflo</span><span class="track"><span class="fill c-dir" style="width:73.6%"></span></span><span class="v">82 222</span></div><div class="srow"><span class="nm">FoundationAgents/MetaGPT</span><span class="track"><span class="fill c-dir" style="width:71.2%"></span></span><span class="v">71 374</span></div><div class="srow"><span class="nm">upstash/context7</span><span class="track"><span class="fill c-eco" style="width:69.7%"></span></span><span class="v">65 238</span></div><div class="srow"><span class="nm">microsoft/autogen<span class=arch>archivado</span></span><span class="track"><span class="fill c-fw" style="width:68.9%"></span></span><span class="v">61 956</span></div><div class="srow"><span class="nm">crewAIInc/crewAI</span><span class="track"><span class="fill c-fw" style="width:68.7%"></span></span><span class="v">61 147</span></div><div class="srow"><span class="nm">bmad-code-org/BMAD-METHOD</span><span class="track"><span class="fill c-dir" style="width:67.1%"></span></span><span class="v">55 604</span></div><div class="srow"><span class="nm">langchain-ai/langgraph</span><span class="track"><span class="fill c-fw" style="width:63.6%"></span></span><span class="v">45 234</span></div><div class="srow"><span class="nm">wshobson/agents</span><span class="track"><span class="fill c-dir" style="width:62.7%"></span></span><span class="v">42 778</span></div><div class="srow"><span class="nm">ChatDev</span><span class="track"><span class="fill c-dir" style="width:59.3%"></span></span><span class="v">34 834</span></div><div class="srow"><span class="nm">openai/openai-agents-python</span><span class="track"><span class="fill c-fw" style="width:57.2%"></span></span><span class="v">30 801</span></div><div class="srow"><span class="nm">gastownhall/beads</span><span class="track"><span class="fill c-dir" style="width:56.1%"></span></span><span class="v">28 893</span></div><div class="srow"><span class="nm">BloopAI/vibe-kanban</span><span class="track"><span class="fill c-par" style="width:56.1%"></span></span><span class="v">28 773</span></div><div class="srow"><span class="nm">claude-task-master</span><span class="track"><span class="fill c-dir" style="width:55.9%"></span></span><span class="v">28 512</span></div><div class="srow"><span class="nm">coleam00/Archon</span><span class="track"><span class="fill c-dir" style="width:53.0%"></span></span><span class="v">23 978</span></div><div class="srow"><span class="nm">ccusage/ccusage</span><span class="track"><span class="fill c-eco" style="width:49.6%"></span></span><span class="v">19 536</span></div><div class="srow"><span class="nm">gastownhall/gastown</span><span class="track"><span class="fill c-dir" style="width:49.0%"></span></span><span class="v">18 861</span></div><div class="srow"><span class="nm">pixel-agents</span><span class="track"><span class="fill c-par" style="width:39.0%"></span></span><span class="v">10 328</span></div><div class="srow"><span class="nm">smtg-ai/claude-squad</span><span class="track"><span class="fill c-par" style="width:36.4%"></span></span><span class="v">8 846</span></div><div class="srow"><span class="nm">claude-code-security-review</span><span class="track"><span class="fill c-eco" style="width:32.6%"></span></span><span class="v">7 047</span></div><div class="srow"><span class="nm">cloudflare/agents</span><span class="track"><span class="fill c-fw" style="width:30.0%"></span></span><span class="v">6 022</span></div></div>
+        <div class="saxis" aria-hidden="true"><span></span><div class="ticks"><span style="left:0.0%">1k</span><span style="left:38.4%">10k</span><span style="left:76.9%">100k</span></div><span></span></div>
+        <div class="legend"><span><i class="sw" style="background:var(--g-mej)"></i>Sistemas y métodos multiagente</span><span><i class="sw" style="background:var(--human)"></i>Agentes de código</span><span><i class="sw" style="background:var(--g-cons)"></i>Paralelo y visualización</span><span><i class="sw" style="background:var(--g-desc)"></i>Frameworks</span><span><i class="sw" style="background:var(--g-cal)"></i>Ecosistema de Claude Code</span></div>
+      </div>
+      <h3 class="sub">Qué tomamos de cada uno y qué no</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Proyecto</th><th>Qué es</th><th>Qué tomamos</th><th>Qué no, y por qué</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/bmad-code-org/BMAD-METHOD">BMAD-METHOD</a></td><td>Método ágil con agentes analista, PM, arquitecto, scrum master, dev y QA</td><td>Confirma el reparto analista → plan → dev → QA</td><td>Más roles de planificación de los que pide un usuario único</td></tr>
+          <tr><td><a href="https://github.com/github/spec-kit">Spec Kit</a></td><td>Desarrollo guiado por especificaciones</td><td>Spec para épicas grandes (mejora M5)</td><td>Adoptarlo entero: solapa con <code>plan.md</code></td></tr>
+          <tr><td><a href="https://github.com/obra/superpowers">Superpowers</a></td><td>Skills y método: TDD, depuración, subagentes</td><td>Ideas para skills de TDD y depuración (M6)</td><td>Sustituir nuestras skills: duplicaría reglas</td></tr>
+          <tr><td><a href="https://github.com/ruvnet/ruflo">ruflo</a> (claude-flow)</td><td>Enjambres de agentes autónomos</td><td>—</td><td>Choca con un escritor por historia y con el coste del plan Pro</td></tr>
+          <tr><td><a href="https://github.com/FoundationAgents/MetaGPT">MetaGPT</a> · <a href="https://github.com/OpenBMB/ChatDev">ChatDev</a></td><td>«Empresa de software» de agentes que conversan</td><td>Documentos estructurados entre roles</td><td>Agentes que hablan entre sí; baja corrección medida en MAST</td></tr>
+          <tr><td><a href="https://github.com/BloopAI/vibe-kanban">vibe-kanban</a></td><td>Kanban que lanza agentes en worktrees</td><td>Probarlo como tablero de carriles (M4)</td><td>—</td></tr>
+          <tr><td><a href="https://github.com/smtg-ai/claude-squad">claude-squad</a></td><td>Sesiones paralelas en tmux</td><td>Uso local posible</td><td>Licencia AGPL: no copiar su código</td></tr>
+          <tr><td><a href="https://github.com/wshobson/agents">wshobson/agents</a> · <a href="https://github.com/VoltAgent/awesome-claude-code-subagents">VoltAgent</a></td><td>Cientos de subagentes por especialidad</td><td>Ideas de prompts para skills por stack</td><td>Instalarlos: más contexto y más superficie de ataque</td></tr>
+          <tr><td>GitHub Copilot coding agent</td><td>Agente comercial asignable a issues</td><td>Rama propia, PR en borrador, no aprueba su PR</td><td>Licencia aparte y roles fijos</td></tr>
+          <tr><td><a href="https://github.com/microsoft/autogen">AutoGen</a> · <a href="https://github.com/RooCodeInc/Roo-Code">Roo Code</a></td><td>Framework y agente</td><td>—</td><td>Repositorios archivados</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="recursos">
+      <div class="sec-head">
+        <span class="n">RECURSOS PÚBLICOS</span>
+        <h2>Lo que ya existe y se puede usar</h2>
+        <p>Antes de construir, el analista comprueba si hay algo mantenido, con licencia compatible y que encaje con Cloudflare Workers. Estos son los recursos que ya forman parte de Enjambre o de sus proyectos, o que se recomiendan.</p>
+      </div>
+      <div class="grid2">
+        <div class="table-wrap"><table>
+          <thead><tr><th>MCP y plugins</th><th>Licencia</th><th>Uso</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://github.com/anthropics/claude-plugins-official">claude-plugins-official</a></td><td>Apache-2.0</td><td>context7 y playwright activados</td></tr>
+            <tr><td><a href="https://github.com/anthropics/skills">anthropics/skills</a></td><td>—</td><td>Formato oficial de skills</td></tr>
+            <tr><td><a href="https://github.com/upstash/context7">Context7</a></td><td>MIT</td><td>Documentación actual de bibliotecas</td></tr>
+            <tr><td><a href="https://github.com/microsoft/playwright-mcp">Playwright MCP</a></td><td>Apache-2.0</td><td>Navegador para QA</td></tr>
+            <tr><td><a href="https://github.com/github/github-mcp-server">GitHub MCP</a></td><td>MIT</td><td>Opcional frente a <code>gh</code></td></tr>
+            <tr><td><a href="https://github.com/cloudflare/mcp-server-cloudflare">Cloudflare MCP</a></td><td>Apache-2.0</td><td>Consultas de solo lectura</td></tr>
+            <tr><td><a href="https://github.com/agentsmd/agents.md">AGENTS.md</a></td><td>MIT</td><td>Reglas portables a otros agentes (M1)</td></tr>
+          </tbody>
+        </table></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Coste, observabilidad y seguridad</th><th>Licencia</th><th>Uso</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://github.com/ccusage/ccusage">ccusage</a></td><td>MIT</td><td>Uso del plan por bloques de 5 h (M2)</td></tr>
+            <tr><td><a href="https://github.com/pixel-agents-hq/pixel-agents">Pixel Agents</a></td><td>MIT</td><td>Oficina de agentes</td></tr>
+            <tr><td><a href="https://github.com/anthropics/claude-code-security-review">claude-code-security-review</a></td><td>MIT</td><td>Revisión de seguridad en CI (M3)</td></tr>
+            <tr><td><a href="https://github.com/gitleaks/gitleaks">gitleaks</a></td><td>MIT</td><td>Secretos en la CI de Enjambre</td></tr>
+            <tr><td><a href="https://github.com/ossf/scorecard">OpenSSF Scorecard</a></td><td>Apache-2.0</td><td>Medir el repo público (F5)</td></tr>
+            <tr><td><a href="https://github.com/langfuse/langfuse">Langfuse</a></td><td>núcleo MIT</td><td>Trazas; más adelante</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <h3 class="sub">Bibliotecas del stack de los proyectos</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Biblioteca</th><th>Para qué</th><th>Licencia</th><th>Último push</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/honojs/hono">Hono</a></td><td>Rutas HTTP en Workers</td><td>MIT</td><td class="num">2026-11-20</td></tr>
+          <tr><td><a href="https://github.com/colinhacks/zod">Zod</a></td><td>Validar entradas</td><td>MIT</td><td class="num">2026-11-20</td></tr>
+          <tr><td><a href="https://github.com/drizzle-team/drizzle-orm">Drizzle ORM</a></td><td>Acceso tipado a D1</td><td>Apache-2.0</td><td class="num">2026-11-20</td></tr>
+          <tr><td><a href="https://github.com/vitest-dev/vitest">Vitest</a></td><td>Pruebas unitarias en el runtime de Workers</td><td>MIT</td><td class="num">2026-11-20</td></tr>
+          <tr><td><a href="https://github.com/microsoft/playwright">Playwright</a></td><td>Pruebas de extremo a extremo</td><td>Apache-2.0</td><td class="num">2026-11-21</td></tr>
+          <tr><td><a href="https://github.com/cloudflare/workers-sdk">workers-sdk</a> · <a href="https://github.com/cloudflare/templates">templates</a></td><td>Wrangler y plantillas oficiales</td><td>Apache-2.0 · MIT</td><td class="num">2026-11</td></tr>
+          <tr><td><a href="https://github.com/cloudflare/agents">Cloudflare Agents</a></td><td>Agentes con estado en Workers (vía B futura)</td><td>MIT</td><td class="num">2026-11-21</td></tr>
+          <tr><td><a href="https://github.com/duckdb/duckdb">DuckDB</a> · <a href="https://github.com/dbt-labs/dbt">dbt</a></td><td>Fase 4 (datos)</td><td>MIT · Apache-2.0</td><td class="num">2026-11</td></tr>
+        </tbody>
+      </table></div>
+      <h3 class="sub">Ejemplo: no hagas un editor de texto desde cero</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Editor</th><th>Estrellas</th><th>Licencia</th><th>Estado en GitHub</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/ueberdosis/tiptap">Tiptap</a></td><td class="num">39 107</td><td>MIT</td><td class="yes">activo</td></tr>
+          <tr><td><a href="https://github.com/meta/lexical">Lexical</a></td><td class="num">24 039</td><td>MIT</td><td class="yes">activo</td></tr>
+          <tr><td><a href="https://github.com/slab/quill">Quill</a></td><td class="num">47 380</td><td>BSD-3-Clause</td><td>sin push desde 2025-07</td></tr>
+          <tr><td><a href="https://github.com/codemirror/dev">CodeMirror</a></td><td class="num">7 803</td><td>—</td><td class="no">repositorio archivado</td></tr>
+          <tr><td><a href="https://github.com/ProseMirror/prosemirror">ProseMirror</a></td><td class="num">8 691</td><td>MIT</td><td class="no">repositorio archivado</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Recomendación del analista para una web de notas en Workers: Tiptap o Lexical. Que dos de los editores más conocidos tengan el repositorio de GitHub archivado es justo lo que hay que mirar antes de elegir (dónde sigue su desarrollo: por confirmar).</p>
+    </section>
+
+    <section id="mejoras">
+      <div class="sec-head">
+        <span class="n">MEJORAS PROPUESTAS</span>
+        <h2>Ocho mejoras sacadas del panorama</h2>
+        <p>Ordenadas por número; la prioridad va en cada una. Ninguna se aplica sin que Álvaro la apruebe.</p>
+      </div>
+      <div class="mejoras">
+        <div class="mej"><span class="id">M1</span><div><h3>AGENTS.md en cada proyecto</h3><p>Reglas portables a Codex, Gemini o Cursor, generadas desde CLAUDE.md. Esfuerzo S.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
+        <div class="mej"><span class="id">M2</span><div><h3>ccusage en la rutina semanal</h3><p><code>npx ccusage blocks</code> para ver cuánto queda del bloque de 5 h antes de subir carriles. Esfuerzo S.</p><div class="tags"><span class="badge b-risk">alta</span></div></div></div>
+        <div class="mej"><span class="id">M3</span><div><h3>Revisión de seguridad oficial en CI</h3><p><code>claude-code-security-review</code> en PR sensibles, además del agente de seguridad. Esfuerzo S.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
+        <div class="mej"><span class="id">M4</span><div><h3>Probar vibe-kanban</h3><p>Tablero visual que lanza agentes en worktrees: comparar con el coordinador. Esfuerzo M.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
+        <div class="mej"><span class="id">M5</span><div><h3>Specs para épicas</h3><p>Analista y jefe producen una spec al estilo Spec Kit antes de partir en historias. Esfuerzo M.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
+        <div class="mej"><span class="id">M6</span><div><h3>Skills de TDD y depuración</h3><p>Inspiradas en Superpowers, adaptadas a nuestras reglas. Esfuerzo M.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
+        <div class="mej"><span class="id">M7</span><div><h3>Panel de actividad y tokens</h3><p>Sobre <code>actividad.jsonl</code>, como módulo de Lobby. Esfuerzo M.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
+        <div class="mej"><span class="id">M8</span><div><h3>Semilla sintética para lobby</h3><p>Que la prueba completa <code>prueba.mjs</code> también corra en CI. Esfuerzo M.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
+      </div>
+    </section>
+
     <section id="estado">
       <div class="sec-head">
         <span class="n">ESTADO ACTUAL</span>
-        <h2>Todo construido y probado aislado; falta la primera vuelta real</h2>
-        <p>Álvaro cerró la fase 1 por decisión (ADR 0005). Su criterio de salida, 3 de 5 PR fusionados en lobby, no se ha cumplido: ningún agente ha trabajado aún en un proyecto real. La prueba de humo y dos historias de lobby son la puerta de la fase 2.</p>
+        <h2>Fases 2 y 3 cerradas en todo lo que no necesita tu sesión</h2>
+        <p>Lobby y finance_tracker tienen ya su CI en verde en PR abiertos, lobby tiene los workflows de agentes, las etiquetas y la variable, y Enjambre mide tokens y tiene banco de evaluaciones (ADR 0007). Lo que queda necesita a Álvaro: el secreto de Claude, fusionar los PR e iniciar sesión en la CLI. Ningún agente ha trabajado todavía en un proyecto real, así que los criterios de salida de F2 y F3 aún no se pueden medir.</p>
       </div>
       <div class="panel">
-        <div class="meter-bar" aria-label="Entregables de F1 a F3: 20 hechos, 3 en curso, 7 pendientes"><i style="width:66.7%;background:var(--done)"></i><i style="width:10%;background:var(--wip)"></i></div>
-        <div class="meter-label"><span>Entregables de F1 a F3</span><span>20 hechos · 3 en curso · 7 pendientes</span></div>
+        <div class="meter-bar" aria-label="Entregables de F1 a F3: 28 hechos, 2 en PR, 5 de Álvaro"><i style="width:80%;background:var(--done)"></i><i style="width:5.7%;background:var(--wip)"></i></div>
+        <div class="meter-label"><span>Entregables de F1 a F3</span><span>28 hechos · 2 en PR esperando fusión · 5 de Álvaro</span></div>
         <div class="grid2">
           <ul class="status-list">
             <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S51 y seis ADR</div></li>
@@ -591,18 +802,19 @@ flowchart TB
             <li><span class="badge b-done">hecho</span><div>Analista, gobernanza y coordinador<small>ADR 0006</small></div></li>
             <li><span class="badge b-done">hecho</span><div>8 plantillas de Actions y CI propia (Linux y Windows, gitleaks)</div></li>
             <li><span class="badge b-done">hecho</span><div>Repo público y script de publicación sin historial</div></li>
-            <li><span class="badge b-done">hecho</span><div>Variable <code>ENJAMBRE_WIP=3</code> en lobby</div></li>
+            <li><span class="badge b-done">hecho</span><div>Variable <code>ENJAMBRE_WIP=3</code> y etiquetas <code>enjambre:*</code> en lobby</div></li>
+            <li><span class="badge b-done">hecho</span><div>Banco de 20 evaluaciones y tokens por agente<small>S28 y S25</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Panorama de competencia y recursos públicos<small><code>docs/panorama.md</code></small></div></li>
             <li><span class="badge b-done">hecho</span><div>Organigrama, RACI y riesgos con solución<small><code>docs/organigrama.md</code>, <code>docs/riesgos-y-soluciones.md</code></small></div></li>
           </ul>
           <ul class="status-list">
-            <li><span class="badge b-wip">en curso</span><div>Prueba de humo en una sesión real (S41)</div></li>
-            <li><span class="badge b-wip">en curso</span><div>Llevar plugin y CI a lobby por PR</div></li>
-            <li><span class="badge b-wip">en curso</span><div>Primera ejecución de la CI del repo</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Secreto <code>CLAUDE_CODE_OAUTH_TOKEN</code> en lobby (S51)</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents (S50)</div></li>
-            <li><span class="badge b-todo">pendiente</span><div>Dos historias de lobby de punta a punta</div></li>
-            <li><span class="badge b-todo">pendiente</span><div>Credenciales sintéticas para <code>prueba.mjs</code> (S42)</div></li>
-            <li><span class="badge b-todo">pendiente</span><div>Hook <code>registrar-coste</code> (S25) y banco de evaluaciones (S28)</div></li>
+            <li><span class="badge b-wip">en PR</span><div>Lobby: settings, devcontainer, CI y workflows<small><a href="https://github.com/AlvaroM99/lobby/pull/1">lobby#1</a>, CI verde (humo 8/8)</small></div></li>
+            <li><span class="badge b-wip">en PR</span><div>finance_tracker: CI de Rust y wasm<small><a href="https://github.com/AlvaroM99/finance_tracker/pull/1">finance_tracker#1</a>, CI verde</small></div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Secreto <code>CLAUDE_CODE_OAUTH_TOKEN</code> en lobby</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#1 y finance_tracker#1</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Iniciar sesión en la CLI: prueba de humo y primera ejecución de evaluaciones</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Primera historia por etiquetas en lobby</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
           </ul>
         </div>
       </div>
@@ -648,7 +860,7 @@ flowchart TB
     <section id="pasos">
       <div class="sec-head">
         <span class="n">SIGUIENTES PASOS</span>
-        <h2>De la prueba de humo a seis carriles</h2>
+        <h2>Lo que falta, en orden</h2>
         <p>En orden: cada paso desbloquea el siguiente.</p>
       </div>
       <ol class="steps">
@@ -659,11 +871,12 @@ flowchart TB
             <li>Comprobar con <code>gh secret list -R AlvaroM99/lobby</code>. El token no se pega en ningún chat.</li>
           </ol>
           <div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
-        <li><div><h3>Prueba de humo (S41)</h3><p>Instalar el plugin en un repo de prueba y comprobar <code>limitar-bash</code>, el worktree del implementador, las skills, <code>claude --agent enjambre:enjambre-coordinador</code> y el registro de actividad.</p><div class="tags"><span class="tag">puerta F2</span><span class="tag">30 min</span></div></div></li>
+        <li><div><h3>Fusionar los dos PR</h3><p><a href="https://github.com/AlvaroM99/lobby/pull/1">lobby#1</a> (settings, devcontainer, CI y workflows) y <a href="https://github.com/AlvaroM99/finance_tracker/pull/1">finance_tracker#1</a> (CI de Rust). Los dos tienen la CI en verde.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">10 min</span></div></div></li>
+        <li><div><h3>Iniciar sesión en la CLI y prueba de humo (S41)</h3><p><code>claude</code> para iniciar sesión. Después, <code>node evals/ejecutar.mjs --tarea revisor-no-escribe</code> comprueba de una vez el plugin, <code>limitar-bash</code> y el nombre real de <code>agent_type</code>; luego el banco completo para tener el pass@1 de referencia.</p><div class="tags"><span class="tag">puerta F2</span><span class="tag">30 min</span></div></div></li>
         <li><div><h3>Instalar Pixel Agents</h3><p>VS Code → Extensiones → «Pixel Agents», o <code>npx pixel-agents</code>. Un personaje por rol y cuatro áreas, sin «Skip Permissions».</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">15 min</span></div></div></li>
-        <li><div><h3>Llevar Enjambre y la CI a lobby por PR</h3><p>Settings, devcontainer y <code>ci.yml</code> desde las plantillas, con credenciales sintéticas para <code>prueba.mjs</code>.</p><div class="tags"><span class="tag">lobby</span><span class="tag you">fusiona Álvaro</span></div></div></li>
-        <li><div><h3>Dos historias de lobby con el coordinador</h3><p>Analista si hace falta, plan y carriles, dos implementadores, revisión y verificación.</p><div class="tags"><span class="tag">S9–S12</span><span class="tag you">puertas 1 y 2</span></div></div></li>
-        <li><div><h3>Activar los workflows de agentes</h3><p>Planificar, implementar y revisar por etiquetas. Medir minutos y bloqueos por límite.</p><div class="tags"><span class="tag">F2</span></div></div></li>
+        <li><div><h3>Vigilar el plan</h3><p><code>npx ccusage blocks</code> antes y después de la primera historia, y <code>node herramientas/actividad.mjs</code> para los tokens por agente.</p><div class="tags"><span class="tag">M2</span><span class="tag">5 min</span></div></div></li>
+        <li><div><h3>Primera historia por etiquetas</h3><p>Etiqueta un issue de lobby con <code>enjambre:planificar</code>, aprueba el plan, pon <code>enjambre:implementar</code> y después <code>enjambre:revisar</code> en el PR. Es el criterio de salida de F2.</p><div class="tags"><span class="tag">F2</span><span class="tag you">puertas 1 y 2</span></div></div></li>
+        <li><div><h3>Dos historias en paralelo con el coordinador</h3><p><code>claude --agent enjambre:enjambre-coordinador</code> en local con dos carriles. Medir conflictos, ciclos y tokens.</p><div class="tags"><span class="tag">F3</span></div></div></li>
         <li><div><h3>Primera auditoría de gobernanza e investigación QA</h3><p>Triar las propuestas con el jefe y decidir cuáles entran.</p><div class="tags"><span class="tag">F3</span><span class="tag you">decide Álvaro</span></div></div></li>
         <li><div><h3>Subir carriles y medir</h3><p>De 3 a 6 tras dos semanas sin bloqueos; banco de 20 evaluaciones antes de tocar prompts.</p><div class="tags"><span class="tag">F3</span></div></div></li>
       </ol>
@@ -693,8 +906,8 @@ flowchart TB
       </div>
       <div class="phases">
         <article class="phase"><header><h3>F1 · MVP local</h3><span class="badge b-done">cerrada</span></header><ul><li>Plugin con agentes, skills y hooks probados</li><li>Devcontainer y plantillas</li><li>El piloto pasa a F2</li></ul><p class="exit">Cerrada por decisión (ADR 0005).</p></article>
-        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-wip">en marcha</span></header><ul><li>Puerta: prueba de humo y 2 historias</li><li>Workflows por etiquetas (plantillas hechas)</li><li>Repo público para instalar (hecho)</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
-        <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-wip">en marcha</span></header><ul><li>10 agentes (hechos)</li><li>Hasta 6 carriles con worktrees</li><li>finance_tracker y evaluaciones</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
+        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-done">cerrada técnicamente</span></header><ul><li>CI y workflows en lobby#1 (verde)</li><li>Etiquetas y variable creadas</li><li>Falta: secreto y primera historia</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
+        <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-done">cerrada técnicamente</span></header><ul><li>10 agentes y 6 carriles</li><li>CI de finance_tracker (verde)</li><li>20 evaluaciones y tokens por agente</li><li>Falta: primera ejecución real</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
         <article class="phase"><header><h3>F4 · Datos y BI</h3><span class="badge b-todo">opcional</span></header><ul><li>Agente datos</li><li>Panel de coste y DORA</li></ul><p class="exit"><b>Sale si:</b> panel actualizado a diario.</p></article>
         <article class="phase"><header><h3>F5 · Endurecimiento</h3><span class="badge b-todo">continuo</span></header><ul><li>OpenTelemetry y alertas de coste</li><li>Perfil seccomp propio</li><li>Revisión trimestral de permisos</li></ul><p class="exit"><b>Sale si:</b> 3 meses con métricas en objetivo.</p></article>
         <article class="phase"><header><h3>Plan B</h3><span class="badge b-risk">si falla</span></header><ul><li>&lt; 2 de 5 PR útiles: implementador + revisor con planes de Álvaro</li><li>Conflictos entre carriles: WIP 1–2</li><li>Bloqueos por límite: Max 5x</li></ul><p class="exit">Vuelta atrás: desactivar el plugin en <code>enabledPlugins</code>.</p></article>
@@ -731,7 +944,9 @@ flowchart TB
       <div class="sources">
         <div class="src"><h3>En el repositorio</h3><ul>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/organigrama.md">docs/organigrama.md</a><span>Roles, relaciones, RACI, arnés y ecosistema</span></li>
-          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0006; prevalecen sobre el plan</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/panorama.md">docs/panorama.md</a><span>Competencia, alternativas, recursos y mejoras</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/evals/README.md">evals/</a><span>Banco de 20 evaluaciones</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0007; prevalecen sobre el plan</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/riesgos-y-soluciones.md">docs/riesgos-y-soluciones.md</a><span>Retos y riesgos con solución y estado</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/operacion.md">docs/operacion.md</a><span>Entorno, publicación, secreto y Pixel Agents paso a paso</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/PLAN.md">docs/PLAN.md</a><span>Plan original: vías, roadmap y métricas</span></li>
@@ -772,7 +987,7 @@ flowchart TB
           <li><a href="https://www.finops.org/wg/token-economics/">FinOps para IA</a></li>
         </ul></div>
       </div>
-      <footer>Generado desde <code>docs/PLAN.md</code>, ADR 0001–0006, <code>docs/organigrama.md</code>, <code>docs/riesgos-y-soluciones.md</code>, <code>docs/operacion.md</code> y las definiciones de <code>plugins/enjambre/</code>, a 21-11-2026. Lo marcado «por confirmar» en esos documentos no se ha comprobado en una sesión real.</footer>
+      <footer>Generado desde <code>docs/PLAN.md</code>, ADR 0001–0007, <code>docs/panorama.md</code>, <code>evals/</code>, <code>docs/organigrama.md</code>, <code>docs/riesgos-y-soluciones.md</code>, <code>docs/operacion.md</code> y las definiciones de <code>plugins/enjambre/</code>, a 21-11-2026. Lo marcado «por confirmar» en esos documentos no se ha comprobado en una sesión real.</footer>
     </section>
   </main>
 </div>

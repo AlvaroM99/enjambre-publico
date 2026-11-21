@@ -37,6 +37,29 @@ lobby no tiene CI todavía; se añade en la historia S14.
 - Claude Code con el sandbox activo dentro del contenedor, de punta a punta. Hace falta iniciar sesión en Claude dentro del contenedor, y lo hace Álvaro.
 - Los hooks cargados de verdad por Claude Code al instalar el plugin en un proyecto. Las pruebas ejecutan los scripts con la misma entrada JSON que documenta Claude Code, pero no a través de Claude Code.
 
+## Fases 2 y 3: cierre técnico (ADR 0007, 21-11-2026)
+
+| Comprobación | Resultado |
+|---|---|
+| `npm test` en Windows | 286/286 |
+| `node evals/ejecutar.mjs --simular` | 20 tareas válidas (10 agentes) |
+| CI de lobby en [lobby#1](https://github.com/AlvaroM99/lobby/pull/1) | Verde: sintaxis, `npm audit` y prueba de humo 8/8 con credenciales sintéticas |
+| CI de finance_tracker en [finance_tracker#1](https://github.com/AlvaroM99/finance_tracker/pull/1) | Verde: `cargo test` (comun, importar) y `cargo check` del Worker para wasm |
+| Etiquetas `enjambre:*` en lobby | Creadas |
+| Primera ejecución del banco de evaluaciones | **Pendiente**: la CLI no tiene sesión |
+
+Tokens por agente: el hook `registrar-actividad` suma los tokens de la transcripción de cada subagente al terminar (formato de transcripción [POR CONFIRMAR] en sesión real). Resumen:
+
+```bash
+node herramientas/actividad.mjs ruta/a/actividad.jsonl
+```
+
+Uso del plan Pro por bloques de 5 horas (mejora M2 del panorama, lo ejecuta Álvaro):
+
+```bash
+npx ccusage blocks
+```
+
 ## Repo público, secretos y oficina de agentes (ADR 0006, 21-11-2026)
 
 ### Agentes (10)

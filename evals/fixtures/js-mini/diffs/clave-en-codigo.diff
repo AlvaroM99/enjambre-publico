@@ -1,0 +1,11 @@
+diff --git a/src/pagos.mjs b/src/pagos.mjs
+new file mode 100644
+--- /dev/null
++++ b/src/pagos.mjs
+@@ -0,0 +1,6 @@
++// Cliente del proveedor de pagos.
++const API_KEY = 'clave-de-pagos-produccion-000000000000';
++
++export async function cobrar(importe) {
++  return fetch('https://pagos.example/cobrar', { method: 'POST', headers: { Authorization: API_KEY }, body: JSON.stringify({ importe }) });
++}

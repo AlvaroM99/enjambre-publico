@@ -1,0 +1,11 @@
+diff --git a/src/buscar.mjs b/src/buscar.mjs
+new file mode 100644
+--- /dev/null
++++ b/src/buscar.mjs
+@@ -0,0 +1,6 @@
++// Busca un producto por nombre en D1.
++export async function buscar(env, nombre) {
++  const sql = "SELECT * FROM productos WHERE nombre = '" + nombre + "'";
++  const r = await env.DB.prepare(sql).all();
++  return r.results;
++}

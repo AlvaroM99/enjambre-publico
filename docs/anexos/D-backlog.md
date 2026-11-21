@@ -25,30 +25,30 @@ S11,Story,Agente revisor con veredicto estructurado,E3,High,"AC: comenta APROBAR
 S12,Story,Agente verificador reutilizando prueba.mjs,E3,High,"AC: informe PASA/FALLA por criterio con evidencias; arranca servidor local; no despliega."
 S13,Story,Skill reglas-enjambre y documentar,E3,High,"AC: reglas comunes cargadas por todos los agentes; cada PR actualiza docs afectadas."
 E4,Epic,Enjambre - CI/CD y GitHub,,High,CI, rulesets, GitHub App, preview.
-S14,Story,CI básico en lobby,E4,High,"AC: workflow por PR con npm run check y pruebas; permisos read-only; acciones fijadas."
+S14,Story,CI básico en lobby,E4,High,"AC: workflow por PR con npm run check y pruebas; permisos read-only; acciones fijadas. HECHO en lobby#1 (CI verde)."
 S15,Story,Ruleset de main y CODEOWNERS,E4,High,"AC: PR obligatorio, 1 aprobación de Álvaro, checks obligatorios, sin force push; CODEOWNERS protege .github, .claude, wrangler.toml y migrations."
 S16,Story,GitHub App enjambre-bot con permisos mínimos,E4,High,"AC: App instalada solo en repos elegidos; contents/PR/issues rw; sin admin; secreto en Actions."
 S17,Story,Entorno preview en Cloudflare,E4,Medium,"AC: lobby-preview Worker y D1 de pruebas; despliegue automático por PR; enlace en el PR."
 S18,Story,Entorno production con aprobación,E4,Medium,"AC: despliegue solo tras aprobación de Álvaro; prueba de humo; procedimiento de rollback documentado y probado."
 E5,Epic,Enjambre - Orquestación por eventos,,High,claude-code-action y tablero.
-S19,Story,Workflow enjambre-planificar por etiqueta,E5,High,"AC: etiqueta enjambre:planificar en issue genera comentario de plan; solo usuarios con escritura; presupuesto y max-turns."
-S20,Story,Workflow enjambre-implementar,E5,High,"AC: etiqueta enjambre:implementar crea rama enjambre/* y PR en borrador; concurrency 1 por issue; WIP global configurable (ENJAMBRE_WIP, 3 por defecto, máx. 6; ADR 0003)."
-S21,Story,Workflow enjambre-revisar y verificar en PR,E5,Medium,"AC: al marcar PR listo, ejecuta revisor y verificador y comenta veredictos."
+S19,Story,Workflow enjambre-planificar por etiqueta,E5,High,"AC: etiqueta enjambre:planificar en issue genera comentario de plan; solo usuarios con escritura; presupuesto y max-turns. HECHO en lobby#1; falta el secreto."
+S20,Story,Workflow enjambre-implementar,E5,High,"AC: etiqueta enjambre:implementar crea rama enjambre/* y PR en borrador; concurrency 1 por issue; WIP global configurable (ENJAMBRE_WIP, 3 por defecto, máx. 6; ADR 0003). HECHO en lobby#1; falta el secreto."
+S21,Story,Workflow enjambre-revisar y verificar en PR,E5,Medium,"AC: al marcar PR listo, ejecuta revisor y verificador y comenta veredictos. HECHO en lobby#1 (revisar); verificar sigue en local."
 S22,Story,Integración Jira (opcional),E5,Medium,"AC: proyecto Jira con estados de §5.3; app GitHub for Jira enlaza ramas y PR; CSV importado; 2 reglas de automatización."
 E6,Epic,Enjambre - Piloto en lobby,,High,Cinco historias reales completadas por el equipo.
 S23,Story,Seleccionar 5 historias reales de lobby y refinarlas,E6,High,"AC: 5 issues en Listo con plan aprobado; mezcla back/front/bug."
 S24,Story,Ejecutar ciclo completo y medir métricas MVP,E6,High,"AC: informe con lead time, ciclos de revisión, coste por historia y tasa sin retrabajo."
 E7,Epic,Enjambre - Observabilidad y FinOps,,Medium,Coste y trazas.
-S25,Story,Hook registrar-coste y coste en PR,E7,Medium,"AC: cada ejecución registra agente, tokens y total_cost_usd; comentario de coste en el PR."
+S25,Story,Hook registrar-coste y coste en PR,E7,Medium,"AC: cada ejecución registra agente, tokens y total_cost_usd; comentario de coste en el PR. HECHO: tokens por agente en actividad.jsonl."
 S26,Story,Alertas de presupuesto,E7,Medium,"AC: aviso al superar 70 % del presupuesto mensual; bloqueo de tarea al agotar su presupuesto."
 S27,Story,Telemetría OpenTelemetry de Claude Code,E7,Low,"AC: métricas de coste y tokens exportadas a destino elegido; contenido de prompts redactado."
 E8,Epic,Enjambre - Calidad de agentes (evals),,Medium,Banco de evaluaciones.
-S28,Story,Banco de 20 tareas de evaluación,E8,Medium,"AC: 20 tareas con verificador ejecutable sacadas del historial real; script que ejecuta y puntúa pass@1."
+S28,Story,Banco de 20 tareas de evaluación,E8,Medium,"AC: 20 tareas con verificador ejecutable sacadas del historial real; script que ejecuta y puntúa pass@1. HECHO: evals/ con 20 tareas y fixtures; falta la primera ejecución."
 S29,Story,Proceso de lecciones aprendidas,E8,Low,"AC: cada defecto escapado crea prueba, entrada en docs/lecciones.md y tarea de eval."
 E9,Epic,Enjambre - Ampliación del equipo,,Medium,Plataforma, Seguridad, finance_tracker.
 S30,Story,Agente plataforma,E9,Medium,"AC: mantiene workflows y wrangler.toml; despliega solo a preview; CI < 10 min. Definición HECHA (ADR 0003)."
 S31,Story,Agente seguridad y escáneres,E9,Medium,"AC: CodeQL, secret scanning, Dependabot y Scorecard activos; revisión de PRs sensibles con checklist ASVS L1. Agente HECHO (ADR 0003); en GitHub Free privado sin CodeQL ni secret scanning: gitleaks y npm audit en CI."
-S32,Story,Incorporar finance_tracker (Rust en CI),E9,Medium,"AC: skill rust-worker; CI con cargo test; una historia completada."
+S32,Story,Incorporar finance_tracker (Rust en CI),E9,Medium,"AC: skill rust-worker; CI con cargo test; una historia completada. HECHO en finance_tracker#1 (CI verde)."
 E10,Epic,Enjambre - Datos y BI,,Low,Agente Datos y panel.
 S33,Story,Modelo de datos de ejecuciones de agentes,E10,Low,"AC: tablas hecho/dimensiones documentadas con contrato; datos de 4 semanas cargados."
 S34,Story,Panel de Enjambre,E10,Low,"AC: panel con coste por tarea, lead time y tasa sin retrabajo, actualizado a diario."
@@ -60,7 +60,7 @@ S38,Story,Carriles en paralelo con worktrees y límite WIP,E11,High,"AC: el jefe
 S39,Story,CI del repo enjambre y Dependabot de Actions,E11,High,"AC: npm test en Linux y Windows con Node 22 y 24; gitleaks verificado por SHA-256; Dependabot semanal. HECHO; falta primera ejecución."
 S40,Story,Plantillas de workflows (skill ci-cd),E11,High,"AC: ci, planificar, implementar, revisar, investigar y produccion con SHA fijados, permisos mínimos, concurrency, timeouts y solo el propietario; comprobado por npm test. HECHO."
 S41,Story,Prueba de humo en sesión real,E11,Highest,"AC: comprobados agent_type, isolation en agentes de plugin, prefijo de skills, CLAUDE_SKILL_DIR y --agent en claude -p; resultados en docs/operacion.md. Puerta de F2."
-S42,Story,Credenciales sintéticas para las pruebas de lobby,E11,High,"AC: prueba.mjs funciona en CI y en el devcontainer sin .dev.vars ni datos/ reales. Por PR en lobby."
+S42,Story,Credenciales sintéticas para las pruebas de lobby,E11,High,"AC: prueba.mjs funciona en CI y en el devcontainer sin .dev.vars ni datos/ reales. Por PR en lobby. HECHO en CI de lobby (credenciales sintéticas + humo.mjs)."
 S43,Story,Perfil seccomp propio para el devcontainer,E11,Low,"AC: el sandbox funciona sin seccomp=unconfined; solo se permiten unshare y clone de espacios de nombres."
 S44,Story,Decidir visibilidad de enjambre o GitHub App para Actions,E11,High,"AC: el runner de un proyecto instala el plugin enjambre desde el marketplace. Decide Álvaro."
 E12,Epic,Enjambre - Repo público y organigrama completo (ADR 0006),,High,"Repo público, analista, gobernanza, coordinador, actividad y ecosistema."

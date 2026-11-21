@@ -1,0 +1,7 @@
+{
+  "name": "repo-desordenado",
+  "private": true,
+  "dependencies": {
+    "left-pad": "*"
+  }
+}

@@ -1,0 +1,8 @@
+title = "enjambre"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Fixtures de evaluaciones con secretos falsos a propósito"
+paths = ['''^evals/fixtures/''']
