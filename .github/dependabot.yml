@@ -1,0 +1,9 @@
+# Actualiza cada semana los SHA de las Actions fijadas en los workflows del repo (ADR 0005).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci

@@ -1,0 +1,7 @@
+.env
+.dev.vars
+datos/
+node_modules/
+*.log
+evals/resultados/
+.claude/settings.local.json

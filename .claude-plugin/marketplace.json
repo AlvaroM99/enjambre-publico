@@ -1,0 +1,12 @@
+{
+  "name": "enjambre",
+  "description": "Marketplace privado de Enjambre: equipo de agentes de Claude para desarrollo de software",
+  "owner": { "name": "AlvaroM99" },
+  "plugins": [
+    {
+      "name": "enjambre",
+      "source": "./plugins/enjambre",
+      "description": "Agentes, skills y hooks de seguridad de Enjambre"
+    }
+  ]
+}

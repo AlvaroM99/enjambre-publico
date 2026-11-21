@@ -1,0 +1,63 @@
+# CI de un proyecto que usa Enjambre (Node + Cloudflare Workers). Copiar a .github/workflows/ci.yml y ajustar.
+# Skill ci-cd de Enjambre. Actions fijadas por SHA; permisos mínimos.
+name: ci
+
+on:
+  pull_request:
+    # «labeled» y «ready_for_review»: los PR que abre un agente con GITHUB_TOKEN no disparan workflows;
+    # cuando Álvaro etiqueta el PR o lo marca como listo, sí (ADR 0005).
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Comprobaciones estáticas
+        run: npm run check --if-present
+      - name: Pruebas
+        run: npm test --if-present
+      - name: Auditoría de dependencias (altas y críticas)
+        run: npm audit --audit-level=high --omit=dev
+
+  e2e:
+    # Pruebas de extremo a extremo contra el servidor local (base D1 local, datos de prueba).
+    # Desactivado hasta adaptarlo al proyecto: en lobby, `npx wrangler dev` + `node herramientas/prueba.mjs`.
+    if: false
+    needs: comprobar
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Servidor local y pruebas
+        run: |
+          npx wrangler d1 migrations apply DB --local
+          npx wrangler dev --port 8787 &
+          for i in $(seq 1 60); do curl -fs http://127.0.0.1:8787 >/dev/null && break; sleep 1; done
+          node herramientas/prueba.mjs

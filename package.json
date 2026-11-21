@@ -1,0 +1,9 @@
+{
+  "name": "enjambre",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"pruebas/**/*.test.mjs\""
+  },
+  "engines": { "node": ">=22" }
+}

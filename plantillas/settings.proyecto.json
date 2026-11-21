@@ -1,0 +1,70 @@
+{
+  "extraKnownMarketplaces": {
+    "enjambre": {
+      "source": {
+        "source": "github",
+        "repo": "AlvaroM99/enjambre-publico"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "enjambre@enjambre": true,
+    "context7@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true
+  },
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(.dev.vars)",
+      "Read(./datos/**)",
+      "Read(**/.clave-local)",
+      "Read(./.wrangler/state/**)",
+      "Read(~/.ssh/**)",
+      "Read(~/.claude/.credentials.json)",
+      "Edit(./.claude/settings.json)",
+      "Edit(./.claude/settings.local.json)",
+      "Bash(npx wrangler deploy)",
+      "Bash(npx wrangler deploy --env production *)",
+      "Bash(npx wrangler d1 execute * --remote *)",
+      "Bash(npx wrangler d1 migrations apply * --remote *)",
+      "Bash(npx wrangler secret *)",
+      "Bash(npx wrangler delete *)",
+      "Bash(npx wrangler rollback *)",
+      "Bash(npm run deploy *)",
+      "Bash(npm run subir *)",
+      "Bash(npm run clave *)",
+      "Bash(npm run token *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git push origin main *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh repo delete *)",
+      "Bash(gh secret *)"
+    ],
+    "allow": [
+      "Bash(npm run check *)",
+      "Bash(npm run dev *)",
+      "Bash(npm test *)",
+      "Bash(node herramientas/prueba.mjs *)",
+      "Bash(npx wrangler dev *)",
+      "Bash(npx wrangler deploy --env preview *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git switch -c enjambre/*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(gh issue view *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr create --draft *)"
+    ]
+  }
+}

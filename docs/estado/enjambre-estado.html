@@ -1,0 +1,878 @@
+<title>Enjambre, estado y ruta</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: columna de lectura con índice lateral fijo; motivo de panal en la cabecera; la «oficina» es el único bloque interactivo. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --sunken: #eceef2; --ink: #18202c; --muted: #5a6473; --line: #d9dde4;
+  --honey: #b87900; --honey-soft: #fbefd5; --on-honey: #1a1405;
+  --done: #1d7a6b; --done-soft: #dcf1ec; --wip: #b87900; --wip-soft: #fbefd5;
+  --todo: #6b7383; --todo-soft: #e7e9ee; --risk: #b3402c; --risk-soft: #f8e1dc;
+  --human: #3c55b5; --human-soft: #e1e7fb;
+  --g-desc: #7b4fc2; --g-desc-soft: #efe7fb; --g-cons: #b87900; --g-cons-soft: #fbefd5;
+  --g-cal: #1d7a6b; --g-cal-soft: #dcf1ec; --g-mej: #b3402c; --g-mej-soft: #f8e1dc;
+  --floor: #e9ecf1; --floor-line: #dde1e8;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --surface: #181e27; --sunken: #0d1117; --ink: #e7eaf0; --muted: #9aa3b2; --line: #2a3240;
+    --honey: #f0b43c; --honey-soft: #3a2c10; --on-honey: #1a1405; --done: #4cc3ac; --done-soft: #12322c; --wip: #f0b43c; --wip-soft: #3a2c10;
+    --todo: #9aa3b2; --todo-soft: #232a35; --risk: #f08a74; --risk-soft: #3d1f19; --human: #8ea2f0; --human-soft: #1e2645;
+    --g-desc: #b897f0; --g-desc-soft: #2a2140; --g-cons: #f0b43c; --g-cons-soft: #3a2c10; --g-cal: #4cc3ac; --g-cal-soft: #12322c; --g-mej: #f08a74; --g-mej-soft: #3d1f19;
+    --floor: #151a22; --floor-line: #1f2530;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #181e27; --sunken: #0d1117; --ink: #e7eaf0; --muted: #9aa3b2; --line: #2a3240;
+  --honey: #f0b43c; --honey-soft: #3a2c10; --on-honey: #1a1405; --done: #4cc3ac; --done-soft: #12322c; --wip: #f0b43c; --wip-soft: #3a2c10;
+  --todo: #9aa3b2; --todo-soft: #232a35; --risk: #f08a74; --risk-soft: #3d1f19; --human: #8ea2f0; --human-soft: #1e2645;
+  --g-desc: #b897f0; --g-desc-soft: #2a2140; --g-cons: #f0b43c; --g-cons-soft: #3a2c10; --g-cal: #4cc3ac; --g-cal-soft: #12322c; --g-mej: #f08a74; --g-mej-soft: #3d1f19;
+  --floor: #151a22; --floor-line: #1f2530;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+a { color: var(--human); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--honey); outline-offset: 2px; border-radius: 4px; }
+code, .mono { font-family: var(--mono); font-size: .86em; }
+code { background: var(--sunken); padding: .08em .35em; border-radius: 4px; overflow-wrap: anywhere; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(1.6rem, 3.2vw, 2.15rem); font-weight: 700; letter-spacing: -.01em; }
+h3 { font-size: 1.12rem; font-weight: 700; }
+p { margin: 0; }
+small { display: block; color: var(--muted); font-size: .84rem; }
+
+.shell { max-width: 1260px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 960px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 0; } .toc { display: none; } }
+
+/* Cabecera */
+.hero { border-bottom: 1px solid var(--line); background: var(--surface); }
+.hero-inner { max-width: 1260px; margin: 0 auto; padding-block: 52px 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 36px; align-items: center; }
+@media (max-width: 860px) { .hero-inner { grid-template-columns: minmax(0, 1fr); } }
+.kicker { font-family: var(--mono); font-size: .8rem; color: var(--muted); letter-spacing: .04em; margin-bottom: 14px; }
+.hero h1 { font-size: clamp(2.6rem, 7vw, 4.6rem); font-weight: 800; letter-spacing: -.03em; }
+.hero h1 span { color: var(--honey); }
+.lede { font-size: 1.13rem; color: var(--muted); max-width: 60ch; margin-top: 16px; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 5px 13px; border-radius: 999px; font-weight: 600; font-size: .88rem; background: var(--sunken); }
+.pill i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.pill.w { background: var(--wip-soft); } .pill.w i { background: var(--wip); }
+.pill.d { background: var(--done-soft); } .pill.d i { background: var(--done); }
+.hive svg { width: 100%; height: auto; display: block; max-width: 100%; }
+.hive text { font-family: var(--display); font-weight: 700; }
+.stats-wrap { max-width: 1260px; margin: 0 auto; padding-block: 0 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.stats { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 900px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { border-top: 2px solid var(--honey); padding-top: 8px; }
+.stat b { font-family: var(--display); font-size: 1.9rem; font-weight: 800; display: block; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat span { font-size: .84rem; color: var(--muted); }
+
+/* Índice */
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); align-self: start; padding-top: 40px; }
+.toc p { font-family: var(--mono); font-size: .74rem; color: var(--muted); letter-spacing: .08em; margin-bottom: 10px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: t; }
+.toc li { counter-increment: t; }
+.toc a { display: flex; gap: 10px; padding: 5px 8px; border-radius: 6px; color: var(--ink); text-decoration: none; font-size: .9rem; }
+.toc a::before { content: counter(t, decimal-leading-zero); font-family: var(--mono); font-size: .74rem; color: var(--muted); padding-top: 2px; }
+.toc a:hover { background: var(--sunken); }
+
+main { min-width: 0; }
+section { padding-block: 52px 8px; scroll-margin-top: 12px; }
+.sec-head { display: grid; gap: 10px; margin-bottom: 26px; max-width: 74ch; }
+.sec-head .n { font-family: var(--mono); font-size: .78rem; color: var(--honey); letter-spacing: .06em; }
+.sec-head p { color: var(--muted); }
+.sub { margin: 34px 0 12px; }
+.note { font-size: .86rem; color: var(--muted); margin-top: 8px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 820px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+
+/* Flujo */
+.flow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 1100px) { .flow { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .flow { grid-template-columns: minmax(0, 1fr); } }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 12px; display: grid; gap: 6px; align-content: start; }
+.step.human { background: var(--human-soft); border-color: transparent; }
+.step .who { font-family: var(--mono); font-size: .7rem; color: var(--muted); }
+.step h3 { font-size: .98rem; }
+.step p { font-size: .84rem; color: var(--muted); }
+.step .out { font-family: var(--mono); font-size: .72rem; background: var(--sunken); border-radius: 5px; padding: 2px 7px; justify-self: start; overflow-wrap: anywhere; }
+.step.human .out { background: var(--surface); }
+.step .gate { font-family: var(--mono); font-size: .7rem; color: var(--human); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: .84rem; color: var(--muted); margin-top: 12px; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); vertical-align: -2px; margin-right: 6px; }
+
+/* Oficina */
+.office { background-color: var(--floor); border: 1px solid var(--line); border-radius: 14px; padding: 14px;
+  background-image: linear-gradient(var(--floor-line) 1px, transparent 1px), linear-gradient(90deg, var(--floor-line) 1px, transparent 1px); background-size: 22px 22px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1.25fr); grid-template-areas: "dir desc mej" "cons cons cal"; gap: 12px; }
+@media (max-width: 760px) { .office { grid-template-columns: minmax(0, 1fr); grid-template-areas: "dir" "desc" "cons" "cal" "mej"; } }
+.room { background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 10px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.room > header { display: flex; justify-content: space-between; gap: 8px; font-family: var(--mono); font-size: .72rem; letter-spacing: .05em; color: var(--muted); }
+.room.dir { grid-area: dir; border-color: var(--human); } .room.dir > header b { color: var(--human); }
+.room.desc { grid-area: desc; border-color: var(--g-desc); } .room.desc > header b { color: var(--g-desc); }
+.room.cons { grid-area: cons; border-color: var(--g-cons); } .room.cons > header b { color: var(--g-cons); }
+.room.cal { grid-area: cal; border-color: var(--g-cal); } .room.cal > header b { color: var(--g-cal); }
+.room.mej { grid-area: mej; border-color: var(--g-mej); } .room.mej > header b { color: var(--g-mej); }
+.desks { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 8px; }
+.desk { appearance: none; font: inherit; color: inherit; text-align: left; cursor: pointer; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; align-items: center;
+  padding: 7px; border-radius: 8px; background: var(--sunken); border: 1px solid transparent; min-width: 0; }
+.desk:hover { border-color: var(--line); }
+.desk[aria-pressed="true"] { border-color: var(--ink); background: var(--surface); }
+.ava { width: 34px; height: 34px; border-radius: 6px; display: grid; place-items: center; font-family: var(--mono); font-weight: 600; font-size: .8rem; position: relative; }
+.ava::after { content: ""; position: absolute; right: -3px; bottom: -3px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); background: var(--todo); }
+.ava.on::after { background: var(--done); }
+.ava.wait::after { background: var(--wip); }
+.desk .nm { display: block; font-weight: 600; font-size: .86rem; line-height: 1.2; overflow-wrap: anywhere; }
+.desk .rl { display: block; font-size: .7rem; color: var(--muted); font-family: var(--mono); line-height: 1.3; }
+.a-dir { background: var(--human-soft); color: var(--human); }
+.a-desc { background: var(--g-desc-soft); color: var(--g-desc); }
+.a-cons { background: var(--g-cons-soft); color: var(--g-cons); }
+.a-cal { background: var(--g-cal-soft); color: var(--g-cal); }
+.a-mej { background: var(--g-mej-soft); color: var(--g-mej); }
+@media (prefers-reduced-motion: no-preference) { .ava.on { animation: tecleo 1.6s steps(2) infinite; } }
+@keyframes tecleo { 50% { transform: translateY(-2px); } }
+.detail { margin-top: 14px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px; }
+@media (max-width: 760px) { .detail { grid-template-columns: minmax(0, 1fr); } }
+.detail h3 { font-size: 1.4rem; }
+.detail .role { font-family: var(--mono); font-size: .76rem; color: var(--muted); }
+.kv { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 6px 12px; font-size: .9rem; margin: 0; }
+.kv dt { color: var(--muted); font-size: .82rem; padding-top: 1px; }
+.kv dd { margin: 0; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { font-family: var(--mono); font-size: .72rem; padding: 2px 7px; border-radius: 4px; background: var(--sunken); }
+
+/* Tablas */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: .72rem; font-weight: 500; color: var(--muted); letter-spacing: .03em; background: var(--sunken); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.yes { color: var(--done); font-weight: 600; } .no { color: var(--risk); font-weight: 600; }
+.raci th { text-align: center; } .raci th:first-child { text-align: left; }
+.raci td { text-align: center; font-family: var(--mono); font-weight: 600; font-size: .8rem; padding: 7px 6px; }
+.raci td:first-child { text-align: left; font-family: var(--body); font-weight: 500; font-size: .86rem; white-space: nowrap; }
+.r-R { background: var(--honey-soft); color: var(--ink); }
+.r-A { background: var(--human-soft); color: var(--human); }
+.r-C { color: var(--muted); }
+.r-I { color: var(--muted); opacity: .6; }
+
+.badge { font-family: var(--mono); font-size: .7rem; font-weight: 500; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.b-done { background: var(--done-soft); color: var(--done); } .b-wip { background: var(--wip-soft); color: var(--ink); }
+.b-todo { background: var(--todo-soft); color: var(--muted); } .b-risk { background: var(--risk-soft); color: var(--risk); }
+.status-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.status-list li { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; align-items: start; font-size: .92rem; }
+.status-list .badge { justify-self: start; margin-top: 3px; }
+
+/* Medidor */
+.meter-bar { height: 14px; border-radius: 999px; background: var(--todo-soft); display: flex; overflow: hidden; }
+.meter-bar i { display: block; height: 100%; }
+.meter-label { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: .86rem; color: var(--muted); margin: 8px 0 18px; }
+
+/* Capas */
+.layers { display: grid; gap: 8px; align-content: start; }
+.layer { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; }
+.layer .lv { font-family: var(--display); font-weight: 800; font-size: 1.3rem; color: var(--honey); text-align: center; }
+.layer p { font-size: .86rem; color: var(--muted); }
+@media (max-width: 560px) { .layer { grid-template-columns: 30px minmax(0, 1fr); } .layer .badge { grid-column: 2; justify-self: start; } }
+.tree { font-family: var(--mono); font-size: .8rem; line-height: 1.55; background: var(--sunken); border-radius: 10px; padding: 16px; overflow-x: auto; margin: 0; }
+.tree .h { color: var(--honey); font-weight: 500; } .tree .c { color: var(--muted); }
+
+/* Carriles */
+.lanes { display: grid; gap: 7px; }
+.lane { display: grid; grid-template-columns: 70px repeat(4, minmax(0, 1fr)); gap: 6px; align-items: center; }
+.lane .ln { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+.lane span.s { font-size: .78rem; border-radius: 6px; padding: 5px 8px; background: var(--surface); border: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lane span.s.w { background: var(--honey-soft); border-color: transparent; color: var(--ink); }
+.lane.off span.s { opacity: .5; border-style: dashed; }
+@media (max-width: 560px) { .lane { grid-template-columns: 50px repeat(4, minmax(0, 1fr)); } .lane span.s { font-size: .66rem; padding: 4px; } }
+.loop { margin-top: 14px; border: 1px dashed var(--g-mej); border-radius: 10px; padding: 12px 14px; font-size: .9rem; background: var(--g-mej-soft); }
+
+/* CI/CD */
+.pipe { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 900px) { .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .pipe { grid-template-columns: minmax(0, 1fr); } }
+.wf { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.wf h3 code { font-size: .8rem; }
+.wf .trg { font-family: var(--mono); font-size: .68rem; color: var(--muted); }
+.wf p { font-size: .84rem; color: var(--muted); }
+.wf.prod { border-color: var(--risk); }
+.sync { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; }
+@media (max-width: 760px) { .sync { grid-template-columns: minmax(0, 1fr); } .sync .arrow { transform: rotate(90deg); justify-self: center; } }
+.sync .box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: .88rem; min-width: 0; }
+.sync .box b { font-family: var(--display); display: block; margin-bottom: 4px; overflow-wrap: anywhere; }
+.sync .arrow { font-family: var(--mono); color: var(--honey); font-size: 1.3rem; text-align: center; }
+
+/* Ecosistema */
+.eco { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .eco { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .eco { grid-template-columns: minmax(0, 1fr); } }
+.eco article { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.eco header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.eco p { font-size: .86rem; color: var(--muted); }
+.eco .who { font-family: var(--mono); font-size: .72rem; }
+.eco article.star { border-color: var(--honey); background: var(--honey-soft); }
+.eco article.star p { color: var(--ink); }
+
+/* Riesgos */
+.matrix { display: grid; grid-template-columns: 22px repeat(5, minmax(0, 1fr)); gap: 4px; font-size: .7rem; }
+.matrix .axis { font-family: var(--mono); color: var(--muted); display: grid; place-items: center; }
+.matrix .cell { min-height: 62px; border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.h0 { background: var(--sunken); } .h1 { background: var(--done-soft); } .h2 { background: var(--todo-soft); } .h3 { background: var(--wip-soft); } .h4 { background: var(--risk-soft); }
+.matrix .chip { background: var(--surface); font-family: var(--body); font-size: .66rem; line-height: 1.25; padding: 2px 4px; overflow-wrap: anywhere; }
+.axis-title { font-size: .78rem; color: var(--muted); margin-top: 8px; }
+
+/* Pasos */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: p; }
+.steps > li { counter-increment: p; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.steps > li::before { content: counter(p); font-family: var(--display); font-weight: 800; font-size: 1.5rem; color: var(--honey); text-align: center; }
+.steps p { font-size: .9rem; color: var(--muted); margin-top: 4px; }
+.steps ol { margin: 6px 0 0; padding-left: 20px; font-size: .88rem; color: var(--muted); display: grid; gap: 4px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag { font-family: var(--mono); font-size: .7rem; padding: 2px 8px; border-radius: 4px; background: var(--sunken); color: var(--muted); }
+.tag.you { background: var(--human-soft); color: var(--human); }
+
+/* Roadmap */
+.gantt { display: grid; grid-template-columns: 170px repeat(24, minmax(16px, 1fr)); gap: 6px 0; align-items: center; min-width: 640px; }
+.g-head { font-family: var(--mono); font-size: .7rem; color: var(--muted); }
+.g-label { grid-column: 1; font-size: .86rem; } .g-label b { font-family: var(--display); display: block; } .g-label small { font-size: .74rem; }
+.g-bar { height: 28px; border-radius: 6px; font-family: var(--mono); font-size: .7rem; display: flex; align-items: center; padding: 0 8px; white-space: nowrap; overflow: hidden; }
+.g-done { background: var(--done); }
+.g-wip { background: repeating-linear-gradient(135deg, var(--honey) 0 10px, var(--wip-soft) 10px 20px); color: var(--on-honey); font-weight: 600; }
+.g-todo { background: var(--todo-soft); color: var(--muted); border: 1px dashed var(--line); }
+.g-ongoing { background: var(--human-soft); color: var(--human); }
+.phases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+@media (max-width: 900px) { .phases { grid-template-columns: minmax(0, 1fr); } }
+.phase { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 8px; align-content: start; }
+.phase header { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.phase ul { margin: 0; padding-left: 18px; font-size: .86rem; }
+.phase .exit { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+
+/* Fuentes */
+.sources { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 900px) { .sources { grid-template-columns: minmax(0, 1fr); } }
+.src { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.src ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 7px; font-size: .86rem; }
+.src li span { display: block; color: var(--muted); font-size: .78rem; }
+.mermaid-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+pre.mermaid { margin: 0; background: transparent; font-family: var(--body); color: var(--ink); }
+footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--line); margin-top: 40px; padding-block: 20px 40px; }
+</style>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="kicker">ALVAROM99/ENJAMBRE · ESTADO A 21-11-2026</p>
+      <h1>Enjambre<span>.</span></h1>
+      <p class="lede">Un equipo de diez agentes de Claude organizado como una pequeña empresa de software. Investiga antes de construir, planifica, implementa hasta seis historias a la vez, revisa, verifica y audita. Álvaro decide, aprueba, fusiona y despliega.</p>
+      <div class="pills">
+        <span class="pill d"><i></i>F1 cerrada</span>
+        <span class="pill w"><i></i>F2 y F3 en marcha</span>
+        <span class="pill"><i style="background:var(--human)"></i>repo público para instalar</span>
+      </div>
+    </div>
+    <div class="hive" aria-label="Panal con Álvaro en el centro y los diez agentes alrededor" role="img">
+      <svg viewBox="0 -8 460 316">
+        <defs><path id="hx" d="M0,-50 L43,-25 L43,25 L0,50 L-43,25 L-43,-25 Z"/></defs>
+        <g transform="translate(230,150)"><use href="#hx" fill="var(--human-soft)" stroke="var(--human)" stroke-width="2.5"/><text text-anchor="middle" y="-2" font-size="15" fill="var(--human)">Álvaro</text><text text-anchor="middle" y="15" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">aprueba</text></g>
+        <g transform="translate(230,46)"><use href="#hx" fill="var(--surface)" stroke="var(--human)" stroke-width="2"/><text text-anchor="middle" y="5" font-size="12" fill="var(--ink)">Coordinador</text></g>
+        <g transform="translate(140,98)"><use href="#hx" fill="var(--g-desc-soft)" stroke="var(--g-desc)" stroke-width="2"/><text text-anchor="middle" y="5" font-size="12" fill="var(--ink)">Analista</text></g>
+        <g transform="translate(320,98)"><use href="#hx" fill="var(--g-desc-soft)" stroke="var(--g-desc)" stroke-width="2"/><text text-anchor="middle" y="-2" font-size="12" fill="var(--ink)">Jefe de</text><text text-anchor="middle" y="13" font-size="12" fill="var(--ink)">proyecto</text></g>
+        <g transform="translate(320,202)"><use href="#hx" fill="var(--g-cons-soft)" stroke="var(--g-cons)" stroke-width="2"/><text text-anchor="middle" y="-2" font-size="11" fill="var(--ink)">Implemen-</text><text text-anchor="middle" y="12" font-size="11" fill="var(--ink)">tador ×N</text></g>
+        <g transform="translate(410,150)"><use href="#hx" fill="var(--g-cons-soft)" stroke="var(--g-cons)" stroke-width="2"/><text text-anchor="middle" y="5" font-size="11" fill="var(--ink)">Plataforma</text></g>
+        <g transform="translate(230,254)"><use href="#hx" fill="var(--g-cal-soft)" stroke="var(--g-cal)" stroke-width="2"/><text text-anchor="middle" y="5" font-size="12" fill="var(--ink)">Revisor ×N</text></g>
+        <g transform="translate(140,202)"><use href="#hx" fill="var(--g-cal-soft)" stroke="var(--g-cal)" stroke-width="2"/><text text-anchor="middle" y="-2" font-size="11" fill="var(--ink)">Verifica-</text><text text-anchor="middle" y="12" font-size="11" fill="var(--ink)">dor ×N</text></g>
+        <g transform="translate(410,46)"><use href="#hx" fill="var(--g-cal-soft)" stroke="var(--g-cal)" stroke-width="2"/><text text-anchor="middle" y="5" font-size="11" fill="var(--ink)">Seguridad</text></g>
+        <g transform="translate(50,150)"><use href="#hx" fill="var(--g-mej-soft)" stroke="var(--g-mej)" stroke-width="2"/><text text-anchor="middle" y="5" font-size="10.5" fill="var(--ink)">Gobernanza</text></g>
+        <g transform="translate(410,254)"><use href="#hx" fill="var(--g-mej-soft)" stroke="var(--g-mej)" stroke-width="2"/><text text-anchor="middle" y="-2" font-size="11" fill="var(--ink)">Investiga-</text><text text-anchor="middle" y="12" font-size="11" fill="var(--ink)">dor QA</text></g>
+      </svg>
+    </div>
+  </div>
+  <div class="stats-wrap">
+    <div class="stats" role="list">
+      <div class="stat" role="listitem"><b>10</b><span>agentes</span></div>
+      <div class="stat" role="listitem"><b>13</b><span>skills</span></div>
+      <div class="stat" role="listitem"><b>4</b><span>hooks</span></div>
+      <div class="stat" role="listitem"><b>258</b><span>pruebas en verde</span></div>
+      <div class="stat" role="listitem"><b>6</b><span>carriles como máximo</span></div>
+      <div class="stat" role="listitem"><b>8</b><span>plantillas de Actions</span></div>
+      <div class="stat" role="listitem"><b>20 $</b><span>al mes (Claude Pro)</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="toc" aria-label="Índice">
+    <p>CONTENIDO</p>
+    <ol>
+      <li><a href="#idea">La idea</a></li>
+      <li><a href="#oficina">La oficina</a></li>
+      <li><a href="#organigrama">Organigrama</a></li>
+      <li><a href="#carriles">Carriles</a></li>
+      <li><a href="#raci">Quién hace qué</a></li>
+      <li><a href="#arnes">Arnés y seguridad</a></li>
+      <li><a href="#cicd">CI/CD</a></li>
+      <li><a href="#ecosistema">Ecosistema</a></li>
+      <li><a href="#estado">Estado actual</a></li>
+      <li><a href="#retos">Retos y riesgos</a></li>
+      <li><a href="#pasos">Siguientes pasos</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#metricas">Métricas</a></li>
+      <li><a href="#fuentes">Fuentes</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="idea">
+      <div class="sec-head">
+        <span class="n">LA IDEA</span>
+        <h2>Un solo agente escribe cada historia; los demás investigan, revisan y vigilan</h2>
+        <p>La evidencia (paper MAST, Cognition, Anthropic) dice que en código funcionan mejor un escritor por tarea y varios asesores que una «empresa» de agentes que se hablan. Enjambre crece en <strong>carriles paralelos</strong> y en <strong>asesores</strong>, nunca en escritores por historia. Los agentes se pasan artefactos (informe, plan, PR, veredicto), no mensajes.</p>
+      </div>
+      <div class="flow" role="list" aria-label="Vida de una historia">
+        <div class="step human" role="listitem"><span class="who">ÁLVARO</span><h3>Pide</h3><p>Abre un issue con la necesidad.</p><span class="out">issue</span></div>
+        <div class="step" role="listitem"><span class="who">ANALISTA</span><h3>Investiga</h3><p>Estándar, bibliotecas, repos públicos y competencia: ¿reutilizar o construir?</p><span class="out">investigacion.md</span></div>
+        <div class="step" role="listitem"><span class="who">JEFE DE PROYECTO</span><h3>Planifica</h3><p>Criterios Dado/Cuando/Entonces, ficheros, pruebas, riesgos y carriles.</p><span class="out">plan.md</span></div>
+        <div class="step human" role="listitem"><span class="who">ÁLVARO</span><p class="gate">PUERTA 1</p><h3>Aprueba</h3><p>Plan y carriles.</p><span class="out">enjambre:implementar</span></div>
+        <div class="step" role="listitem"><span class="who">IMPLEMENTADOR ×N</span><h3>Construye</h3><p>Rama propia en su worktree, pruebas, docs, PR en borrador de menos de 400 líneas.</p><span class="out">pr.md</span></div>
+        <div class="step" role="listitem"><span class="who">REVISOR · SEGURIDAD · VERIFICADOR</span><h3>Comprueba</h3><p>APROBAR, CAMBIOS o BLOQUEAR; después PASA o FALLA con evidencias.</p><span class="out">informe-qa.md</span></div>
+        <div class="step human" role="listitem"><span class="who">ÁLVARO</span><p class="gate">PUERTA 2</p><h3>Fusiona y despliega</h3><p>Solo él toca <code>main</code> y producción.</p><span class="out">hecho</span></div>
+      </div>
+      <div class="legend"><span><i class="sw" style="background:var(--human-soft)"></i>Decisión humana</span><span><i class="sw" style="background:var(--surface)"></i>Agente</span><span><code>plan.md</code> = artefacto que pasa al siguiente</span></div>
+    </section>
+
+    <section id="oficina">
+      <div class="sec-head">
+        <span class="n">LA OFICINA</span>
+        <h2>Diez puestos, cinco salas</h2>
+        <p>Así se reparte el equipo. Pulsa un puesto para ver su ficha: qué hace, qué recibe y entrega, sus herramientas, su modelo y sus límites. El punto de color es un estado de ejemplo (verde trabajando, ámbar esperando, gris libre). En el ordenador de Álvaro, <a href="#ecosistema">Pixel Agents</a> pinta una oficina parecida con los agentes reales moviéndose.</p>
+      </div>
+      <div class="office" aria-label="Plano de la oficina de agentes">
+        <div class="room dir"><header><b>DIRECCIÓN</b><span>decide</span></header><div class="desks" data-room="dir"></div></div>
+        <div class="room desc"><header><b>DESCUBRIMIENTO</b><span>antes de construir</span></header><div class="desks" data-room="desc"></div></div>
+        <div class="room mej"><header><b>MEJORA CONTINUA</b><span>periódico</span></header><div class="desks" data-room="mej"></div></div>
+        <div class="room cons"><header><b>CONSTRUCCIÓN</b><span>un escritor por carril</span></header><div class="desks" data-room="cons"></div></div>
+        <div class="room cal"><header><b>CALIDAD</b><span>por cada PR</span></header><div class="desks" data-room="cal"></div></div>
+      </div>
+      <div class="panel detail" id="detail" aria-live="polite"></div>
+    </section>
+
+    <section id="organigrama">
+      <div class="sec-head">
+        <span class="n">ORGANIGRAMA</span>
+        <h2>Quién pasa trabajo a quién</h2>
+        <p>Nadie da órdenes a otro agente: el coordinador lanza a cada uno en su momento y cada agente entrega un artefacto. Las propuestas de mejora vuelven siempre al jefe de proyecto y las decide Álvaro.</p>
+      </div>
+      <div class="mermaid-wrap">
+<pre class="mermaid">
+flowchart TB
+  A["Álvaro · aprueba, fusiona, despliega"]
+  C["Coordinador · sesión principal"]
+  A --- C
+  subgraph D["Descubrimiento"]
+    AN["Analista"] --> JP["Jefe de proyecto"]
+  end
+  subgraph K["Construcción"]
+    IM["Implementador ×N"]
+    PL["Plataforma"]
+  end
+  subgraph Q["Calidad"]
+    RV["Revisor ×N"] --> VF["Verificador ×N"]
+    RV --> SG["Seguridad"]
+  end
+  subgraph M["Mejora continua"]
+    IN["Investigador QA"]
+    GO["Gobernanza"]
+  end
+  C --> AN
+  C --> JP
+  JP -- "plan aprobado" --> IM
+  JP -- "plan aprobado" --> PL
+  IM -- PR --> RV
+  PL -- PR --> RV
+  VF -- PASA --> A
+  IN -- propuesta --> JP
+  GO -- propuesta --> JP
+  SG -- propuesta --> JP
+</pre>
+      </div>
+      <h3 class="sub">Artefactos de traspaso</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>De</th><th>A</th><th>Artefacto</th><th>Dónde vive</th></tr></thead>
+        <tbody>
+          <tr><td>Álvaro</td><td>Coordinador / Analista</td><td>petición</td><td>issue</td></tr>
+          <tr><td>Analista</td><td>Jefe</td><td>informe de investigación</td><td>comentario → <code>docs/investigacion/</code></td></tr>
+          <tr><td>Jefe</td><td>Álvaro</td><td>plan + tabla de carriles</td><td>comentario del issue</td></tr>
+          <tr><td>Álvaro</td><td>Implementador</td><td><strong>aprobación</strong> (puerta 1)</td><td>etiqueta <code>enjambre:implementar</code></td></tr>
+          <tr><td>Implementador / Plataforma</td><td>Revisor</td><td>PR en borrador</td><td>GitHub</td></tr>
+          <tr><td>Revisor</td><td>Implementador</td><td>hallazgos (máx. 2 ciclos)</td><td>comentario del PR</td></tr>
+          <tr><td>Verificador</td><td>Álvaro</td><td>informe QA + «Para el implementador»</td><td>comentario del PR</td></tr>
+          <tr><td>Investigador, Seguridad, Gobernanza</td><td>Jefe → Álvaro</td><td>propuestas</td><td>issues <code>enjambre:propuesta</code></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="carriles">
+      <div class="sec-head">
+        <span class="n">CARRILES EN PARALELO</span>
+        <h2>Hasta seis historias a la vez, sin pisarse</h2>
+        <p>Un carril es una historia con un implementador en su propio worktree, una rama y un PR. El jefe solo pone en paralelo historias que no comparten ficheros. Se empieza con tres carriles (<code>ENJAMBRE_WIP=3</code>, ya creada en lobby) porque todos gastan del mismo plan Pro; se sube a seis tras dos semanas sin topar el límite.</p>
+      </div>
+      <div class="lanes" role="img" aria-label="Seis carriles: tres activos y tres que se activan al subir el límite">
+        <div class="lane"><span class="ln">carril 1</span><span class="s w">implementador #12</span><span class="s">revisor</span><span class="s">seguridad</span><span class="s">verificador</span></div>
+        <div class="lane"><span class="ln">carril 2</span><span class="s w">implementador #15</span><span class="s">revisor</span><span class="s">—</span><span class="s">verificador</span></div>
+        <div class="lane"><span class="ln">carril 3</span><span class="s w">plataforma #18</span><span class="s">revisor</span><span class="s">seguridad</span><span class="s">verificador</span></div>
+        <div class="lane off"><span class="ln">carril 4</span><span class="s w">implementador</span><span class="s">revisor</span><span class="s">—</span><span class="s">verificador</span></div>
+        <div class="lane off"><span class="ln">carril 5</span><span class="s w">implementador</span><span class="s">revisor</span><span class="s">—</span><span class="s">verificador</span></div>
+        <div class="lane off"><span class="ln">carril 6</span><span class="s w">implementador</span><span class="s">revisor</span><span class="s">—</span><span class="s">verificador</span></div>
+      </div>
+      <div class="legend"><span><i class="sw" style="background:var(--honey-soft)"></i>Escribe código</span><span><i class="sw" style="background:var(--surface)"></i>Solo lee y comenta</span><span>Discontinuo: al subir <code>ENJAMBRE_WIP</code></span></div>
+      <div class="loop"><strong>Bucle de mejora continua.</strong> El investigador QA explora lo fusionado buscando fallos y pruebas que faltan; gobernanza audita orden, documentación, dependencias y datos (nota de 0 a 3 en ocho áreas). Los dos abren como máximo cinco issues <code>enjambre:propuesta</code>; el jefe las tría y Álvaro decide.</div>
+    </section>
+
+    <section id="raci">
+      <div class="sec-head">
+        <span class="n">QUIÉN HACE QUÉ</span>
+        <h2>Matriz RACI</h2>
+        <p><b>R</b> lo hace · <b>A</b> aprueba · <b>C</b> consultado · <b>I</b> informado. Álvaro aprueba todo lo que cambia el producto y es el único que fusiona y despliega.</p>
+      </div>
+      <div class="table-wrap"><table class="raci" id="raci-table"></table></div>
+    </section>
+
+    <section id="arnes">
+      <div class="sec-head">
+        <span class="n">ARNÉS Y SEGURIDAD</span>
+        <h2>El comportamiento lo fija el arnés, no solo el prompt</h2>
+        <p>Cada agente está atado por herramientas, hooks, modelo, turnos y aislamiento. Las capas se apilan de la más débil a la más fuerte: ninguna basta sola.</p>
+      </div>
+      <div class="grid2">
+        <div class="layers">
+          <div class="layer"><span class="lv">1</span><div><h3>Prompt y skills</h3><p>Reglas comunes, <code>pedir-detalles</code>, contenido externo tratado como dato.</p></div><span class="badge b-todo">débil</span></div>
+          <div class="layer"><span class="lv">2</span><div><h3>Herramientas del agente</h3><p><code>tools</code> explícito en los diez; Edit/Write solo en tres; web solo en el analista.</p></div><span class="badge b-wip">media</span></div>
+          <div class="layer"><span class="lv">3</span><div><h3>Permisos del proyecto</h3><p>Reglas <code>deny</code>/<code>allow</code> en <code>.claude/settings.json</code> desde la plantilla.</p></div><span class="badge b-wip">media</span></div>
+          <div class="layer"><span class="lv">4</span><div><h3>Hooks del plugin</h3><p><code>proteger-secretos</code>, <code>bloquear-comandos</code> y <code>limitar-bash</code> (lista blanca por agente). Fallan cerrados y corren dentro de los subagentes.</p></div><span class="badge b-done">fuerte</span></div>
+          <div class="layer"><span class="lv">5</span><div><h3>Aislamiento</h3><p>Worktree por escritor; devcontainer con red limitada o runner efímero de CI.</p></div><span class="badge b-done">fuerte</span></div>
+          <div class="layer"><span class="lv">6</span><div><h3>Aprobación humana</h3><p>Dos puertas; solo el propietario dispara agentes en Actions; producción manual escribiendo <code>DESPLEGAR</code>.</p></div><span class="badge b-done">fuerte</span></div>
+        </div>
+        <pre class="tree" aria-label="Estructura del repositorio"><span class="h">enjambre/</span>
+├─ .claude-plugin/marketplace.json
+├─ <span class="h">plugins/enjambre/</span>       <span class="c"># lo que se instala</span>
+│  ├─ agents/            <span class="c"># 10 agentes</span>
+│  ├─ skills/            <span class="c"># 13 skills + plantillas</span>
+│  │  └─ ci-cd/workflows/ <span class="c"># 8 plantillas</span>
+│  ├─ hooks/hooks.json   <span class="c"># 4 hooks</span>
+│  └─ scripts/           <span class="c"># Node, sin dependencias</span>
+├─ .github/              <span class="c"># CI propia, Dependabot</span>
+├─ herramientas/publicar.mjs <span class="c"># → repo público</span>
+├─ plantillas/           <span class="c"># settings, devcontainer,</span>
+│                        <span class="c"># plan, pr, adr, qa,</span>
+│                        <span class="c"># investigación, gobernanza</span>
+├─ pruebas/              <span class="c"># node:test, 258</span>
+├─ docs/                 <span class="c"># plan, ADR 0001–0006,</span>
+│                        <span class="c"># organigrama, riesgos</span>
+└─ backlog/              <span class="c"># S1–S51 en CSV</span></pre>
+      </div>
+
+      <h3 class="sub">El hook <code>limitar-bash</code> en acción</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Agente</th><th>Comando</th><th>Resultado</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>Revisor</td><td><code>gh pr diff 12 | head -200</code></td><td class="yes">permitido</td><td>lectura de su lista</td></tr>
+          <tr><td>Revisor</td><td><code>echo x &gt; fichero.txt</code></td><td class="no">bloqueado</td><td>redirección a fichero</td></tr>
+          <tr><td>Revisor</td><td><code>gh pr review 12 --approve</code></td><td class="no">bloqueado</td><td>aprobar es de Álvaro</td></tr>
+          <tr><td>Analista</td><td><code>git clone https://…</code></td><td class="no">bloqueado</td><td>evalúa leyendo la web, no ejecutando código ajeno</td></tr>
+          <tr><td>Gobernanza</td><td><code>git grep -nIE 'TODO|FIXME'</code></td><td class="yes">permitido</td><td>auditoría de solo lectura</td></tr>
+          <tr><td>Coordinador</td><td><code>gh pr merge 3</code></td><td class="no">bloqueado</td><td>fuera de lista y reservado a Álvaro</td></tr>
+          <tr><td>Cualquiera limitado</td><td><code>cat "$(whoami)"</code></td><td class="no">bloqueado</td><td>sustitución de comandos</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 class="sub">Regla de dos: ningún agente junta las tres cosas peligrosas</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Agente</th><th>A · Lee contenido no confiable</th><th>B · Accede a datos sensibles</th><th>C · Cambia estado o comunica</th></tr></thead>
+        <tbody>
+          <tr><td>Coordinador</td><td>Sí (issues)</td><td class="yes">No</td><td>Etiquetas y comentarios</td></tr>
+          <tr><td>Analista</td><td><strong>Sí (internet)</strong></td><td class="yes">No</td><td>Solo comentar</td></tr>
+          <tr><td>Jefe de proyecto</td><td>Sí (issues)</td><td class="yes">No</td><td>Tablero</td></tr>
+          <tr><td>Implementador / Plataforma</td><td>Limitado (plan aprobado)</td><td class="yes">No</td><td>Rama y PR</td></tr>
+          <tr><td>Revisor / Seguridad</td><td>Sí (diff)</td><td class="yes">No</td><td>Solo comentar</td></tr>
+          <tr><td>Verificador</td><td>Sí (la app)</td><td class="yes">No (datos sintéticos)</td><td>Solo local</td></tr>
+          <tr><td>Investigador / Gobernanza</td><td>Sí (código)</td><td class="yes">No</td><td>Issues de propuesta</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Fuente: anexo B §6.1, basado en la regla de dos de Meta y la tríada letal de Simon Willison.</p>
+    </section>
+
+    <section id="cicd">
+      <div class="sec-head">
+        <span class="n">CI/CD CON GITHUB ACTIONS</span>
+        <h2>Los mismos agentes, disparados por etiquetas</h2>
+        <p>GitHub Free no tiene protección de rama en repos privados. Lo compensan cuatro cosas: solo el propietario dispara agentes, los hooks impiden fusionar y desplegar, producción es manual y <code>npm test</code> comprueba que cada workflow cumple las reglas (SHA fijados, permisos mínimos, <code>concurrency</code>, <code>timeout-minutes</code>, sin <code>pull_request_target</code>).</p>
+      </div>
+      <div class="pipe">
+        <div class="wf"><span class="trg">PR · push a main</span><h3><code>ci.yml</code></h3><p>Check, pruebas y <code>npm audit</code>; e2e local preparado.</p></div>
+        <div class="wf"><span class="trg">etiqueta enjambre:analizar</span><h3><code>enjambre-analizar</code></h3><p>El analista publica el informe de estado del arte.</p></div>
+        <div class="wf"><span class="trg">etiqueta enjambre:planificar</span><h3><code>enjambre-planificar</code></h3><p>El jefe publica el plan en el issue.</p></div>
+        <div class="wf"><span class="trg">etiqueta enjambre:implementar</span><h3><code>enjambre-implementar</code></h3><p>Comprueba el WIP y un implementador abre el PR.</p></div>
+        <div class="wf"><span class="trg">etiqueta enjambre:revisar</span><h3><code>enjambre-revisar</code></h3><p>Revisor, y seguridad si el PR toca ficheros sensibles.</p></div>
+        <div class="wf"><span class="trg">manual</span><h3><code>enjambre-investigar</code></h3><p>QA exploratorio y propuestas.</p></div>
+        <div class="wf"><span class="trg">manual (mensual)</span><h3><code>enjambre-gobernanza</code></h3><p>Auditoría de código y datos.</p></div>
+        <div class="wf prod"><span class="trg">manual · propietario · DESPLEGAR</span><h3><code>produccion.yml</code></h3><p>Pruebas y <code>wrangler deploy</code> desde <code>main</code>.</p></div>
+      </div>
+
+      <h3 class="sub">Del repo privado al público</h3>
+      <div class="sync">
+        <div class="box"><b>AlvaroM99/enjambre</b>Privado. Fuente de verdad: historial completo, CI y Dependabot.</div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="box"><b>herramientas/publicar.mjs</b>Copia <code>HEAD</code> sin historial, se niega con correos, tokens o claves y firma con la dirección noreply.</div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="box"><b>AlvaroM99/enjambre-publico</b>Marketplace del que instalan los proyectos y la Action de GitHub.</div>
+      </div>
+      <p class="note">No se publica el historial porque todos los commits privados llevan el correo personal de Álvaro (ADR 0006).</p>
+    </section>
+
+    <section id="ecosistema">
+      <div class="sec-head">
+        <span class="n">ECOSISTEMA</span>
+        <h2>Plugins, MCP y la oficina de píxeles</h2>
+        <p>Lo que se suma a Enjambre desde fuera, elegido del marketplace oficial de Anthropic y de proyectos abiertos activos. Estado a 21-11-2026.</p>
+      </div>
+      <div class="eco">
+        <article class="star"><header><h3>Pixel Agents</h3><span class="badge b-wip">lo instala Álvaro</span></header><p>Cada sesión y cada subagente de Claude Code es un personaje de píxeles en una oficina: escribe cuando edita, lee cuando busca y avisa cuando espera permiso. Extensión de VS Code o <code>npx pixel-agents</code>. MIT, unas 10 000 estrellas.</p><span class="who">pixel-agents-hq/pixel-agents</span></article>
+        <article><header><h3>context7</h3><span class="badge b-done">en la plantilla</span></header><p>Documentación actual y por versión de cualquier biblioteca, para no inventar APIs.</p><span class="who">analista · implementador · jefe</span></article>
+        <article><header><h3>playwright</h3><span class="badge b-done">en la plantilla</span></header><p>Navegador para pruebas de extremo a extremo (MCP de Microsoft).</p><span class="who">verificador · investigador</span></article>
+        <article><header><h3>github</h3><span class="badge b-todo">opcional</span></header><p>MCP oficial de GitHub. Hoy los agentes usan <code>gh</code> con lista blanca.</p><span class="who">coordinador · jefe</span></article>
+        <article><header><h3>security-guidance</h3><span class="badge b-todo">opcional</span></header><p>Avisos de seguridad en cada edición y revisión del diff al parar (gasta tokens del plan).</p><span class="who">implementador</span></article>
+        <article><header><h3>plugin-dev · skill-creator</h3><span class="badge b-todo">opcional</span></header><p>Para mantener y medir el propio plugin de Enjambre.</p><span class="who">Álvaro</span></article>
+        <article><header><h3>registrar-actividad</h3><span class="badge b-done">hecho</span></header><p>Hook propio: inicio y fin de cada agente en <code>actividad.jsonl</code>, sin contenido de la conversación.</p><span class="who">tablero · métricas</span></article>
+        <article><header><h3>claude-code-action</h3><span class="badge b-done">plantillas</span></header><p>Ejecuta los agentes en GitHub Actions con el plan Pro (<code>claude_code_oauth_token</code>).</p><span class="who">CI</span></article>
+        <article><header><h3>gitleaks · Dependabot</h3><span class="badge b-done">en CI</span></header><p>Búsqueda de secretos en todo el historial y actualización semanal de las Actions fijadas.</p><span class="who">repo de Enjambre</span></article>
+      </div>
+      <h3 class="sub">Qué copiamos del estándar de la industria</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Práctica</th><th>De dónde</th><th>En Enjambre</th></tr></thead>
+        <tbody>
+          <tr><td>Un escritor y asesores</td><td>Cognition</td><td>un implementador por carril</td></tr>
+          <tr><td>Exploración → arquitectura → implementación → revisión</td><td>plugin oficial <code>feature-dev</code></td><td>analista → jefe → implementador → revisor</td></tr>
+          <tr><td>Revisión que filtra falsos positivos</td><td>plugin oficial <code>code-review</code></td><td>el revisor solo cita hallazgos con fichero:línea</td></tr>
+          <tr><td>Rama propia y PR en borrador que el agente no aprueba</td><td>GitHub Copilot coding agent</td><td>ramas <code>enjambre/*</code>, <code>--approve</code> bloqueado</td></tr>
+          <tr><td>Documentos estructurados entre roles</td><td>MetaGPT</td><td>plantillas de artefactos</td></tr>
+          <tr><td>Evaluar antes de cambiar prompts</td><td>Anthropic, «Demystifying evals»</td><td>banco de 20 evaluaciones (S28)</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="estado">
+      <div class="sec-head">
+        <span class="n">ESTADO ACTUAL</span>
+        <h2>Todo construido y probado aislado; falta la primera vuelta real</h2>
+        <p>Álvaro cerró la fase 1 por decisión (ADR 0005). Su criterio de salida, 3 de 5 PR fusionados en lobby, no se ha cumplido: ningún agente ha trabajado aún en un proyecto real. La prueba de humo y dos historias de lobby son la puerta de la fase 2.</p>
+      </div>
+      <div class="panel">
+        <div class="meter-bar" aria-label="Entregables de F1 a F3: 20 hechos, 3 en curso, 7 pendientes"><i style="width:66.7%;background:var(--done)"></i><i style="width:10%;background:var(--wip)"></i></div>
+        <div class="meter-label"><span>Entregables de F1 a F3</span><span>20 hechos · 3 en curso · 7 pendientes</span></div>
+        <div class="grid2">
+          <ul class="status-list">
+            <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S51 y seis ADR</div></li>
+            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 258 pruebas</div></li>
+            <li><span class="badge b-done">hecho</span><div>Hook <code>limitar-bash</code>: lista blanca por agente<small>ADR 0004</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Analista, gobernanza y coordinador<small>ADR 0006</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>8 plantillas de Actions y CI propia (Linux y Windows, gitleaks)</div></li>
+            <li><span class="badge b-done">hecho</span><div>Repo público y script de publicación sin historial</div></li>
+            <li><span class="badge b-done">hecho</span><div>Variable <code>ENJAMBRE_WIP=3</code> en lobby</div></li>
+            <li><span class="badge b-done">hecho</span><div>Organigrama, RACI y riesgos con solución<small><code>docs/organigrama.md</code>, <code>docs/riesgos-y-soluciones.md</code></small></div></li>
+          </ul>
+          <ul class="status-list">
+            <li><span class="badge b-wip">en curso</span><div>Prueba de humo en una sesión real (S41)</div></li>
+            <li><span class="badge b-wip">en curso</span><div>Llevar plugin y CI a lobby por PR</div></li>
+            <li><span class="badge b-wip">en curso</span><div>Primera ejecución de la CI del repo</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Secreto <code>CLAUDE_CODE_OAUTH_TOKEN</code> en lobby (S51)</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents (S50)</div></li>
+            <li><span class="badge b-todo">pendiente</span><div>Dos historias de lobby de punta a punta</div></li>
+            <li><span class="badge b-todo">pendiente</span><div>Credenciales sintéticas para <code>prueba.mjs</code> (S42)</div></li>
+            <li><span class="badge b-todo">pendiente</span><div>Hook <code>registrar-coste</code> (S25) y banco de evaluaciones (S28)</div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="retos">
+      <div class="sec-head">
+        <span class="n">RETOS Y RIESGOS</span>
+        <h2>Qué puede salir mal y cómo se resuelve</h2>
+        <p>A la izquierda, probabilidad × impacto (1 a 5). A la derecha, los retos con su solución. Detalle en <code>docs/riesgos-y-soluciones.md</code>.</p>
+      </div>
+      <div class="grid2" style="align-items:start">
+        <div class="panel">
+          <div class="matrix" role="img" aria-label="Matriz de riesgos: probabilidad en horizontal, impacto en vertical">
+            <div class="axis">5</div>
+            <div class="cell h1"></div><div class="cell h2"><span class="chip">Fuga de secretos</span></div><div class="cell h4"><span class="chip">Inyección de instrucciones</span></div><div class="cell h4"></div><div class="cell h4"></div>
+            <div class="axis">4</div>
+            <div class="cell h1"></div><div class="cell h2"><span class="chip">Despliegue erróneo</span></div><div class="cell h3"><span class="chip">Coste</span><span class="chip">Alucinaciones</span><span class="chip">Deriva de calidad</span></div><div class="cell h4"><span class="chip">Límites de Pro con 6 carriles</span></div><div class="cell h4"></div>
+            <div class="axis">3</div>
+            <div class="cell h0"></div><div class="cell h1"></div><div class="cell h2"><span class="chip">Analista lee la web</span><span class="chip">Coordinación</span></div><div class="cell h3"><span class="chip">Revisión humana</span><span class="chip">Conflictos entre carriles</span></div><div class="cell h4"></div>
+            <div class="axis">2</div>
+            <div class="cell h0"></div><div class="cell h0"></div><div class="cell h1"><span class="chip">Repo público expone el entorno</span><span class="chip">Desorden</span></div><div class="cell h2"><span class="chip">Versiones de herramientas</span></div><div class="cell h3"></div>
+            <div class="axis">1</div>
+            <div class="cell h0"></div><div class="cell h0"></div><div class="cell h0"></div><div class="cell h1"></div><div class="cell h2"></div>
+            <div></div><div class="axis">1</div><div class="axis">2</div><div class="axis">3</div><div class="axis">4</div><div class="axis">5</div>
+          </div>
+          <p class="axis-title">Vertical: impacto · Horizontal: probabilidad</p>
+        </div>
+        <ul class="status-list panel">
+          <li><span class="badge b-done">resuelto</span><div>Bash sin límite por comando<small>Hook <code>limitar-bash</code> con <code>agent_type</code>.</small></div></li>
+          <li><span class="badge b-done">resuelto</span><div>Plugin privado en Actions<small>Repo público con instantáneas sin historial.</small></div></li>
+          <li><span class="badge b-done">resuelto</span><div>Opus en Pro<small>Jefe y revisor con <code>opus</code>.</small></div></li>
+          <li><span class="badge b-wip">mitigado</span><div>Límites de Pro con 6 carriles<small>WIP 3; Opus en 2 roles; Max 5x si hay más de 2 bloqueos por semana.</small></div></li>
+          <li><span class="badge b-wip">mitigado</span><div>GitHub Free sin protección de rama<small>Solo el propietario dispara; hooks; producción manual.</small></div></li>
+          <li><span class="badge b-wip">mitigado</span><div>Analista expuesto a la web<small>Único con web; no escribe ni ve secretos; su informe es dato.</small></div></li>
+          <li><span class="badge b-wip">mitigado</span><div>PR de agentes sin CI automática<small>CI al etiquetar; GitHub App en el futuro.</small></div></li>
+          <li><span class="badge b-todo">planificado</span><div>Prueba de humo (S41)<small><code>agent_type</code>, <code>isolation</code>, <code>--agent</code>, nombres de MCP.</small></div></li>
+          <li><span class="badge b-todo">planificado</span><div><code>seccomp=unconfined</code> y credenciales de pruebas<small>S43 y S42.</small></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="pasos">
+      <div class="sec-head">
+        <span class="n">SIGUIENTES PASOS</span>
+        <h2>De la prueba de humo a seis carriles</h2>
+        <p>En orden: cada paso desbloquea el siguiente.</p>
+      </div>
+      <ol class="steps">
+        <li><div><h3>Crear el secreto de Claude en lobby</h3>
+          <ol>
+            <li><code>claude setup-token</code> en PowerShell (o <code>C:\Users\User\.local\bin\claude.exe setup-token</code>), iniciar sesión y autorizar.</li>
+            <li><code>gh secret set CLAUDE_CODE_OAUTH_TOKEN -R AlvaroM99/lobby</code> y pegar el token cuando lo pida.</li>
+            <li>Comprobar con <code>gh secret list -R AlvaroM99/lobby</code>. El token no se pega en ningún chat.</li>
+          </ol>
+          <div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
+        <li><div><h3>Prueba de humo (S41)</h3><p>Instalar el plugin en un repo de prueba y comprobar <code>limitar-bash</code>, el worktree del implementador, las skills, <code>claude --agent enjambre:enjambre-coordinador</code> y el registro de actividad.</p><div class="tags"><span class="tag">puerta F2</span><span class="tag">30 min</span></div></div></li>
+        <li><div><h3>Instalar Pixel Agents</h3><p>VS Code → Extensiones → «Pixel Agents», o <code>npx pixel-agents</code>. Un personaje por rol y cuatro áreas, sin «Skip Permissions».</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">15 min</span></div></div></li>
+        <li><div><h3>Llevar Enjambre y la CI a lobby por PR</h3><p>Settings, devcontainer y <code>ci.yml</code> desde las plantillas, con credenciales sintéticas para <code>prueba.mjs</code>.</p><div class="tags"><span class="tag">lobby</span><span class="tag you">fusiona Álvaro</span></div></div></li>
+        <li><div><h3>Dos historias de lobby con el coordinador</h3><p>Analista si hace falta, plan y carriles, dos implementadores, revisión y verificación.</p><div class="tags"><span class="tag">S9–S12</span><span class="tag you">puertas 1 y 2</span></div></div></li>
+        <li><div><h3>Activar los workflows de agentes</h3><p>Planificar, implementar y revisar por etiquetas. Medir minutos y bloqueos por límite.</p><div class="tags"><span class="tag">F2</span></div></div></li>
+        <li><div><h3>Primera auditoría de gobernanza e investigación QA</h3><p>Triar las propuestas con el jefe y decidir cuáles entran.</p><div class="tags"><span class="tag">F3</span><span class="tag you">decide Álvaro</span></div></div></li>
+        <li><div><h3>Subir carriles y medir</h3><p>De 3 a 6 tras dos semanas sin bloqueos; banco de 20 evaluaciones antes de tocar prompts.</p><div class="tags"><span class="tag">F3</span></div></div></li>
+      </ol>
+    </section>
+
+    <section id="roadmap">
+      <div class="sec-head">
+        <span class="n">ROADMAP</span>
+        <h2>Seis fases, de local a automatizado</h2>
+        <p>Calendario orientativo con 6–8 horas de supervisión a la semana, desde la semana del 23-11-2026.</p>
+      </div>
+      <div class="panel" style="overflow-x:auto">
+        <div class="gantt">
+          <div></div>
+          <div class="g-head" style="grid-column: span 4">sem 1–4</div>
+          <div class="g-head" style="grid-column: span 4">sem 5–8</div>
+          <div class="g-head" style="grid-column: span 6">sem 9–14</div>
+          <div class="g-head" style="grid-column: span 4">sem 15–18</div>
+          <div class="g-head" style="grid-column: span 6">sem 19 →</div>
+          <div class="g-label"><b>F0 Descubrimiento</b><small>6–8 h</small></div><div class="g-bar g-done" style="grid-column: 2 / span 1"></div>
+          <div class="g-label"><b>F1 MVP local</b><small>cerrada</small></div><div class="g-bar g-done" style="grid-column: 3 / span 1"></div>
+          <div class="g-label"><b>F2 Por eventos</b><small>20–25 h</small></div><div class="g-bar g-wip" style="grid-column: 4 / span 5">piloto + CI</div>
+          <div class="g-label"><b>F3 Más equipo</b><small>30–40 h</small></div><div class="g-bar g-wip" style="grid-column: 4 / span 10">carriles · QA · gobernanza · evals</div>
+          <div class="g-label"><b>F4 Datos y BI</b><small>opcional</small></div><div class="g-bar g-todo" style="grid-column: 16 / span 4">panel de coste</div>
+          <div class="g-label"><b>F5 Endurecimiento</b><small>4–6 h/mes</small></div><div class="g-bar g-ongoing" style="grid-column: 20 / span 6">continuo</div>
+        </div>
+      </div>
+      <div class="phases">
+        <article class="phase"><header><h3>F1 · MVP local</h3><span class="badge b-done">cerrada</span></header><ul><li>Plugin con agentes, skills y hooks probados</li><li>Devcontainer y plantillas</li><li>El piloto pasa a F2</li></ul><p class="exit">Cerrada por decisión (ADR 0005).</p></article>
+        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-wip">en marcha</span></header><ul><li>Puerta: prueba de humo y 2 historias</li><li>Workflows por etiquetas (plantillas hechas)</li><li>Repo público para instalar (hecho)</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
+        <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-wip">en marcha</span></header><ul><li>10 agentes (hechos)</li><li>Hasta 6 carriles con worktrees</li><li>finance_tracker y evaluaciones</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
+        <article class="phase"><header><h3>F4 · Datos y BI</h3><span class="badge b-todo">opcional</span></header><ul><li>Agente datos</li><li>Panel de coste y DORA</li></ul><p class="exit"><b>Sale si:</b> panel actualizado a diario.</p></article>
+        <article class="phase"><header><h3>F5 · Endurecimiento</h3><span class="badge b-todo">continuo</span></header><ul><li>OpenTelemetry y alertas de coste</li><li>Perfil seccomp propio</li><li>Revisión trimestral de permisos</li></ul><p class="exit"><b>Sale si:</b> 3 meses con métricas en objetivo.</p></article>
+        <article class="phase"><header><h3>Plan B</h3><span class="badge b-risk">si falla</span></header><ul><li>&lt; 2 de 5 PR útiles: implementador + revisor con planes de Álvaro</li><li>Conflictos entre carriles: WIP 1–2</li><li>Bloqueos por límite: Max 5x</li></ul><p class="exit">Vuelta atrás: desactivar el plugin en <code>enabledPlugins</code>.</p></article>
+      </div>
+    </section>
+
+    <section id="metricas">
+      <div class="sec-head">
+        <span class="n">MÉTRICAS</span>
+        <h2>Cómo sabremos que funciona</h2>
+        <p>Objetivos por fase (plan §7.2, ampliados). DORA mide la entrega; el resto, la calidad y el coste de los agentes.</p>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Métrica</th><th>Fuente</th><th>F1</th><th>F3</th><th>F5</th></tr></thead>
+        <tbody>
+          <tr><td>Lead time (Listo → fusionado)</td><td>GitHub</td><td class="num">&lt; 5 días</td><td class="num">&lt; 2 días</td><td class="num">&lt; 1 día</td></tr>
+          <tr><td>PR aceptados sin retrabajo</td><td>PR</td><td class="num">≥ 50 %</td><td class="num">≥ 60 %</td><td class="num">≥ 75 %</td></tr>
+          <tr><td>Tasa de fallo de cambios</td><td>incidentes</td><td class="num">&lt; 30 %</td><td class="num">&lt; 15 %</td><td class="num">&lt; 10 %</td></tr>
+          <tr><td>Coste IA por historia</td><td>logs</td><td class="num">medir</td><td class="num">≤ 6 $</td><td class="num">≤ 4 $</td></tr>
+          <tr><td>Nota de gobernanza</td><td>informe</td><td class="num">—</td><td class="num">≥ 18/24</td><td class="num">≥ 21/24</td></tr>
+          <tr><td>Bloqueos por límite de uso</td><td><code>operacion.md</code></td><td class="num">medir</td><td class="num">≤ 2/semana</td><td class="num">≤ 1/semana</td></tr>
+          <tr><td>Evaluaciones pass@1</td><td>evals</td><td class="num">—</td><td class="num">≥ 60 %</td><td class="num">≥ 75 %</td></tr>
+          <tr><td>Incidentes de seguridad por agentes</td><td>auditoría</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="fuentes">
+      <div class="sec-head">
+        <span class="n">FUENTES Y DOCUMENTACIÓN</span>
+        <h2>Dónde está cada cosa</h2>
+        <p>Los enlaces al repositorio apuntan a la copia pública. La lista completa de fuentes está en el anexo E.</p>
+      </div>
+      <div class="sources">
+        <div class="src"><h3>En el repositorio</h3><ul>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/organigrama.md">docs/organigrama.md</a><span>Roles, relaciones, RACI, arnés y ecosistema</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0006; prevalecen sobre el plan</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/riesgos-y-soluciones.md">docs/riesgos-y-soluciones.md</a><span>Retos y riesgos con solución y estado</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/operacion.md">docs/operacion.md</a><span>Entorno, publicación, secreto y Pixel Agents paso a paso</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/PLAN.md">docs/PLAN.md</a><span>Plan original: vías, roadmap y métricas</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/plugins/enjambre">plugins/enjambre/</a><span>Agentes, skills, hooks y plantillas de Actions</span></li>
+        </ul></div>
+        <div class="src"><h3>Claude Code</h3><ul>
+          <li><a href="https://code.claude.com/docs/en/sub-agents">Subagentes</a><span>Frontmatter, <code>Agent(…)</code>, worktrees, segundo plano</span></li>
+          <li><a href="https://code.claude.com/docs/en/hooks">Hooks</a><span><code>agent_type</code> y hooks dentro de subagentes</span></li>
+          <li><a href="https://code.claude.com/docs/en/skills">Skills</a><span>SKILL.md y precarga</span></li>
+          <li><a href="https://code.claude.com/docs/en/github-actions">GitHub Actions</a><span>Base de la fase 2</span></li>
+          <li><a href="https://github.com/anthropics/claude-code-action">claude-code-action</a><span>Entradas <code>plugins</code>, <code>claude_args</code>, OAuth</span></li>
+          <li><a href="https://github.com/anthropics/claude-plugins-official">Marketplace oficial</a><span>context7, playwright, github, security-guidance</span></li>
+        </ul></div>
+        <div class="src"><h3>Diseño de agentes y visualización</h3><ul>
+          <li><a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a><span>Anthropic: empezar simple</span></li>
+          <li><a href="https://cognition.com/blog/dont-build-multi-agents">Don't build multi-agents</a><span>Cognition: un escritor y asesores</span></li>
+          <li><a href="https://arxiv.org/abs/2503.13657">MAST</a><span>Por qué fallan los sistemas multiagente</span></li>
+          <li><a href="https://github.com/pixel-agents-hq/pixel-agents">Pixel Agents</a><span>Oficina de píxeles para Claude Code</span></li>
+          <li><a href="https://github.com/upstash/context7">Context7</a><span>Documentación actual de bibliotecas</span></li>
+        </ul></div>
+        <div class="src"><h3>Seguridad</h3><ul>
+          <li><a href="https://genai.owasp.org/llm-top-10/">OWASP Top 10 LLM 2025</a></li>
+          <li><a href="https://ai.meta.com/blog/practical-ai-agent-security/">Regla de dos</a><span>Meta</span></li>
+          <li><a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/">Tríada letal</a><span>Simon Willison</span></li>
+          <li><a href="https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions">Endurecer GitHub Actions</a></li>
+          <li><a href="https://scorecard.dev/">OpenSSF Scorecard</a></li>
+        </ul></div>
+        <div class="src"><h3>Entrega y gobernanza</h3><ul>
+          <li><a href="https://dora.dev/guides/dora-metrics/">Métricas DORA</a></li>
+          <li><a href="https://www.conventionalcommits.org/en/v1.0.0/">Conventional Commits</a></li>
+          <li><a href="https://adr.github.io/madr/">ADR / MADR</a></li>
+          <li><a href="https://choosealicense.com/licenses/">Licencias de código abierto</a></li>
+          <li><a href="https://github.com/bitol-io/open-data-contract-standard">Contratos de datos (ODCS)</a></li>
+        </ul></div>
+        <div class="src"><h3>Coste</h3><ul>
+          <li><a href="https://claude.com/pricing">Planes de Claude</a><span>Pro hoy; Max 5x si se topan límites</span></li>
+          <li><a href="https://code.claude.com/docs/en/costs">Costes de Claude Code</a></li>
+          <li><a href="https://www.finops.org/wg/token-economics/">FinOps para IA</a></li>
+        </ul></div>
+      </div>
+      <footer>Generado desde <code>docs/PLAN.md</code>, ADR 0001–0006, <code>docs/organigrama.md</code>, <code>docs/riesgos-y-soluciones.md</code>, <code>docs/operacion.md</code> y las definiciones de <code>plugins/enjambre/</code>, a 21-11-2026. Lo marcado «por confirmar» en esos documentos no se ha comprobado en una sesión real.</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  var AGENTES = [
+    { id: 'alvaro', sala: 'dir', ini: 'ÁL', nombre: 'Álvaro', rol: 'propietario de producto', estado: 'wait',
+      mision: 'Decide qué se hace, aprueba planes y carriles (puerta 1), fusiona y despliega (puerta 2).',
+      recibe: 'planes, informes, PR verificados', entrega: 'aprobaciones, fusiones, despliegues',
+      tools: ['GitHub', 'npm run deploy'], bash: 'sin límite', modelo: 'humano', turnos: '—', skills: [] },
+    { id: 'coordinador', sala: 'dir', ini: 'CO', nombre: 'Coordinador', rol: 'sesión principal', estado: 'on',
+      mision: 'Hace cumplir el flujo: lanza a cada agente en su momento, lleva el tablero de carriles y avisa de lo que espera a Álvaro. No planifica ni escribe.',
+      recibe: 'issue y órdenes de Álvaro', entrega: 'tablero de carriles y avisos de puerta',
+      tools: ['Agent (solo Enjambre)', 'Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca', modelo: 'sonnet', turnos: '30', skills: ['reglas-enjambre', 'arnes-claude-code'] },
+    { id: 'analista', sala: 'desc', ini: 'AN', nombre: 'Analista', rol: 'investigación previa', estado: 'on',
+      mision: 'Analiza la petición e investiga en internet el estándar, las bibliotecas, los repos públicos y la competencia. Recomienda reutilizar, partir de, integrar o construir.',
+      recibe: 'petición', entrega: 'informe de investigación con fuentes',
+      tools: ['Read', 'Grep', 'Glob', 'Bash', 'WebSearch', 'WebFetch'], bash: 'lista blanca', modelo: 'sonnet', turnos: '25', skills: ['investigar-estado-del-arte', 'referencias-estandar', 'tomar-decisiones', 'pedir-detalles'] },
+    { id: 'jefe', sala: 'desc', ini: 'JP', nombre: 'Jefe de proyecto', rol: 'plan y arquitectura', estado: 'wait',
+      mision: 'Convierte la petición en historias S o M con plan comprobable, reparte los carriles y tría las propuestas de QA, seguridad y gobernanza.',
+      recibe: 'issue + informe del analista', entrega: 'plan, tabla de carriles, ADR propuesto',
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca', modelo: 'opus', turnos: '20', skills: ['planificar', 'tomar-decisiones', 'pedir-detalles', 'referencias-estandar', 'arnes-claude-code'] },
+    { id: 'impl', sala: 'cons', ini: 'IM', nombre: 'Implementador ×N', rol: 'un carril cada uno', estado: 'on',
+      mision: 'Ejecuta exactamente un plan aprobado en su worktree: rama, pruebas, documentación y PR en borrador de menos de 400 líneas.',
+      recibe: 'plan aprobado', entrega: 'rama y PR en borrador',
+      tools: ['Read', 'Edit', 'Write', 'Grep', 'Glob', 'Bash'], bash: 'completo con hooks', modelo: 'sonnet', turnos: '30', skills: ['git-enjambre', 'pruebas', 'documentar', 'pedir-detalles', 'referencias-estandar'] },
+    { id: 'plataforma', sala: 'cons', ini: 'PL', nombre: 'Plataforma', rol: 'CI/CD y entorno', estado: 'idle',
+      mision: 'Workflows de Actions, devcontainer y procedimiento de despliegue y rollback. Nunca despliega a producción ni toca secretos.',
+      recibe: 'plan aprobado', entrega: 'rama y PR de workflows',
+      tools: ['Read', 'Edit', 'Write', 'Grep', 'Glob', 'Bash'], bash: 'completo con hooks', modelo: 'sonnet', turnos: '25', skills: ['git-enjambre', 'ci-cd', 'documentar', 'referencias-estandar', 'tomar-decisiones'] },
+    { id: 'revisor', sala: 'cal', ini: 'RV', nombre: 'Revisor ×N', rol: 'revisión independiente', estado: 'on',
+      mision: 'Revisa cada PR frente a su plan y devuelve APROBAR, CAMBIOS o BLOQUEAR con hallazgos fichero:línea y severidad.',
+      recibe: 'PR + plan', entrega: 'veredicto estructurado',
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca', modelo: 'opus', turnos: '15', skills: ['pruebas', 'documentar', 'referencias-estandar'] },
+    { id: 'seguridad', sala: 'cal', ini: 'SG', nombre: 'Seguridad', rol: 'revisión de seguridad', estado: 'idle',
+      mision: 'Revisa los PR sensibles (auth, entradas, dependencias, workflows, configuración de agentes) y audita dependencias con referencias OWASP.',
+      recibe: 'PR sensible', entrega: 'veredicto de seguridad y propuestas',
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca + auditorías', modelo: 'sonnet', turnos: '15', skills: ['referencias-estandar'] },
+    { id: 'verificador', sala: 'cal', ini: 'VF', nombre: 'Verificador ×N', rol: 'QA de criterios', estado: 'wait',
+      mision: 'Ejecuta la aplicación en local y comprueba cada criterio de aceptación con evidencias. Añade patrones repetidos para el implementador.',
+      recibe: 'PR aprobado', entrega: 'informe PASA / FALLA',
+      tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit'], bash: 'completo con hooks', modelo: 'sonnet', turnos: '25', skills: ['pruebas', 'verificar-e2e'] },
+    { id: 'investigador', sala: 'mej', ini: 'IN', nombre: 'Investigador QA', rol: 'QA exploratorio', estado: 'idle',
+      mision: 'Explora lo fusionado buscando fallos, casos límite y pruebas que faltan. Abre como máximo cinco propuestas reproducibles y da retroalimentación a los implementadores.',
+      recibe: 'alcance', entrega: 'issues enjambre:propuesta + patrones',
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca + pruebas', modelo: 'sonnet', turnos: '25', skills: ['pruebas', 'pedir-detalles', 'referencias-estandar'] },
+    { id: 'gobernanza', sala: 'mej', ini: 'GO', nombre: 'Gobernanza', rol: 'orden de código y datos', estado: 'idle',
+      mision: 'Audita estructura, documentación, ADR, código, dependencias, agentes y CI, datos y trazabilidad, con nota de 0 a 3 por área. Propone; no mueve ficheros.',
+      recibe: 'repositorio', entrega: 'informe de gobernanza + propuestas',
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca + auditorías', modelo: 'sonnet', turnos: '20', skills: ['gobernanza', 'documentar', 'referencias-estandar'] }
+  ];
+  var ESTADOS = { on: 'trabajando', wait: 'esperando', idle: 'libre' };
+  var detalle = document.getElementById('detail');
+
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function chips(l) { return l.length ? '<div class="chips">' + l.map(function (x) { return '<span class="chip">' + esc(x) + '</span>'; }).join('') + '</div>' : '—'; }
+
+  function mostrar(a) {
+    detalle.innerHTML =
+      '<div><p class="role">' + esc(a.rol.toUpperCase()) + ' · ' + esc(ESTADOS[a.estado]) + ' (ejemplo)</p><h3>' + esc(a.nombre) + '</h3><p style="margin-top:8px">' + esc(a.mision) + '</p></div>' +
+      '<dl class="kv"><dt>Recibe</dt><dd>' + esc(a.recibe) + '</dd><dt>Entrega</dt><dd>' + esc(a.entrega) + '</dd>' +
+      '<dt>Herramientas</dt><dd>' + chips(a.tools) + '</dd><dt>Bash</dt><dd>' + esc(a.bash) + '</dd>' +
+      '<dt>Modelo · turnos</dt><dd>' + esc(a.modelo) + ' · ' + esc(a.turnos) + '</dd><dt>Skills</dt><dd>' + chips(a.skills) + '</dd></dl>';
+    var mesas = document.querySelectorAll('.desk');
+    for (var i = 0; i < mesas.length; i++) mesas[i].setAttribute('aria-pressed', mesas[i].getAttribute('data-id') === a.id ? 'true' : 'false');
+  }
+
+  AGENTES.forEach(function (a) {
+    var b = document.createElement('button');
+    b.className = 'desk'; b.type = 'button'; b.setAttribute('data-id', a.id); b.setAttribute('aria-pressed', 'false');
+    b.setAttribute('aria-label', a.nombre + ', ' + a.rol);
+    b.innerHTML = '<span class="ava a-' + a.sala + (a.estado === 'on' ? ' on' : a.estado === 'wait' ? ' wait' : '') + '">' + esc(a.ini) + '</span><span><span class="nm">' + esc(a.nombre) + '</span><span class="rl">' + esc(a.rol) + '</span></span>';
+    b.addEventListener('click', function () { mostrar(a); });
+    document.querySelector('.desks[data-room="' + a.sala + '"]').appendChild(b);
+  });
+  mostrar(AGENTES[1]);
+
+  var COLS = ['Álvaro', 'Coord.', 'Analista', 'Jefe', 'Impl.', 'Plat.', 'Revisor', 'Seg.', 'Verif.', 'Invest.', 'Gob.'];
+  var FILAS = [
+    ['Investigar estado del arte', 'A I R C . . . . . . .'],
+    ['Plan y carriles', 'A I C R C C . . . . .'],
+    ['Implementar historia', 'A I . C R . . . . . .'],
+    ['CI/CD y entorno', 'A I . C . R . C . . .'],
+    ['Revisión de código', 'A I . . C C R C . . .'],
+    ['Revisión de seguridad', 'A I . . . . C R . . .'],
+    ['Verificación', 'A I . . C . . . R . .'],
+    ['Fusionar y desplegar', 'RA I . . . . . . . . .'],
+    ['QA exploratorio', 'A I . C . . . . . R .'],
+    ['Auditoría de gobernanza', 'A I . C . . . . . . R'],
+    ['Triaje de propuestas', 'A I . R . . . C . C C']
+  ];
+  var html = '<thead><tr><th>Actividad</th>' + COLS.map(function (c) { return '<th>' + c + '</th>'; }).join('') + '</tr></thead><tbody>';
+  FILAS.forEach(function (f) {
+    html += '<tr><td>' + f[0] + '</td>' + f[1].split(' ').map(function (v) {
+      if (v === '.') return '<td></td>';
+      if (v === 'RA') return '<td class="r-R">R/A</td>';
+      return '<td class="r-' + v + '">' + v + '</td>';
+    }).join('') + '</tr>';
+  });
+  document.getElementById('raci-table').innerHTML = html + '</tbody>';
+})();
+</script>

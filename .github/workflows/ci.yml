@@ -1,0 +1,55 @@
+# CI del propio repositorio de Enjambre: pruebas de hooks, agentes, skills y workflows en Linux y Windows,
+# y búsqueda de secretos con gitleaks (binario verificado por SHA-256). ADR 0005.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Windows porque Álvaro trabaja en Windows y los hooks tienen que funcionar igual allí.
+        so: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.so }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
+
+  secretos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Instalar gitleaks
+        run: |
+          archivo="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSLo "$RUNNER_TEMP/$archivo" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/$archivo"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$archivo" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$archivo" -C "$RUNNER_TEMP" gitleaks
+      - name: Buscar secretos en todo el historial
+        run: "$RUNNER_TEMP/gitleaks" git --redact --no-banner .
