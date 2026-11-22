@@ -132,4 +132,7 @@ Para una web de notas en Workers, la recomendación del analista sería **Tiptap
 | M8 | Semilla sintética de lobby para que `prueba.mjs` completa corra en CI | — | M | Media |
 | M9 | Revisor: citar líneas del fichero, no posiciones del diff; `proteger-secretos` sin falsos positivos en el cuerpo de `gh pr comment` (cambio de hook: lo aprueba Álvaro) | primera revisión real (ADR 0008) | S | Media |
 | M10 | El revisor carga `.claude/` desde la rama base y no desde el PR | primera revisión real (ADR 0008) | S | Media |
-| M11 | `bloquear-comandos` también bloquea `gh api` con POST o campos (`-f`, `--input`); fijar el marketplace `enjambre-publico` a una etiqueta o SHA | revisión de seguridad real (ADR 0008) | S | **Alta** |
+| M11 | `bloquear-comandos` también bloquea `gh api` con POST o campos (`-f`, `--input`); fijar el marketplace `enjambre-publico` a una etiqueta o SHA | revisión de seguridad real (ADR 0008) | S | **Hecha** (ADR 0009): hook y plugin fijado por SHA |
+| M12 | Banco de evaluaciones más difícil: tareas ambiguas sacadas de historias reales (el primer pass@1 fue 100 %) | primera ejecución (ADR 0009) | M | Media |
+| M13 | Acción compuesta para el bloque repetido de instalar el plugin (7 copias en 6 workflows) | revisión de lobby#3 | S | Baja |
+| M14 | Fijar también la versión del plugin en el uso local (`extraKnownMarketplaces`) [POR CONFIRMAR si admite `ref`] | revisión de lobby#3 | S | Media |

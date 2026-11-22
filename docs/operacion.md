@@ -37,14 +37,45 @@ lobby no tiene CI todavía; se añade en la historia S14.
 - Claude Code con el sandbox activo dentro del contenedor, de punta a punta. Hace falta iniciar sesión en Claude dentro del contenedor, y lo hace Álvaro.
 - Los hooks cargados de verdad por Claude Code al instalar el plugin en un proyecto. Las pruebas ejecutan los scripts con la misma entrada JSON que documenta Claude Code, pero no a través de Claude Code.
 
+## Primera historia, plugin versionado y evaluaciones (ADR 0009, 22-11-2026)
+
+| Comprobación | Resultado |
+|---|---|
+| `npm test` en Windows | 311/311 |
+| Banco de evaluaciones en Actions (`evals.yml`) | **pass@1 100 % (20/20)**, 1,23 USD estimados, unos 8 minutos |
+| Primera historia: [lobby#2](https://github.com/AlvaroM99/lobby/issues/2) con `enjambre:planificar` | Plan publicado por el jefe (14 turnos, 0,76 USD). **Puerta 1: lo aprueba Álvaro** |
+| Plugin fijado por SHA en [lobby#3](https://github.com/AlvaroM99/lobby/pull/3) | Instalado desde `$RUNNER_TEMP/enjambre-plugin`; revisor APROBAR |
+| Hook `bloquear-comandos` con escrituras por `gh api` | 11 pruebas nuevas |
+
+### Publicar una versión de Enjambre y llevarla a los proyectos
+
+1. Sube `version` en `plugins/enjambre/.claude-plugin/plugin.json` y haz commit en `main`.
+2. Publica. El script crea la etiqueta `v<versión>` e imprime el SHA:
+
+```bash
+node herramientas/publicar.mjs
+```
+
+3. En cada proyecto, pon ese SHA (no la etiqueta; las etiquetas se pueden mover):
+
+```bash
+gh variable set ENJAMBRE_VERSION -R AlvaroM99/lobby --body <sha>
+```
+
+```bash
+gh variable set ENJAMBRE_VERSION -R AlvaroM99/finance_tracker --body <sha>
+```
+
+Sin una `ENJAMBRE_VERSION` válida, los workflows de agentes se paran. El repo público no necesita el secreto de Claude: no ejecuta agentes (ADR 0009).
+
 ## Secretos, repositorios y primeras ejecuciones reales (ADR 0008, 22-11-2026)
 
 | Repositorio | `CLAUDE_CODE_OAUTH_TOKEN` | `ENJAMBRE_WIP` | Etiquetas | PR de integración |
 |---|---|---|---|---|
 | `AlvaroM99/lobby` | Creado el 22-11-2026 | 3 | `enjambre:*` y hallazgos | [lobby#1](https://github.com/AlvaroM99/lobby/pull/1) |
 | `AlvaroM99/finance_tracker` | Creado el 22-11-2026 | 3 | `enjambre:*` y hallazgos | [finance_tracker#1](https://github.com/AlvaroM99/finance_tracker/pull/1) (CI) y [finance_tracker#2](https://github.com/AlvaroM99/finance_tracker/pull/2) (agentes) |
-| `AlvaroM99/enjambre` | Lo pone Álvaro (para `evals.yml`) | — | — | — |
-| `AlvaroM99/enjambre-publico` | No hace falta | — | — | — |
+| `AlvaroM99/enjambre` | Creado el 22-11-2026 (para `evals.yml`) | — | — | — |
+| `AlvaroM99/enjambre-publico` | No hace falta: no ejecuta agentes (ADR 0009) | — | — | — |
 
 | Comprobación | Resultado |
 |---|---|

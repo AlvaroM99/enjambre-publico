@@ -129,3 +129,14 @@ test('los workflows de agentes instalan el plugin fijado por SHA y fallan cerrad
     assert.equal((texto.match(/mv \.enjambre-plugin "\$RUNNER_TEMP\/enjambre-plugin"/g) ?? []).length, acciones, `${nombre}: fuera del espacio de trabajo`);
   }
 });
+
+test('revisar: si el agente termina sin comentar, el workflow publica su respuesta final', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/enjambre-revisar.yml');
+  for (const job of ['revisor', 'seguridad']) {
+    const bloque = texto.split(new RegExp(`^ {2}${job}:\n`, 'm'))[1].split(/^ {2}\w[\w-]*:\n/m)[0];
+    assert.match(bloque, /- id: agente\n\s+uses: anthropics\/claude-code-action@/, job);
+    assert.match(bloque, /Publicar el veredicto si el agente no lo hizo\n\s+if: always\(\) && steps\.agente\.outputs\.execution_file != ''/, job);
+    assert.match(bloque, /FICHERO: \$\{\{ steps\.agente\.outputs\.execution_file \}\}/, `${job}: el fichero va por env`);
+    assert.match(bloque, /"INICIO=\$\(date -u/, `${job}: solo cuentan comentarios de esta ejecución`);
+  }
+});

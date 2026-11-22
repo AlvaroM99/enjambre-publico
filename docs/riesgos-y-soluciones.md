@@ -41,7 +41,7 @@
 
 ## Decisiones pendientes de Álvaro
 
-1. Visibilidad de `enjambre`: **resuelto** con el repo público (ADR 0006). Secreto `CLAUDE_CODE_OAUTH_TOKEN` creado en lobby y finance_tracker el 22-11-2026 (ADR 0008); renovar antes del 22-11-2027.
+1. Visibilidad de `enjambre`: **resuelto** con el repo público (ADR 0006). Secreto `CLAUDE_CODE_OAUTH_TOKEN` creado en lobby, finance_tracker y enjambre el 22-11-2026 (ADR 0008); renovar antes del 22-11-2027. El repo público no lo necesita (ADR 0009). Plugin fijado por SHA con `ENJAMBRE_VERSION` y escrituras por `gh api` bloqueadas en el hook (M11, ADR 0009).
 2. **GitHub App `enjambre-bot`** (S16): resuelve R4 y R5 y separa la identidad de los agentes de la de Álvaro. No se crea sin que Álvaro lo pida.
 3. **Valor inicial de `ENJAMBRE_WIP`**: se propone 3.
 4. **Datos/BI (F4)**: sin cambios; sigue condicionado a un proyecto real.
