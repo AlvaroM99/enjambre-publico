@@ -1,6 +1,6 @@
 {
   "name": "enjambre",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Equipo de agentes de Claude para desarrollo de software: agentes, skills y hooks de seguridad",
   "author": { "name": "AlvaroM99" },
   "repository": "https://github.com/AlvaroM99/enjambre",

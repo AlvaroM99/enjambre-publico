@@ -31,11 +31,21 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      # Plugin de Enjambre en una versión fija (M11, ADR 0009): etiqueta del repo público, no la rama main.
+      # Para actualizar, Álvaro cambia la variable ENJAMBRE_VERSION del repo (o esta etiqueta en un PR).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AlvaroM99/enjambre-publico
+          ref: ${{ vars.ENJAMBRE_VERSION || 'v0.2.0' }}
+          path: .enjambre-plugin
+          persist-credentials: false
+      - name: Sacar el plugin del espacio de trabajo
+        run: mv .enjambre-plugin "$RUNNER_TEMP/enjambre-plugin"
       - uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          plugin_marketplaces: https://github.com/AlvaroM99/enjambre-publico.git
+          plugin_marketplaces: ${{ runner.temp }}/enjambre-plugin
           plugins: enjambre@enjambre
           claude_args: --agent enjambre:enjambre-revisor --max-turns 20
           # Informe del agente en el resumen del run (repos privados; solo dispara el propietario).
@@ -87,11 +97,21 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      # Plugin de Enjambre en una versión fija (M11, ADR 0009): etiqueta del repo público, no la rama main.
+      # Para actualizar, Álvaro cambia la variable ENJAMBRE_VERSION del repo (o esta etiqueta en un PR).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AlvaroM99/enjambre-publico
+          ref: ${{ vars.ENJAMBRE_VERSION || 'v0.2.0' }}
+          path: .enjambre-plugin
+          persist-credentials: false
+      - name: Sacar el plugin del espacio de trabajo
+        run: mv .enjambre-plugin "$RUNNER_TEMP/enjambre-plugin"
       - uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          plugin_marketplaces: https://github.com/AlvaroM99/enjambre-publico.git
+          plugin_marketplaces: ${{ runner.temp }}/enjambre-plugin
           plugins: enjambre@enjambre
           claude_args: --agent enjambre:enjambre-seguridad --max-turns 15
           display_report: true

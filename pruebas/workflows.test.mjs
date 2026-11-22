@@ -117,3 +117,13 @@ test('los workflows de agentes no dan por hecho un package-lock en la raíz', ()
     assert.doesNotMatch(texto, /^\s*- run: npm ci\s*$/m, nombre);
   }
 });
+
+test('los workflows de agentes instalan el plugin desde una versión fija (M11)', () => {
+  for (const { nombre, texto } of workflows.filter((w) => /enjambre-/.test(w.nombre))) {
+    const acciones = (texto.match(/uses: anthropics\/claude-code-action@/g) ?? []).length;
+    assert.doesNotMatch(texto, /plugin_marketplaces: https:/, `${nombre}: el marketplace no puede seguir la rama main`);
+    assert.equal((texto.match(/plugin_marketplaces: \$\{\{ runner\.temp \}\}\/enjambre-plugin/g) ?? []).length, acciones, nombre);
+    assert.equal((texto.match(/repository: AlvaroM99\/enjambre-publico\n\s+ref: \$\{\{ vars\.ENJAMBRE_VERSION \|\| 'v\d+\.\d+\.\d+' \}\}/g) ?? []).length, acciones, nombre);
+    assert.equal((texto.match(/mv \.enjambre-plugin "\$RUNNER_TEMP\/enjambre-plugin"/g) ?? []).length, acciones, `${nombre}: fuera del espacio de trabajo`);
+  }
+});

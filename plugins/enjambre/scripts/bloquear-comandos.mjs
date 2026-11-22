@@ -21,7 +21,10 @@ export const REGLAS = [
   ['gh-merge', /\bgh\s+pr\s+merge\b/i, 'fusionar PRs (lo hace Álvaro)'],
   ['gh-repo-admin', /\bgh\s+repo\s+(delete|archive|rename|edit)\b/i, 'administrar o borrar repositorios'],
   ['gh-secretos', /\bgh\s+(secret|variable|ruleset|auth)\b/i, 'gestionar secretos, reglas o credenciales de GitHub'],
-  ['gh-api-borrado', /\bgh\s+api\b.*(-X\s*|--method[= ]\s*)(DELETE|PUT|PATCH)\b/i, 'modificar o borrar recursos por la API de GitHub'],
+  // Escrituras por la API (mejora M11, ADR 0008): cualquier método que no sea GET, campos (-f/-F/--input implican POST
+  // salvo con -X GET), el endpoint /merges (fusiona ramas en main) y mutaciones de GraphQL. Las lecturas siguen permitidas.
+  ['gh-api-escritura', /\bgh\s+api\b(?:(?=.*(?:-X\s*|--method[= ]\s*)(?:POST|PUT|PATCH|DELETE)\b)|(?!.*(?:-X\s*|--method[= ]\s*)GET\b)(?!.*\bgraphql\b)(?=.*\s(?:-f|-F|--field|--raw-field|--input)(?:\s|=))|(?=.*\/merges\b)|(?=.*\bmutation\b))/i,
+    'escribir, fusionar o borrar por la API de GitHub'],
   ['borrado-masivo', /\brm\s+-[a-z]*r[a-z]*\s+(-[a-z]+\s+)*(\/|~|\$HOME|\.\.?)(\s|\/?$)|Remove-Item\b.*-Recurse\b.*\s([A-Za-z]:\\?|~|\$HOME|\.\.?)(\s|$)/i,
     'borrar de forma recursiva una carpeta raíz, el home o el proyecto'],
   ['descarga-ejecutada', /\b(curl|wget|iwr|irm|Invoke-WebRequest|Invoke-RestMethod)\b[^|]*\|\s*(ba|z)?sh\b|\b(irm|iwr|Invoke-RestMethod|Invoke-WebRequest)\b[^|]*\|\s*(iex|Invoke-Expression)\b/i,
