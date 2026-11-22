@@ -18,6 +18,11 @@
     "context7@claude-plugins-official": true,
     "playwright@claude-plugins-official": true
   },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "permissions": {
     "deny": [
       "Read(.env)",

@@ -151,3 +151,14 @@ test('implementar: deja su respuesta en el issue y sin PR libera el hueco WIP', 
   assert.match(job, /github-actions\[bot\] o por el propietario/, 'solo vale el plan del bot o de Álvaro');
   assert.match(job, /«## Plan»/, 'el prompt señala el comentario del plan, no el último');
 });
+
+test('los workflows de agentes no añaden atribución a Claude en commits ni PR', () => {
+  for (const { nombre, texto } of workflows.filter((w) => /enjambre-/.test(w.nombre))) {
+    const acciones = (texto.match(/uses: anthropics\/claude-code-action@/g) ?? []).length;
+    const ajustes = texto.match(/settings: '(\{.*\})'/g) ?? [];
+    assert.equal(ajustes.length, acciones, nombre);
+    for (const a of ajustes) {
+      assert.deepEqual(JSON.parse(a.slice(11, -1)).attribution, { commit: '', pr: '', sessionUrl: false }, nombre);
+    }
+  }
+});
