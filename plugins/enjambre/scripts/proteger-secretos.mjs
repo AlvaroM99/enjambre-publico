@@ -1,6 +1,6 @@
 // Hook PreToolUse: impide que los agentes lean, escriban o busquen en ficheros con secretos o datos reales.
 // Cubre herramientas de ficheros (rutas) y comandos de shell (texto del comando).
-import { leerEntrada, bloquear, permitir, comandoDe, esPrincipal } from './lib/comun.mjs';
+import { leerEntrada, bloquear, permitir, comandoDe, esPrincipal, sinCuerposDeGh } from './lib/comun.mjs';
 
 // Cada regla: nombre y expresión que se busca en rutas normalizadas (con «/»).
 export const PROTEGIDOS = [
@@ -27,7 +27,8 @@ export function evaluar(entrada) {
   const herramienta = entrada?.tool_name ?? '';
   const textos = [];
   if (herramienta === 'Bash' || herramienta === 'PowerShell') {
-    textos.push(comandoDe(entrada));
+    // Un informe que menciona `datos/` no accede a `datos/`: el cuerpo de gh es un dato (ADR 0013).
+    textos.push(sinCuerposDeGh(comandoDe(entrada)));
   } else {
     for (const campo of CAMPOS_RUTA[herramienta] ?? ['file_path', 'path']) {
       const valor = entrada?.tool_input?.[campo];

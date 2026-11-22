@@ -2,7 +2,7 @@
 // Despliegue y migraciones de producción, fusiones, pushes a main, borrados y gestión de secretos.
 // Ver docs/anexos/B-arquitectura.md §6.2 y docs/decisiones/0001-via-y-arranque.md.
 import { execFileSync } from 'node:child_process';
-import { leerEntrada, bloquear, permitir, comandoDe, esPrincipal } from './lib/comun.mjs';
+import { leerEntrada, bloquear, permitir, comandoDe, esPrincipal, sinCuerposDeGh } from './lib/comun.mjs';
 
 // Cada regla: [nombre, expresión, motivo]. Se evalúan sobre cada subcomando.
 export const REGLAS = [
@@ -32,7 +32,8 @@ export const REGLAS = [
     'borrar de forma recursiva una carpeta raíz, el home o el proyecto'],
   ['descarga-ejecutada', /\b(curl|wget|iwr|irm|Invoke-WebRequest|Invoke-RestMethod)\b[^|]*\|\s*(ba|z)?sh\b|\b(irm|iwr|Invoke-RestMethod|Invoke-WebRequest)\b[^|]*\|\s*(iex|Invoke-Expression)\b/i,
     'descargar y ejecutar scripts'],
-  ['configuracion-claude', /(\.claude[\\/](settings(\.local)?\.json|hooks)|managed-settings\.json)/i,
+  // Solo escrituras: leer la configuración para auditarla está permitido (falso positivo de gobernanza, ADR 0013).
+  ['configuracion-claude', /(?:>{1,2}\s*|\b(?:tee|cp|mv|rm|chmod|chown|truncate|ln|install|touch|dd)\b[^|;&\n]*|\bsed\b[^|;&\n]*\s(?:-i|--in-place)\b[^|;&\n]*|\bgit\s+(?:checkout|restore|rm|mv)\b[^|;&\n]*|\b(?:Set-Content|Add-Content|Out-File|Clear-Content|Remove-Item|Copy-Item|Move-Item|New-Item|Rename-Item)\b[^|;&\n]*)["']?[^\s|;&]*(?:\.claude[\\/](?:settings(?:\.local)?\.json|hooks)|managed-settings\.json)/i,
     'cambiar permisos o hooks de Claude Code desde una tarea'],
 ];
 
@@ -50,7 +51,8 @@ function ramaActual(cwd) {
 }
 
 export function evaluar(entrada, { rama = ramaActual } = {}) {
-  const comando = comandoDe(entrada);
+  // El cuerpo de un comentario o issue de gh es un dato: «git push origin main» escrito en un informe no es un push.
+  const comando = sinCuerposDeGh(comandoDe(entrada));
   for (const sub of [comando, ...subcomandos(comando)]) {
     for (const [nombre, expresion, motivo] of REGLAS) {
       if (expresion.test(sub)) return { nombre, motivo };

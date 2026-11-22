@@ -41,6 +41,26 @@ export function comandoDe(entrada) {
   return String(entrada?.tool_input?.command ?? '');
 }
 
+// Quita el cuerpo de los heredoc con delimitador entre comillas que recibe `gh issue|pr comment|create|edit|review
+// --body-file -`. Ese texto es el contenido de un comentario o un issue (un dato), no rutas ni comandos: mencionar
+// `datos/` o `.claude/settings.json` en un informe no es acceder a ellos (falsos positivos de las transcripciones,
+// ADR 0013, aprobado por Álvaro el 22-11-2026). Solo con comillas, porque en `<<EOF` bash expande `$(…)`. La línea
+// del `<<` se conserva entera, así que todo lo demás que haya en ella se sigue revisando.
+export function sinCuerposDeGh(comando) {
+  const lineas = comando.split(/\r?\n/);
+  const salida = [];
+  for (let i = 0; i < lineas.length; i++) {
+    const linea = lineas[i];
+    salida.push(linea);
+    // Admite delante un `cd <ruta>;` o `cd <ruta> &&` (gobernanza lo hace así); nada más.
+    const m = linea.match(/^\s*(?:cd\s+[^\s;&|<>`$]+\s*(?:;|&&)\s*)?gh\s+(?:issue|pr)\s+(?:comment|create|edit|review)\b[^|;&]*\s--body-file\s+-(?:\s[^|;&]*)?<<-?\s*(['"])([A-Za-z_][\w-]*)\1\s*$/);
+    if (!m) continue;
+    while (i + 1 < lineas.length && lineas[i + 1].trim() !== m[2]) i++;
+    if (i + 1 < lineas.length) salida.push(lineas[++i]); // línea de cierre
+  }
+  return salida.join('\n');
+}
+
 // true si el módulo se ejecuta como script (no importado por las pruebas).
 export function esPrincipal(url) {
   return Boolean(process.argv[1]) && pathToFileURL(resolve(process.argv[1])).href === url;

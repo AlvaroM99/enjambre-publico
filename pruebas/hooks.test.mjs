@@ -198,3 +198,50 @@ test('los hooks fallan cerrados ante una entrada que no es JSON', () => {
   assert.equal(ejecutar('proteger-secretos.mjs', 'esto no es json').status, 2);
   assert.equal(ejecutar('bloquear-comandos.mjs', '').status, 2);
 });
+
+// ---------- ADR 0013: el cuerpo de un comentario o issue de gh es un dato, no un acceso ----------
+
+const GH_INFORME = (cuerpo, delimitador = "'EOF'") => `gh issue comment 8 --repo AlvaroM99/lobby --body-file - <<${delimitador}\n${cuerpo}\nEOF`;
+
+test('proteger-secretos permite un informe de gh que menciona datos/ y el fichero de variables', () => {
+  assert.equal(evaluarSecretos(bash(GH_INFORME('Sin `datos/` ni `.dev.vars` reales: la semilla va en `semilla/`.'))), null);
+  assert.equal(evaluarSecretos(bash("cd /home/runner/work/lobby/lobby; gh issue create --title \"Informe\" --label gobernanza --body-file - <<'EOF'\nEl `.gitignore` cubre datos/ y .dev.vars\nEOF")), null);
+  assert.equal(evaluarSecretos(bash("gh pr comment 5 --body-file - <<\"FIN\"\nVer datos/clientes\nFIN")), null);
+});
+
+test('proteger-secretos sigue bloqueando lo que de verdad lee o expande', () => {
+  // Heredoc sin comillas: bash expande $(…) dentro del cuerpo.
+  assert.ok(evaluarSecretos(bash(GH_INFORME('$(cat datos/x)', 'EOF'))));
+  // El cuerpo va a bash, no a gh.
+  assert.ok(evaluarSecretos(bash("bash <<'EOF'\ncat datos/x\nEOF")));
+  // Algo más en la línea del heredoc: no se quita el cuerpo y se revisa todo.
+  assert.ok(evaluarSecretos(bash("gh issue comment 8 --body-file - <<'EOF'; cat .dev.vars\nhola\nEOF")));
+  // Tras el cierre del heredoc, el resto se revisa.
+  assert.ok(evaluarSecretos(bash(GH_INFORME('texto') + '\ncat datos/clientes.csv')));
+  // Sin --body-file -: el heredoc no es el cuerpo de gh.
+  assert.ok(evaluarSecretos(bash("gh issue comment 8 --body x <<'EOF'\ndatos/x\nEOF")));
+});
+
+test('bloquear-comandos permite leer la configuración de Claude Code y mencionarla en un informe', () => {
+  assert.equal(evaluarComandos(bash('cat .claude/settings.json | head -60'), enRama('enjambre/x')), null);
+  assert.equal(evaluarComandos(bash('grep -n deny .claude/settings.json'), enRama('enjambre/x')), null);
+  assert.equal(evaluarComandos(bash(GH_INFORME('Revisa `.claude/settings.json` y no hagas `git push origin main`.')), enRama('enjambre/x')), null);
+});
+
+test('bloquear-comandos sigue bloqueando escribir la configuración de Claude Code', () => {
+  for (const c of [
+    'echo {} > .claude/settings.json',
+    'cat x >> .claude/settings.local.json',
+    'cp otro.json .claude/settings.json',
+    'mv x .claude/hooks/nuevo.mjs',
+    'rm .claude/settings.json',
+    'sed -i s/deny/allow/ .claude/settings.json',
+    'tee .claude/settings.json < x',
+    'git checkout -- .claude/settings.json',
+    'touch .claude/hooks/x',
+  ]) assert.ok(evaluarComandos(bash(c), enRama('enjambre/x')), c);
+  assert.ok(evaluarComandos(ps('Set-Content .claude\\settings.json "{}"'), enRama('enjambre/x')));
+  assert.ok(evaluarComandos(ps('Remove-Item .claude/hooks -Recurse'), enRama('enjambre/x')));
+  // Un cuerpo sin comillas no se trata como dato: se revisa entero.
+  assert.ok(evaluarComandos(bash(GH_INFORME('git push origin main', 'EOF')), enRama('enjambre/x')));
+});
