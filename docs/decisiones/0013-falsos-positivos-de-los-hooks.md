@@ -1,7 +1,7 @@
 # 0013. Falsos positivos de los hooks, vistos en las transcripciones
 
 - **Fecha:** 22-11-2026
-- **Estado:** **Propuesta**. Cambia hooks, y eso lo aprueba Álvaro (regla 5). Mientras tanto, los hooks siguen como en `v0.4.2`.
+- **Estado:** **Aceptada y aplicada.** Álvaro la aprobó el 22-11-2026 («Aplícalos»). Va en el plugin `v0.6.1`, fijado por SHA en lobby y finance_tracker.
 - **Decide:** Álvaro
 
 ## Contexto
@@ -27,7 +27,7 @@ Con el rastro del ADR 0012 ya fusionado (lobby#11), se repitieron el analista, e
 | `xargs … wc`, `find -exec`, redirigir a `/tmp` (para un `node -e`) | 3 | `limitar-bash` | **Correcto**: ejecutan o escriben |
 | `Read .env.example` | 1 | reglas `deny` del proyecto | Correcto (conservador) |
 
-## Propuesta (no aplicada)
+## Propuesta (aplicada en `v0.6.0` y `v0.6.1`)
 
 1. **`proteger-secretos` y `bloquear-comandos`:** ignorar solo el cuerpo de los heredoc **con delimitador entre comillas** que recibe `gh issue|pr comment|create|edit|review --body-file -`.
    - La línea del `<<` se sigue revisando entera.
@@ -49,7 +49,29 @@ Con el rastro del ADR 0012 ya fusionado (lobby#11), se repitieron el analista, e
 
 El primer intento de aplicarla en esta sesión lo paró el clasificador del modo automático, por relajar barreras de seguridad sin aprobación explícita. Se deshizo sin publicar nada.
 
-## Aplicado ya (no toca hooks)
+## Resultado
+
+| Comprobación | Resultado |
+|---|---|
+| Pruebas | 360/360: 33 nuevas con los comandos reales y casos límite de escritura y ejecución |
+| Repetir los 21 bloqueos reales de lobby con los hooks nuevos | 16 permitidos y 5 bloqueados: los 4 correctos más `gh issue list --search 'datos retención'`, que el hook no puede distinguir de una ruta |
+| Gobernanza real en finance_tracker (`v0.6.0`) | Publicó **su propio informe** ([finance_tracker#8](https://github.com/AlvaroM99/finance_tracker/issues/8), nota 15/24) y 5 propuestas (#9–#13) sin respaldo. Dos `gh issue create` se bloquearon porque **el título** decía «datos». Corregido en `v0.6.1`: título y etiquetas de esa línea son datos, salvo comillas dobles con `$` o comillas invertidas |
+| Banco de evaluaciones | 20/20 con `v0.6.1` (1,07 USD) |
+
+**Evaluación inestable encontrada:** `jefe-plan` falló dos veces. Se repitió con el commit anterior a los hooks y el jefe se paraba igual. El fixture pedía filtrar una lista de productos que no existía, así que lo correcto era parar y preguntar, y la tarea pasaba o fallaba según la redacción. Se arregló el fixture (`src/productos.mjs` y un issue completo), no la comprobación. Después pasó dos veces seguidas y el banco quedó en 20/20.
+
+## Siguiente tanda (propuesta, pendiente de Álvaro)
+
+Falsos positivos menores vistos en finance_tracker:
+- `cmp -s a b` y `git for-each-ref` (solo leen);
+- `git -C <ruta> ls-files`;
+- `timeout 90 npm audit`;
+- `grep -vi secret` sobre `wrangler.toml`, que `wrangler-secretos` toma por `wrangler secret`;
+- búsquedas de gh con la palabra «datos».
+
+Siguen bloqueados, y está bien: `awk`, `xargs`, `find -exec`, `$(…)` y las lecturas de `_origen/` (reglas `deny` del proyecto).
+
+## Aplicado antes (no toca hooks)
 
 - **Respaldo de gobernanza y QA con su título exacto** (`TITULO`): corrían a la vez y el de gobernanza tomó el informe de QA por el suyo. Está en la plantilla `v0.5.1`, [lobby#13](https://github.com/AlvaroM99/lobby/pull/13) y [finance_tracker#7](https://github.com/AlvaroM99/finance_tracker/pull/7).
 - El informe de gobernanza ([lobby#14](https://github.com/AlvaroM99/lobby/issues/14)) y el plan de lobby#8 se recuperaron de sus transcripciones y se publicaron con una nota. Al informe se le quitó el nombre propio de un tercero.

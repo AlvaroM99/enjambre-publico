@@ -46,7 +46,7 @@ lobby no tiene CI todavía; se añade en la historia S14.
 | Gobernanza | 25 | 0,40 USD | 12 | Recuperado de la transcripción: [lobby#14](https://github.com/AlvaroM99/lobby/issues/14) |
 | Jefe (lobby#8) | 12 | 1,01 USD | 2 | Plan completo recuperado de la transcripción; **puerta 1 pendiente** |
 
-De 21 bloqueos, 17 son falsos positivos (cuerpos de `gh` que mencionan «datos», `sed` de lectura, lectura de la configuración, bucles, `printenv ALCANCE`). La propuesta para corregirlos está en el ADR 0013, **pendiente de la aprobación de Álvaro**: los hooks no cambian sin ella.
+De 21 bloqueos, 17 son falsos positivos (cuerpos de `gh` que mencionan «datos», `sed` de lectura, lectura de la configuración, bucles, `printenv ALCANCE`). Álvaro aprobó corregirlos: plugin `v0.6.1` en `ENJAMBRE_VERSION` de los dos proyectos. Al repetir los 21 bloqueos, 16 se permiten y 5 siguen bloqueados (4 correctos y uno ambiguo). Banco de evaluaciones: 20/20. Gobernanza en finance_tracker publicó su informe sola ([finance_tracker#8](https://github.com/AlvaroM99/finance_tracker/issues/8)).
 
 Contar los bloqueos de una transcripción:
 
@@ -58,7 +58,7 @@ gh run download <run_id> -R AlvaroM99/lobby -D transcripciones
 
 | Comprobación | Resultado |
 |---|---|
-| `npm test` | 326/326 (327/327 tras el ADR 0013) |
+| `npm test` | 326/326 (360/360 tras el ADR 0013) |
 | `claude plugin validate` (marketplace y plugin) | Superada |
 | Banco de evaluaciones en Actions con `v0.4.2` | 20/20 (1,26 USD) |
 | Analista en lobby#8 | 22 turnos, 0,46 USD; informe perdido |
