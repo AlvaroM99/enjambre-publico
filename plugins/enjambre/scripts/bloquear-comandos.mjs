@@ -19,6 +19,9 @@ export const REGLAS = [
   ['git-push-main', /\bgit\b.*\bpush\b.*\s(\S+:)?(refs\/heads\/)?(main|master)(\s|$)/i,
     'hacer push directo a main/master (trabaja en ramas enjambre/* y abre un PR)'],
   ['gh-merge', /\bgh\s+pr\s+merge\b/i, 'fusionar PRs (lo hace Álvaro)'],
+  // Solo Álvaro aprueba PR (ADR 0011). Cubre --approve, -a y grupos de banderas cortas como -ab. La API (reviews con
+  // event=APPROVE) y GraphQL (addPullRequestReview) ya los bloquea gh-api-escritura.
+  ['gh-pr-aprobar', /\bgh\s+pr\s+review\b(?=.*\s(?:--approve\b|-(?!-)[A-Za-z]*a[A-Za-z]*(?=\s|$)))/i, 'aprobar PRs (solo Álvaro aprueba)'],
   ['gh-repo-admin', /\bgh\s+repo\s+(delete|archive|rename|edit)\b/i, 'administrar o borrar repositorios'],
   ['gh-secretos', /\bgh\s+(secret|variable|ruleset|auth)\b/i, 'gestionar secretos, reglas o credenciales de GitHub'],
   // Escrituras por la API (mejora M11, ADR 0008): cualquier método que no sea GET, campos (-f/-F/--input implican POST

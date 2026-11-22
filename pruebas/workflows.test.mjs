@@ -162,3 +162,17 @@ test('los workflows de agentes no añaden atribución a Claude en commits ni PR'
     }
   }
 });
+
+test('los jobs con permiso sobre PR retiran cualquier aprobación que no sea de Álvaro (ADR 0011)', () => {
+  const casos = [['ci-cd/enjambre-revisar.yml', ['revisor', 'seguridad']], ['ci-cd/enjambre-implementar.yml', ['implementar']]];
+  for (const [nombre, jobs] of casos) {
+    const { texto } = workflows.find((w) => w.nombre === nombre);
+    for (const job of jobs) {
+      const bloque = texto.split(new RegExp(`^ {2}${job}:\\n`, 'm'))[1].split(/^ {2}\w[\w-]*:\n/m)[0];
+      assert.match(bloque, /Retirar aprobaciones que no sean de Álvaro\n\s+if: always\(\)/, `${nombre} ${job}`);
+      assert.match(bloque, /\.state == \\"APPROVED\\" and \.user\.login != \\"\$PROPIETARIO\\"/, `${nombre} ${job}`);
+      assert.match(bloque, /\/dismissals/, `${nombre} ${job}`);
+      assert.match(bloque, /if \[ "\$retiradas" -gt 0 \]; then exit 1; fi/, `${nombre} ${job}: falla si retira`);
+    }
+  }
+});

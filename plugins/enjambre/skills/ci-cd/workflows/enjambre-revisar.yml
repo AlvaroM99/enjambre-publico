@@ -85,6 +85,27 @@ jobs:
           respuesta=$(jq -r '[.[] | select(.type == "result")] | last | .result // empty' "$FICHERO")
           if [ -z "$respuesta" ]; then respuesta="El agente terminó sin respuesta. Revisa el run: $GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID"; fi
           printf '## %s\n\n_Publicado por el workflow: el agente terminó sin comentar._\n\n%s\n' "$TITULO" "$respuesta" | gh pr comment "$PR" --body-file -
+      # Segunda barrera (ADR 0011): solo Álvaro aprueba PR. Este paso no lo controla el agente: retira cualquier aprobación
+      # que no sea del propietario y falla el job.
+      - name: Retirar aprobaciones que no sean de Álvaro
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PRS: ${{ github.event.pull_request.number }}
+          PROPIETARIO: ${{ github.repository_owner }}
+        run: |
+          retiradas=0
+          for pr in $PRS; do
+            for id in $(gh api "repos/$GH_REPO/pulls/$pr/reviews" --paginate \
+                --jq ".[] | select(.state == \"APPROVED\" and .user.login != \"$PROPIETARIO\") | .id"); do
+              gh api -X PUT "repos/$GH_REPO/pulls/$pr/reviews/$id/dismissals" \
+                -f message="Enjambre: solo Álvaro aprueba PR (ADR 0011)." -f event=DISMISS > /dev/null
+              echo "Retirada la aprobación $id del PR #$pr"
+              retiradas=$((retiradas + 1))
+            done
+          done
+          if [ "$retiradas" -gt 0 ]; then exit 1; fi
 
   sensible:
     if: >-
@@ -181,3 +202,24 @@ jobs:
           respuesta=$(jq -r '[.[] | select(.type == "result")] | last | .result // empty' "$FICHERO")
           if [ -z "$respuesta" ]; then respuesta="El agente terminó sin respuesta. Revisa el run: $GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID"; fi
           printf '## %s\n\n_Publicado por el workflow: el agente terminó sin comentar._\n\n%s\n' "$TITULO" "$respuesta" | gh pr comment "$PR" --body-file -
+      # Segunda barrera (ADR 0011): solo Álvaro aprueba PR. Este paso no lo controla el agente: retira cualquier aprobación
+      # que no sea del propietario y falla el job.
+      - name: Retirar aprobaciones que no sean de Álvaro
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PRS: ${{ github.event.pull_request.number }}
+          PROPIETARIO: ${{ github.repository_owner }}
+        run: |
+          retiradas=0
+          for pr in $PRS; do
+            for id in $(gh api "repos/$GH_REPO/pulls/$pr/reviews" --paginate \
+                --jq ".[] | select(.state == \"APPROVED\" and .user.login != \"$PROPIETARIO\") | .id"); do
+              gh api -X PUT "repos/$GH_REPO/pulls/$pr/reviews/$id/dismissals" \
+                -f message="Enjambre: solo Álvaro aprueba PR (ADR 0011)." -f event=DISMISS > /dev/null
+              echo "Retirada la aprobación $id del PR #$pr"
+              retiradas=$((retiradas + 1))
+            done
+          done
+          if [ "$retiradas" -gt 0 ]; then exit 1; fi
