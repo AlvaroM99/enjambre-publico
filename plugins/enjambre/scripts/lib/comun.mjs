@@ -46,14 +46,19 @@ export function comandoDe(entrada) {
 // `datos/` o `.claude/settings.json` en un informe no es acceder a ellos (falsos positivos de las transcripciones,
 // ADR 0013, aprobado por Álvaro el 22-11-2026). Solo con comillas, porque en `<<EOF` bash expande `$(…)`. La línea
 // del `<<` se conserva entera, así que todo lo demás que haya en ella se sigue revisando.
+// En esa misma línea de gh, los textos entre comillas (título, etiquetas) también son datos: se vacían, salvo los
+// que llevan `$` o comillas invertidas entre comillas dobles, que bash expande. El cuerpo va siempre por
+// `--body-file -`, así que ningún argumento entre comillas es una ruta que gh vaya a leer.
+const TEXTO_SIN_EXPANSION = /'[^']*'|"(?:[^"\\$`]|\\[^$`])*"/g;
+
 export function sinCuerposDeGh(comando) {
   const lineas = comando.split(/\r?\n/);
   const salida = [];
   for (let i = 0; i < lineas.length; i++) {
     const linea = lineas[i];
-    salida.push(linea);
     // Admite delante un `cd <ruta>;` o `cd <ruta> &&` (gobernanza lo hace así); nada más.
     const m = linea.match(/^\s*(?:cd\s+[^\s;&|<>`$]+\s*(?:;|&&)\s*)?gh\s+(?:issue|pr)\s+(?:comment|create|edit|review)\b[^|;&]*\s--body-file\s+-(?:\s[^|;&]*)?<<-?\s*(['"])([A-Za-z_][\w-]*)\1\s*$/);
+    salida.push(m ? linea.replace(/<<-?\s*(['"])[A-Za-z_][\w-]*\1\s*$/, '').replace(TEXTO_SIN_EXPANSION, "''") + `<<'${m[2]}'` : linea);
     if (!m) continue;
     while (i + 1 < lineas.length && lineas[i + 1].trim() !== m[2]) i++;
     if (i + 1 < lineas.length) salida.push(lineas[++i]); // línea de cierre

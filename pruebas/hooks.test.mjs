@@ -245,3 +245,12 @@ test('bloquear-comandos sigue bloqueando escribir la configuración de Claude Co
   // Un cuerpo sin comillas no se trata como dato: se revisa entero.
   assert.ok(evaluarComandos(bash(GH_INFORME('git push origin main', 'EOF')), enRama('enjambre/x')));
 });
+
+test('el título y las etiquetas de un issue de gh también son datos; $(…) se sigue revisando (ADR 0013)', () => {
+  const crear = (titulo) => `cd /home/runner/work/x/x; gh issue create --title ${titulo} --label gobernanza --label "enjambre:propuesta" --body-file - <<'EOF'\nParte del informe: datos/ y .dev.vars\nEOF`;
+  assert.equal(evaluarSecretos(bash(crear('"Gobernanza B: retención de datos"'))), null);
+  assert.equal(evaluarSecretos(bash(crear("'Revisar datos/ y .dev.vars'"))), null);
+  assert.ok(evaluarSecretos(bash(crear('"$(cat datos/x)"'))), 'sustitución en comillas dobles');
+  assert.ok(evaluarSecretos(bash(crear('"`cat .dev.vars`"'))), 'comillas invertidas');
+  assert.equal(evaluarComandos(bash(crear('"No hacer git push origin main"')), enRama('enjambre/x')), null);
+});
