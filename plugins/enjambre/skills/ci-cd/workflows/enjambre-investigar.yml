@@ -57,7 +57,10 @@ jobs:
           persist-credentials: false
       - name: Sacar el plugin del espacio de trabajo
         run: mv .enjambre-plugin "$RUNNER_TEMP/enjambre-plugin"
-      - uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
+      - name: Marcar el inicio
+        run: echo "INICIO=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+      - id: agente
+        uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
         env:
           ALCANCE: ${{ inputs.alcance || 'lo fusionado en main en los últimos 7 días' }}
         with:
@@ -68,8 +71,35 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           plugin_marketplaces: ${{ runner.temp }}/enjambre-plugin
           plugins: enjambre@enjambre
-          claude_args: --agent enjambre:enjambre-investigador --max-turns 25
+          claude_args: --agent enjambre:enjambre-investigador --max-turns 35
           prompt: |
             Investiga en ${{ github.repository }} el alcance que indica la variable de entorno ALCANCE.
             Abre como máximo 5 issues con la etiqueta enjambre:propuesta, solo con hallazgos reproducibles,
-            y termina con la tabla de retroalimentación para los implementadores.
+            y termina con la tabla de retroalimentación para los implementadores (el workflow la publica como issue
+            «Informe de investigación QA de Enjambre»).
+      # Rastro (ADR 0012): la Action oculta la salida del agente. La transcripción queda 7 días como artefacto del run
+      # (repos privados) para entender permisos denegados y paradas sin respuesta.
+      - name: Guardar la transcripción del agente
+        if: always() && steps.agente.outputs.execution_file != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: transcripcion-investigador
+          path: ${{ steps.agente.outputs.execution_file }}
+          retention-days: 7
+          if-no-files-found: ignore
+      # Respaldo (ADR 0012): si el agente no abrió su issue «Informe…» durante este job, el workflow lo abre con su respuesta.
+      - name: Abrir el informe si el agente no lo hizo
+        if: always() && steps.agente.outputs.execution_file != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          FICHERO: ${{ steps.agente.outputs.execution_file }}
+        run: |
+          abiertos=$(gh api "repos/$GH_REPO/issues?state=all&since=$INICIO&per_page=100" --paginate \
+            --jq '.[] | select(.pull_request == null and .created_at >= env.INICIO and (.title | startswith("Informe"))) | .number' | wc -l)
+          if [ "$abiertos" -gt 0 ]; then echo "El agente ya abrió su informe."; exit 0; fi
+          respuesta=$(jq -r '[.[] | select(.type == "result")] | last | .result // empty' "$FICHERO")
+          if [ -z "$respuesta" ]; then respuesta="El agente terminó sin respuesta. Run: $GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID"; fi
+          printf '_Publicado por el workflow: el agente no abrió su informe._\n\n%s\n' "$respuesta" \
+            | gh issue create --title "Informe de investigación QA de Enjambre ($(date -u +%Y-%m-%d))" --label qa --label enjambre:propuesta --body-file -

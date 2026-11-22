@@ -192,3 +192,13 @@ test('todo job con agente y pull-requests: write va seguido del job aprobaciones
     for (const j of conPermiso) assert.ok(needs.includes(j), `${nombre}: aprobaciones no espera a ${j}`);
   }
 });
+
+test('todo agente deja rastro: transcripción como artefacto y respuesta publicada (ADR 0012)', () => {
+  for (const { nombre, texto } of workflows.filter((w) => /enjambre-/.test(w.nombre))) {
+    const agentes = (texto.match(/uses: anthropics\/claude-code-action@/g) ?? []).length;
+    assert.equal((texto.match(/- id: agente\n\s+uses: anthropics\/claude-code-action@/g) ?? []).length, agentes, `${nombre}: id agente`);
+    assert.equal((texto.match(/name: Guardar la transcripción del agente\n\s+if: always\(\) && steps\.agente\.outputs\.execution_file != ''\n\s+uses: actions\/upload-artifact@/g) ?? []).length, agentes, `${nombre}: transcripción`);
+    assert.match(texto, /retention-days: 7/, nombre);
+    assert.match(texto, /Publicar la respuesta si el agente no comentó|Abrir el informe si el agente no lo hizo|Publicar el veredicto si el agente no lo hizo|Publicar el resumen del implementador en el issue/, `${nombre}: respaldo de la respuesta`);
+  }
+});
