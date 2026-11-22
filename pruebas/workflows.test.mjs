@@ -202,3 +202,13 @@ test('todo agente deja rastro: transcripción como artefacto y respuesta publica
     assert.match(texto, /Publicar la respuesta si el agente no comentó|Abrir el informe si el agente no lo hizo|Publicar el veredicto si el agente no lo hizo|Publicar el resumen del implementador en el issue/, `${nombre}: respaldo de la respuesta`);
   }
 });
+
+test('QA y gobernanza buscan su informe por su propio título, no por «Informe» (ADR 0013)', () => {
+  for (const nombre of ['ci-cd/enjambre-gobernanza.yml', 'ci-cd/enjambre-investigar.yml']) {
+    const { texto } = workflows.find((w) => w.nombre === nombre);
+    assert.doesNotMatch(texto, /startswith\("Informe"\)/, nombre);
+    assert.match(texto, /TITULO: 'Informe de [^']+ de Enjambre'/, nombre);
+    assert.match(texto, /startswith\(env\.TITULO\)/, nombre);
+    assert.match(texto, /--title "\$TITULO \(/, nombre);
+  }
+});

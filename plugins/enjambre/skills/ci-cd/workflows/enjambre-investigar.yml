@@ -95,11 +95,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           FICHERO: ${{ steps.agente.outputs.execution_file }}
+          # Su título exacto: gobernanza y QA pueden correr a la vez (ADR 0013).
+          TITULO: 'Informe de investigación QA de Enjambre'
         run: |
           abiertos=$(gh api "repos/$GH_REPO/issues?state=all&since=$INICIO&per_page=100" --paginate \
-            --jq '.[] | select(.pull_request == null and .created_at >= env.INICIO and (.title | startswith("Informe"))) | .number' | wc -l)
+            --jq '.[] | select(.pull_request == null and .created_at >= env.INICIO and (.title | startswith(env.TITULO))) | .number' | wc -l)
           if [ "$abiertos" -gt 0 ]; then echo "El agente ya abrió su informe."; exit 0; fi
           respuesta=$(jq -r '[.[] | select(.type == "result")] | last | .result // empty' "$FICHERO")
           if [ -z "$respuesta" ]; then respuesta="El agente terminó sin respuesta. Run: $GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID"; fi
           printf '_Publicado por el workflow: el agente no abrió su informe._\n\n%s\n' "$respuesta" \
-            | gh issue create --title "Informe de investigación QA de Enjambre ($(date -u +%Y-%m-%d))" --label qa --label enjambre:propuesta --body-file -
+            | gh issue create --title "$TITULO ($(date -u +%Y-%m-%d))" --label qa --label enjambre:propuesta --body-file -
