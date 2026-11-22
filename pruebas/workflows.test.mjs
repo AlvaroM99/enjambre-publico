@@ -140,3 +140,12 @@ test('revisar: si el agente termina sin comentar, el workflow publica su respues
     assert.match(bloque, /"INICIO=\$\(date -u/, `${job}: solo cuentan comentarios de esta ejecución`);
   }
 });
+
+test('implementar: deja su respuesta en el issue y sin PR libera el hueco WIP', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/enjambre-implementar.yml');
+  const job = texto.split(/^ {2}implementar:\n/m)[1].split(/^ {2}liberar:\n/m)[0];
+  assert.match(job, /- id: agente\n\s+uses: anthropics\/claude-code-action@/);
+  assert.match(job, /Publicar el resumen del implementador en el issue\n\s+if: always\(\) && steps\.agente\.outputs\.execution_file != ''/);
+  assert.match(job, /startswith\(\\"enjambre\/\$ISSUE-\\"\)\) \| \.headRefName" \| wc -l\)\n\s+if \[ "\$prs" -eq 0 \]; then/);
+  assert.match(job, /«## Plan»/, 'el prompt señala el comentario del plan, no el último');
+});
