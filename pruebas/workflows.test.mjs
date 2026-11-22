@@ -146,6 +146,8 @@ test('implementar: deja su respuesta en el issue y sin PR libera el hueco WIP', 
   const job = texto.split(/^ {2}implementar:\n/m)[1].split(/^ {2}liberar:\n/m)[0];
   assert.match(job, /- id: agente\n\s+uses: anthropics\/claude-code-action@/);
   assert.match(job, /Publicar el resumen del implementador en el issue\n\s+if: always\(\) && steps\.agente\.outputs\.execution_file != ''/);
-  assert.match(job, /startswith\(\\"enjambre\/\$ISSUE-\\"\)\) \| \.headRefName" \| wc -l\)\n\s+if \[ "\$prs" -eq 0 \]; then/);
+  assert.match(job, /startswith\(\\"enjambre\/\$ISSUE-\\"\) or startswith\(\\"enjambre\/issue-\$ISSUE-\\"\)\) \| \.headRefName" \| wc -l\)\n\s+if \[ "\$prs" -eq 0 \]; then/);
+  assert.match(job, /Publicar el resumen del implementador en el issue\n[^\n]+\n[^\n]+\n\s+continue-on-error: true/, 'el resumen solo informa');
+  assert.match(job, /github-actions\[bot\] o por el propietario/, 'solo vale el plan del bot o de Álvaro');
   assert.match(job, /«## Plan»/, 'el prompt señala el comentario del plan, no el último');
 });
