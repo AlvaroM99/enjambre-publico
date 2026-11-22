@@ -37,6 +37,22 @@ lobby no tiene CI todavía; se añade en la historia S14.
 - Claude Code con el sandbox activo dentro del contenedor, de punta a punta. Hace falta iniciar sesión en Claude dentro del contenedor, y lo hace Álvaro.
 - Los hooks cargados de verdad por Claude Code al instalar el plugin en un proyecto. Las pruebas ejecutan los scripts con la misma entrada JSON que documenta Claude Code, pero no a través de Claude Code.
 
+## F2 cerrada y solo Álvaro aprueba (ADR 0011, 22-11-2026)
+
+| Comprobación | Resultado |
+|---|---|
+| Primera historia [lobby#2](https://github.com/AlvaroM99/lobby/issues/2) | **Cerrada**: PR lobby#5 fusionado por Álvaro. **F2 cumplida** |
+| `npm test` en Windows | 325/325 |
+| Hook `gh-pr-aprobar` | 7 comandos bloqueados y 3 permitidos en pruebas; activo en los proyectos con `ENJAMBRE_VERSION` = SHA de `v0.4.2` |
+| Job `aprobaciones` | Probado en lobby#7: «PR abiertos revisados: 1; aprobaciones retiradas: 0». Tercera ronda: revisor y seguridad APROBAR |
+| Ajuste «Allow GitHub Actions to create and approve pull requests» | Se activa tras fusionar lobby#7 y finance_tracker#5 |
+
+Comprobar el ajuste (solo lectura):
+
+```bash
+gh api repos/AlvaroM99/lobby/actions/permissions/workflow
+```
+
 ## Primer intento del implementador (ADR 0010, 22-11-2026)
 
 | Paso en [lobby#2](https://github.com/AlvaroM99/lobby/issues/2) | Resultado |
@@ -52,7 +68,7 @@ lobby no tiene CI todavía; se añade en la historia S14.
 
 | Comprobación | Resultado |
 |---|---|
-| `npm test` en Windows | 313/313 |
+| `npm test` en Windows | 313/313 (325/325 tras el ADR 0011) |
 | Banco de evaluaciones en Actions (`evals.yml`) | **pass@1 100 % (20/20)**, 1,23 USD estimados, unos 8 minutos |
 | Primera historia: [lobby#2](https://github.com/AlvaroM99/lobby/issues/2) con `enjambre:planificar` | Plan publicado por el jefe (14 turnos, 0,76 USD). **Puerta 1: lo aprueba Álvaro** |
 | Plugin fijado por SHA en [lobby#3](https://github.com/AlvaroM99/lobby/pull/3) | Instalado desde `$RUNNER_TEMP/enjambre-plugin`; revisor APROBAR |

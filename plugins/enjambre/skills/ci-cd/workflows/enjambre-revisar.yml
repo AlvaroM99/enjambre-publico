@@ -186,7 +186,7 @@ jobs:
     # Segunda barrera (ADR 0011): solo Álvaro aprueba PR. Job aparte, en otra máquina y sin checkout, para que el agente
     # no pueda alterarlo (PATH, BASH_ENV, scripts del repo). Revisa TODOS los PR abiertos y falla cerrado: si no puede
     # leer las revisiones, el job falla; si retira alguna aprobación, también. Solo los jobs con agente y pull-requests: write
-    # (implementar, revisor, seguridad) pueden aprobar, y este job va siempre detrás de ellos (prueba en workflows.test).
+    # (implementar, revisor, seguridad) pueden aprobar, y este job va siempre detrás de ellos (prueba en pruebas/workflows.test.mjs de Enjambre).
     needs: [revisor, seguridad]
     if: >-
       always() &&
