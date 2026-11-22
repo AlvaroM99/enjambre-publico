@@ -168,14 +168,27 @@ test('un job aparte retira las aprobaciones que no sean de Álvaro en todos los 
     const { texto } = workflows.find((w) => w.nombre === nombre);
     const bloque = texto.split(/^ {2}aprobaciones:\n/m)[1];
     assert.ok(bloque, `${nombre}: job aprobaciones`);
-    assert.match(bloque, /needs: \[[^\]]+\]\n\s+if: always\(\)/, nombre);
+    assert.match(bloque, /needs: \[[^\]]+\]\n\s+if: (>-\n\s+)?always\(\)/, nombre);
+    assert.doesNotMatch(bloque, /needs\.[\w-]+\.result == 'success'/, `${nombre}: no depende de que otro job vaya bien`);
     assert.doesNotMatch(bloque, /actions\/checkout|claude-code-action/, `${nombre}: sin checkout ni agente`);
     assert.match(bloque, /permissions:\n\s+pull-requests: write\n\s+steps:/, `${nombre}: solo pull-requests`);
     assert.match(bloque, /set -euo pipefail/, `${nombre}: falla cerrado`);
-    assert.match(bloque, /gh pr list --state open --limit 200/, `${nombre}: todos los PR abiertos`);
-    assert.match(bloque, /\.state == \\"APPROVED\\" and \.user\.login != \\"\$PROPIETARIO\\"/, nombre);
+    assert.match(bloque, /pulls\?state=open&per_page=100" --paginate/, `${nombre}: todos los PR abiertos, paginados`);
+    assert.match(bloque, /\.state == "APPROVED" and \.user\.login != env\.PROPIETARIO/, `${nombre}: login por env, no interpolado`);
     assert.match(bloque, /\/dismissals/, nombre);
     assert.match(bloque, /if \[ "\$retiradas" -gt 0 \]; then exit 1; fi/, nombre);
     assert.doesNotMatch(texto.split(/^ {2}aprobaciones:\n/m)[0], /Retirar aprobaciones/, `${nombre}: nada en el job del agente`);
+  }
+});
+
+test('todo job con agente y pull-requests: write va seguido del job aprobaciones (ADR 0011)', () => {
+  for (const { nombre, texto } of workflows.filter((w) => /enjambre-/.test(w.nombre))) {
+    const jobs = (texto.split(/^jobs:\n/m)[1] ?? '').split(/^(?= {2}[\w-]+:\n)/m).filter((j) => /^ {2}[\w-]+:\n/.test(j));
+    const conPermiso = jobs.filter((j) => /claude-code-action@/.test(j) && /pull-requests: write/.test(j)).map((j) => j.match(/^ {2}([\w-]+):/)[1]);
+    if (!conPermiso.length) continue;
+    const guardia = jobs.find((j) => j.startsWith('  aprobaciones:'));
+    assert.ok(guardia, `${nombre}: falta el job aprobaciones`);
+    const needs = guardia.match(/needs: \[([^\]]+)\]/)[1].split(',').map((s) => s.trim());
+    for (const j of conPermiso) assert.ok(needs.includes(j), `${nombre}: aprobaciones no espera a ${j}`);
   }
 });

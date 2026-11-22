@@ -151,9 +151,10 @@ jobs:
   aprobaciones:
     # Segunda barrera (ADR 0011): solo Álvaro aprueba PR. Job aparte, en otra máquina y sin checkout, para que el agente
     # no pueda alterarlo (PATH, BASH_ENV, scripts del repo). Revisa TODOS los PR abiertos y falla cerrado: si no puede
-    # leer las revisiones, el job falla; si retira alguna aprobación, también.
+    # leer las revisiones, el job falla; si retira alguna aprobación, también. Solo los jobs con agente y pull-requests: write
+    # (implementar, revisor, seguridad) pueden aprobar, y este job va siempre detrás de ellos (prueba en workflows.test).
     needs: [limite-wip, implementar]
-    if: always() && needs.limite-wip.result == 'success'
+    if: always() && github.event.label.name == 'enjambre:implementar' && github.event.sender.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -166,11 +167,11 @@ jobs:
           PROPIETARIO: ${{ github.repository_owner }}
         run: |
           set -euo pipefail
-          prs=$(gh pr list --state open --limit 200 --json number --jq '.[].number')
+          prs=$(gh api "repos/$GH_REPO/pulls?state=open&per_page=100" --paginate --jq '.[].number')
           retiradas=0
           for pr in $prs; do
             ids=$(gh api "repos/$GH_REPO/pulls/$pr/reviews" --paginate \
-              --jq ".[] | select(.state == \"APPROVED\" and .user.login != \"$PROPIETARIO\") | .id")
+              --jq '.[] | select(.state == "APPROVED" and .user.login != env.PROPIETARIO) | .id')
             for id in $ids; do
               gh api -X PUT "repos/$GH_REPO/pulls/$pr/reviews/$id/dismissals" \
                 -f message="Enjambre: solo Álvaro aprueba PR (ADR 0011)." -f event=DISMISS > /dev/null
