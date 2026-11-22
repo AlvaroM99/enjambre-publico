@@ -45,13 +45,14 @@ lobby no tiene CI todavía; se añade en la historia S14.
 | `enjambre:implementar` | Hueco WIP reservado; plugin instalado desde el SHA fijado |
 | Implementador | 5 turnos, 30 s, 0,11 USD, **sin PR y sin respuesta visible** |
 | Corrección | Resumen en el issue, fallo sin PR (libera WIP), prompt más claro: [lobby#4](https://github.com/AlvaroM99/lobby/pull/4) y [finance_tracker#4](https://github.com/AlvaroM99/finance_tracker/pull/4) |
-| Reintento | Tras fusionar lobby#4, volver a poner `enjambre:implementar` |
+| 2.º intento | 8 turnos, 0,12 USD: rama `enjambre/2-npm-test` con 17 pruebas. GitHub no deja a Actions abrir el PR ni tocar `ci.yml`; los hizo la sesión: [lobby#5](https://github.com/AlvaroM99/lobby/pull/5) |
+| Revisión de lobby#5 | CI verde; seguridad APROBAR; revisor CAMBIOS por `Co-Authored-By` (corregido en [lobby#6](https://github.com/AlvaroM99/lobby/pull/6); fusionar #5 con squash) |
 
 ## Primera historia, plugin versionado y evaluaciones (ADR 0009, 22-11-2026)
 
 | Comprobación | Resultado |
 |---|---|
-| `npm test` en Windows | 312/312 |
+| `npm test` en Windows | 313/313 |
 | Banco de evaluaciones en Actions (`evals.yml`) | **pass@1 100 % (20/20)**, 1,23 USD estimados, unos 8 minutos |
 | Primera historia: [lobby#2](https://github.com/AlvaroM99/lobby/issues/2) con `enjambre:planificar` | Plan publicado por el jefe (14 turnos, 0,76 USD). **Puerta 1: lo aprueba Álvaro** |
 | Plugin fijado por SHA en [lobby#3](https://github.com/AlvaroM99/lobby/pull/3) | Instalado desde `$RUNNER_TEMP/enjambre-plugin`; revisor APROBAR |

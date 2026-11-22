@@ -135,4 +135,5 @@ Para una web de notas en Workers, la recomendación del analista sería **Tiptap
 | M11 | `bloquear-comandos` también bloquea `gh api` con POST o campos (`-f`, `--input`); fijar el marketplace `enjambre-publico` a una etiqueta o SHA | revisión de seguridad real (ADR 0008) | S | **Hecha** (ADR 0009): hook y plugin fijado por SHA |
 | M12 | Banco de evaluaciones más difícil: tareas ambiguas sacadas de historias reales (el primer pass@1 fue 100 %) | primera ejecución (ADR 0009) | M | Media |
 | M13 | Acción compuesta para el bloque repetido de instalar el plugin (7 copias en 6 workflows) | revisión de lobby#3 | S | Baja |
+| M15 | El jefe planifica los cambios de `.github/workflows/` como paso manual de Álvaro (el `GITHUB_TOKEN` no puede tocarlos); `bloquear-comandos` bloquea `gh pr review --approve` antes de dejar que Actions cree PR | primera historia (ADR 0010) | S | Alta |
 | M14 | Fijar también la versión del plugin en el uso local (`extraKnownMarketplaces`) [POR CONFIRMAR si admite `ref`] | revisión de lobby#3 | S | Media |

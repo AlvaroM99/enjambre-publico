@@ -338,7 +338,7 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <div class="stat" role="listitem"><b>10</b><span>agentes</span></div>
       <div class="stat" role="listitem"><b>13</b><span>skills</span></div>
       <div class="stat" role="listitem"><b>4</b><span>hooks</span></div>
-      <div class="stat" role="listitem"><b>312</b><span>pruebas en verde</span></div>
+      <div class="stat" role="listitem"><b>313</b><span>pruebas en verde</span></div>
       <div class="stat" role="listitem"><b>6</b><span>carriles como máximo</span></div>
       <div class="stat" role="listitem"><b>100 %</b><span>pass@1 en 20 evaluaciones</span></div>
       <div class="stat" role="listitem"><b>20 $</b><span>al mes (Claude Pro)</span></div>
@@ -706,8 +706,8 @@ flowchart TB
         <li><div><h3>Etiqueta <code>enjambre:planificar</code> → plan del jefe (Opus)</h3><p>14 turnos y 0,76 USD estimados. Cita fichero:línea y decide la zona horaria fija y la ruta explícita para Node 18. Trae pruebas por función, 8 criterios, riesgos y un aviso fuera de alcance (<code>aCSV</code> y <code>\r</code>).</p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
         <li><div><h3>Puerta 1: Álvaro aprueba el plan</h3><p>«Aprobado, implementa» (22-11-2026), anotado en el issue.</p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
         <li><div><h3><code>enjambre:implementar</code>, 1.<sup>er</sup> intento</h3><p>Reservó el hueco WIP e instaló el plugin fijado, pero el implementador terminó en 5 turnos y 30 s sin abrir PR ni dejar su respuesta a la vista, y el hueco quedó ocupado. Causa [POR CONFIRMAR]: lo probable es que parase por los [POR CONFIRMAR] del plan (ADR 0010).</p><div class="tags"><span class="badge b-risk">sin PR</span></div></div></li>
-        <li><div><h3>Corrección del workflow y 2.º intento</h3><p>Ahora su respuesta va siempre al issue y, sin PR, el job falla y libera el hueco. El prompt también es más claro: <a href="https://github.com/AlvaroM99/lobby/pull/4">lobby#4</a>. Tras fusionarlo, se vuelve a poner <code>enjambre:implementar</code>.</p><div class="tags"><span class="badge b-todo">siguiente</span></div></div></li>
-        <li><div><h3><code>enjambre:revisar</code> → revisor y seguridad</h3><p>Con el respaldo nuevo, si un agente termina sin comentar, el workflow publica su respuesta. Puerta 2: fusionas tú. Así se cumple el criterio de salida de F2.</p><div class="tags"><span class="badge b-todo">pendiente</span></div></div></li>
+        <li><div><h3>2.º intento: rama con 17 pruebas</h3><p>Con el workflow corregido (<a href="https://github.com/AlvaroM99/lobby/pull/4">lobby#4</a>), la respuesta del implementador aparece en el issue: 8 turnos, 0,12 USD, rama <code>enjambre/2-npm-test</code>. Chocó con dos límites de GitHub: Actions no puede abrir PR en este repo y el <code>GITHUB_TOKEN</code> no puede tocar <code>ci.yml</code>. Esos dos pasos los hizo la sesión: <a href="https://github.com/AlvaroM99/lobby/pull/5">lobby#5</a>.</p><div class="tags"><span class="badge b-done">PR abierto</span></div></div></li>
+        <li><div><h3><code>enjambre:revisar</code> en lobby#5</h3><p>CI en verde (17/17). Seguridad: APROBAR. Revisor: CAMBIOS, porque los commits traían <code>Co-Authored-By: Claude</code>. La causa está corregida en <a href="https://github.com/AlvaroM99/lobby/pull/6">lobby#6</a>, y lobby#5 se fusiona con squash y un mensaje limpio. Tu fusión (puerta 2) cierra F2.</p><div class="tags"><span class="tag you">puerta 2</span></div></div></li>
       </ol>
       <h3 class="sub">Primer banco de evaluaciones en Actions</h3>
       <div class="table-wrap"><table>
@@ -905,8 +905,8 @@ flowchart TB
     <section id="estado">
       <div class="sec-head">
         <span class="n">ESTADO ACTUAL</span>
-        <h2>F2 a un paso: el implementador necesita un segundo intento</h2>
-        <p>Plan aprobado, plugin fijado por SHA y evaluaciones al 100 % (ADR 0009). El primer intento del implementador terminó sin PR y sin rastro. El workflow ya está corregido para que deje siempre su respuesta en el issue y libere el hueco WIP (ADR 0010). Faltan dos pasos: fusionar lobby#4 y repetir <code>enjambre:implementar</code>. Después, la revisión y tu fusión (puerta 2) cierran F2.</p>
+        <h2>F2 a una fusión: la primera historia tiene PR verificado</h2>
+        <p>lobby#2 ha pasado por plan, aprobación, implementador, CI y revisión. Dos pasos los hizo la sesión porque GitHub no deja a Actions abrir PR ni cambiar workflows (ADR 0010). Queda fusionar lobby#5 con squash, que es tu puerta 2, y lobby#6 para que los agentes no firmen como Claude.</p>
       </div>
       <div class="panel">
         <div class="meter-bar" aria-label="Entregables de F1 a F3: 38 hechos, 2 en curso, 2 de Álvaro"><i style="width:90.5%;background:var(--done)"></i><i style="width:4.8%;background:var(--wip)"></i></div>
@@ -921,7 +921,7 @@ flowchart TB
             <li><span class="badge b-done">hecho</span><div>finance_tracker preparado con agentes, etiquetas y WIP<small>S52</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Evaluaciones ejecutables en Actions<small><code>evals.yml</code> · S53</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S58 y diez ADR</div></li>
-            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 312 pruebas</div></li>
+            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 313 pruebas</div></li>
             <li><span class="badge b-done">hecho</span><div>Hook <code>limitar-bash</code>: lista blanca por agente<small>ADR 0004</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Analista, gobernanza y coordinador<small>ADR 0006</small></div></li>
             <li><span class="badge b-done">hecho</span><div>8 plantillas de Actions y CI propia (Linux y Windows, gitleaks)</div></li>
@@ -933,9 +933,9 @@ flowchart TB
           </ul>
           <ul class="status-list">
             <li><span class="badge b-done">hecho</span><div>Plan de lobby#2 aprobado; plugin fijado por SHA fusionado<small>lobby#3 y finance_tracker#3</small></div></li>
-            <li><span class="badge b-wip">en curso</span><div>Primera historia: 2.º intento del implementador<small><a href="https://github.com/AlvaroM99/lobby/issues/2">lobby#2</a> · ADR 0010</small></div></li>
-            <li><span class="badge b-wip">en PR</span><div>Implementador con resumen en el issue y sin hueco WIP perdido<small><a href="https://github.com/AlvaroM99/lobby/pull/4">lobby#4</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/4">finance_tracker#4</a></small></div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#4 y finance_tracker#4</div></li>
+            <li><span class="badge b-wip">en PR</span><div>Primera historia: 17 pruebas y <code>npm test</code> en CI<small><a href="https://github.com/AlvaroM99/lobby/pull/5">lobby#5</a> · CI verde · seguridad APROBAR</small></div></li>
+            <li><span class="badge b-wip">en PR</span><div>Sin atribución a Claude en commits de agentes<small><a href="https://github.com/AlvaroM99/lobby/pull/6">lobby#6</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/4">finance_tracker#4</a></small></div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#5 (squash), lobby#6 y finance_tracker#4; decidir si Actions puede crear PR</div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
           </ul>
         </div>
@@ -991,8 +991,8 @@ flowchart TB
         <p>En orden: cada paso desbloquea el siguiente.</p>
       </div>
       <ol class="steps">
-        <li><div><h3>Fusionar lobby#4 y finance_tracker#4</h3><p>El implementador deja su respuesta en el issue y, sin PR, libera el hueco WIP (ADR 0010).</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
-        <li><div><h3>2.º intento de lobby#2 y puerta 2</h3><p><code>enjambre:implementar</code> otra vez (puedo ponerla yo), <code>enjambre:revisar</code> en el PR y tu fusión. Es el criterio de salida de F2.</p><div class="tags"><span class="tag">F2</span><span class="tag you">puerta 2</span></div></div></li>
+        <li><div><h3>Fusionar lobby#5 con squash (puerta 2)</h3><p>Borra las líneas <code>Co-Authored-By</code> del mensaje. Mensaje propuesto: <code>test: add unit tests for pure UI utilities and run them in CI</code>. Con esto, F2 queda cerrada.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">F2</span></div></div></li>
+        <li><div><h3>Fusionar lobby#6 y finance_tracker#4; decidir sobre los PR de Actions</h3><p>Sin atribución a Claude. Para que el implementador abra PR solo hace falta activar «Allow GitHub Actions to create and approve pull requests». Antes, bloquear <code>gh pr review --approve</code> en el hook (M15).</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">M15</span></div></div></li>
         <li><div><h3>Instalar Pixel Agents</h3><p>VS Code → Extensiones → «Pixel Agents», o <code>npx pixel-agents</code>. Un personaje por rol y cuatro áreas, sin «Skip Permissions».</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">15 min</span></div></div></li>
         <li><div><h3>Vigilar el plan</h3><p><code>npx ccusage blocks</code> antes y después de la primera historia, y <code>node herramientas/actividad.mjs</code> para los tokens por agente.</p><div class="tags"><span class="tag">M2</span><span class="tag">5 min</span></div></div></li>
         <li><div><h3>Dos historias en paralelo con el coordinador</h3><p><code>claude --agent enjambre:enjambre-coordinador</code> en local con dos carriles. Medir conflictos, ciclos y tokens.</p><div class="tags"><span class="tag">F3</span></div></div></li>
@@ -1025,7 +1025,7 @@ flowchart TB
       </div>
       <div class="phases">
         <article class="phase"><header><h3>F1 · MVP local</h3><span class="badge b-done">cerrada</span></header><ul><li>Plugin con agentes, skills y hooks probados</li><li>Devcontainer y plantillas</li><li>El piloto pasa a F2</li></ul><p class="exit">Cerrada por decisión (ADR 0005).</p></article>
-        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-done">en marcha en GitHub</span></header><ul><li>PR fusionados; secretos y variables creados</li><li>Plan aprobado; 1.er intento sin PR (ADR 0010)</li><li>Falta: 2.º intento, revisión y puerta 2</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
+        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-done">en marcha en GitHub</span></header><ul><li>PR fusionados; secretos y variables creados</li><li>Plan aprobado; 1.er intento sin PR (ADR 0010)</li><li>2.º intento: PR lobby#5 verificado</li><li>Falta: tu fusión (puerta 2)</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
         <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-done">cerrada técnicamente</span></header><ul><li>10 agentes y 6 carriles</li><li>CI de finance_tracker (verde)</li><li>20 evaluaciones (también en Actions) y tokens por agente</li><li>finance_tracker con agentes (#2)</li><li>pass@1 de referencia: 100 %</li><li>Falta: dos carriles reales y M12</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
         <article class="phase"><header><h3>F4 · Datos y BI</h3><span class="badge b-todo">opcional</span></header><ul><li>Agente datos</li><li>Panel de coste y DORA</li></ul><p class="exit"><b>Sale si:</b> panel actualizado a diario.</p></article>
         <article class="phase"><header><h3>F5 · Endurecimiento</h3><span class="badge b-todo">continuo</span></header><ul><li>OpenTelemetry y alertas de coste</li><li>Perfil seccomp propio</li><li>Revisión trimestral de permisos</li></ul><p class="exit"><b>Sale si:</b> 3 meses con métricas en objetivo.</p></article>
