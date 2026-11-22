@@ -2,7 +2,7 @@
 // Ejecutar: npm test
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { revisarContenido, AUTOR } from '../herramientas/publicar.mjs';
+import { revisarContenido, AUTOR, etiquetaDe } from '../herramientas/publicar.mjs';
 
 test('publicar detiene la publicación si hay correos personales, tokens o claves', () => {
   const problemas = revisarContenido([
@@ -17,4 +17,10 @@ test('publicar detiene la publicación si hay correos personales, tokens o clave
 
 test('publicar firma con la dirección noreply de GitHub', () => {
   assert.match(AUTOR.correo, /@users\.noreply\.github\.com$/);
+});
+
+test('publicar: la etiqueta sale de la versión de plugin.json', () => {
+  assert.equal(etiquetaDe('{"name":"enjambre","version":"0.2.0"}'), 'v0.2.0');
+  assert.throws(() => etiquetaDe('{"version":"0.2"}'), /Versión no válida/);
+  assert.throws(() => etiquetaDe('{}'), /Versión no válida/);
 });

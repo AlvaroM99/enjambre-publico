@@ -118,12 +118,14 @@ test('los workflows de agentes no dan por hecho un package-lock en la raíz', ()
   }
 });
 
-test('los workflows de agentes instalan el plugin desde una versión fija (M11)', () => {
+test('los workflows de agentes instalan el plugin fijado por SHA y fallan cerrados (M11)', () => {
   for (const { nombre, texto } of workflows.filter((w) => /enjambre-/.test(w.nombre))) {
     const acciones = (texto.match(/uses: anthropics\/claude-code-action@/g) ?? []).length;
     assert.doesNotMatch(texto, /plugin_marketplaces: https:/, `${nombre}: el marketplace no puede seguir la rama main`);
     assert.equal((texto.match(/plugin_marketplaces: \$\{\{ runner\.temp \}\}\/enjambre-plugin/g) ?? []).length, acciones, nombre);
-    assert.equal((texto.match(/repository: AlvaroM99\/enjambre-publico\n\s+ref: \$\{\{ vars\.ENJAMBRE_VERSION \|\| 'v\d+\.\d+\.\d+' \}\}/g) ?? []).length, acciones, nombre);
+    // Las etiquetas se pueden mover: SHA completo en la variable y sin valor por defecto (revisiones de lobby#3).
+    assert.equal((texto.match(/repository: AlvaroM99\/enjambre-publico\n\s+ref: \$\{\{ vars\.ENJAMBRE_VERSION \}\}\n/g) ?? []).length, acciones, nombre);
+    assert.equal((texto.match(/grep -Eq '\^\[0-9a-f\]\{40\}\$'; then\n\s+echo "Falta ENJAMBRE_VERSION[^\n]*\n\s+exit 1/g) ?? []).length, acciones, `${nombre}: falla sin SHA`);
     assert.equal((texto.match(/mv \.enjambre-plugin "\$RUNNER_TEMP\/enjambre-plugin"/g) ?? []).length, acciones, `${nombre}: fuera del espacio de trabajo`);
   }
 });

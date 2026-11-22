@@ -5,6 +5,9 @@
 //
 // Uso:  node herramientas/publicar.mjs            (publica)
 //       node herramientas/publicar.mjs --prueba   (prepara el commit en una carpeta temporal y no hace push)
+//
+// Tras publicar crea la etiqueta v<versión de plugin.json> si no existe: los proyectos instalan el plugin desde esa
+// etiqueta (vars.ENJAMBRE_VERSION, ADR 0009). Si la etiqueta ya existe en otro commit, avisa de subir la versión.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -23,6 +26,12 @@ export const PROHIBIDO = [
 
 const RAIZ = fileURLToPath(new URL('../', import.meta.url));
 const git = (args, cwd = RAIZ, opciones = {}) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], ...opciones });
+
+export function etiquetaDe(pluginJson) {
+  const version = JSON.parse(pluginJson).version;
+  if (!/^\d+\.\d+\.\d+$/.test(version ?? '')) throw new Error(`Versión no válida en plugin.json: ${version}`);
+  return `v${version}`;
+}
 
 export function revisarContenido(ficheros) {
   const problemas = [];
@@ -55,9 +64,11 @@ function principal() {
     mkdirSync(dirname(join(destino, ruta)), { recursive: true });
     writeFileSync(join(destino, ruta), bytes);
   }
+  const etiqueta = etiquetaDe(ficheros.find(([r]) => r === 'plugins/enjambre/.claude-plugin/plugin.json')[1].toString('utf8'));
   git(['add', '-A'], destino);
   if (!git(['status', '--porcelain'], destino).trim()) {
     console.log('El repositorio público ya está al día.');
+    if (!prueba) etiquetar(destino, etiqueta);
     return;
   }
   git(['-c', `user.name=${AUTOR.nombre}`, '-c', `user.email=${AUTOR.correo}`, '-c', 'commit.gpgsign=false',
@@ -68,6 +79,19 @@ function principal() {
   }
   git(['push', '--quiet', 'origin', 'HEAD:main'], destino);
   console.log(`Publicado ${sha} en https://github.com/${PUBLICO}`);
+  etiquetar(destino, etiqueta);
+}
+
+function etiquetar(destino, etiqueta) {
+  const remota = git(['ls-remote', '--tags', 'origin', `refs/tags/${etiqueta}`], destino).trim().split(/\s/)[0];
+  const actual = git(['rev-parse', 'HEAD'], destino).trim();
+  if (remota === actual) return console.log(`Etiqueta ${etiqueta} ya apunta a esta versión (${actual}).`);
+  if (remota) return console.log(`Aviso: ${etiqueta} ya existe en otro commit. Sube la versión en plugin.json y vuelve a publicar para que los proyectos la reciban.`);
+  git(['tag', etiqueta], destino);
+  git(['push', '--quiet', 'origin', `refs/tags/${etiqueta}`], destino);
+  console.log(`Etiqueta ${etiqueta} creada en ${actual}.`);
+  console.log(`Para llevar esta versión a un proyecto (los workflows se fijan por SHA, no por etiqueta):`);
+  console.log(`  gh variable set ENJAMBRE_VERSION -R AlvaroM99/<repo> --body ${actual}`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
