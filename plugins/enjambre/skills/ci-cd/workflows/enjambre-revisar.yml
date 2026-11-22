@@ -85,27 +85,6 @@ jobs:
           respuesta=$(jq -r '[.[] | select(.type == "result")] | last | .result // empty' "$FICHERO")
           if [ -z "$respuesta" ]; then respuesta="El agente terminó sin respuesta. Revisa el run: $GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID"; fi
           printf '## %s\n\n_Publicado por el workflow: el agente terminó sin comentar._\n\n%s\n' "$TITULO" "$respuesta" | gh pr comment "$PR" --body-file -
-      # Segunda barrera (ADR 0011): solo Álvaro aprueba PR. Este paso no lo controla el agente: retira cualquier aprobación
-      # que no sea del propietario y falla el job.
-      - name: Retirar aprobaciones que no sean de Álvaro
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-          PRS: ${{ github.event.pull_request.number }}
-          PROPIETARIO: ${{ github.repository_owner }}
-        run: |
-          retiradas=0
-          for pr in $PRS; do
-            for id in $(gh api "repos/$GH_REPO/pulls/$pr/reviews" --paginate \
-                --jq ".[] | select(.state == \"APPROVED\" and .user.login != \"$PROPIETARIO\") | .id"); do
-              gh api -X PUT "repos/$GH_REPO/pulls/$pr/reviews/$id/dismissals" \
-                -f message="Enjambre: solo Álvaro aprueba PR (ADR 0011)." -f event=DISMISS > /dev/null
-              echo "Retirada la aprobación $id del PR #$pr"
-              retiradas=$((retiradas + 1))
-            done
-          done
-          if [ "$retiradas" -gt 0 ]; then exit 1; fi
 
   sensible:
     if: >-
@@ -202,24 +181,36 @@ jobs:
           respuesta=$(jq -r '[.[] | select(.type == "result")] | last | .result // empty' "$FICHERO")
           if [ -z "$respuesta" ]; then respuesta="El agente terminó sin respuesta. Revisa el run: $GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID"; fi
           printf '## %s\n\n_Publicado por el workflow: el agente terminó sin comentar._\n\n%s\n' "$TITULO" "$respuesta" | gh pr comment "$PR" --body-file -
-      # Segunda barrera (ADR 0011): solo Álvaro aprueba PR. Este paso no lo controla el agente: retira cualquier aprobación
-      # que no sea del propietario y falla el job.
+
+  aprobaciones:
+    # Segunda barrera (ADR 0011): solo Álvaro aprueba PR. Job aparte, en otra máquina y sin checkout, para que el agente
+    # no pueda alterarlo (PATH, BASH_ENV, scripts del repo). Revisa TODOS los PR abiertos y falla cerrado: si no puede
+    # leer las revisiones, el job falla; si retira alguna aprobación, también.
+    needs: [revisor, seguridad]
+    if: always() && github.event.label.name == 'enjambre:revisar' && github.event.sender.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
       - name: Retirar aprobaciones que no sean de Álvaro
-        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-          PRS: ${{ github.event.pull_request.number }}
           PROPIETARIO: ${{ github.repository_owner }}
         run: |
+          set -euo pipefail
+          prs=$(gh pr list --state open --limit 200 --json number --jq '.[].number')
           retiradas=0
-          for pr in $PRS; do
-            for id in $(gh api "repos/$GH_REPO/pulls/$pr/reviews" --paginate \
-                --jq ".[] | select(.state == \"APPROVED\" and .user.login != \"$PROPIETARIO\") | .id"); do
+          for pr in $prs; do
+            ids=$(gh api "repos/$GH_REPO/pulls/$pr/reviews" --paginate \
+              --jq ".[] | select(.state == \"APPROVED\" and .user.login != \"$PROPIETARIO\") | .id")
+            for id in $ids; do
               gh api -X PUT "repos/$GH_REPO/pulls/$pr/reviews/$id/dismissals" \
                 -f message="Enjambre: solo Álvaro aprueba PR (ADR 0011)." -f event=DISMISS > /dev/null
               echo "Retirada la aprobación $id del PR #$pr"
               retiradas=$((retiradas + 1))
             done
           done
+          echo "PR abiertos revisados: $(echo "$prs" | grep -c . || true); aprobaciones retiradas: $retiradas"
           if [ "$retiradas" -gt 0 ]; then exit 1; fi

@@ -163,16 +163,19 @@ test('los workflows de agentes no añaden atribución a Claude en commits ni PR'
   }
 });
 
-test('los jobs con permiso sobre PR retiran cualquier aprobación que no sea de Álvaro (ADR 0011)', () => {
-  const casos = [['ci-cd/enjambre-revisar.yml', ['revisor', 'seguridad']], ['ci-cd/enjambre-implementar.yml', ['implementar']]];
-  for (const [nombre, jobs] of casos) {
+test('un job aparte retira las aprobaciones que no sean de Álvaro en todos los PR y falla cerrado (ADR 0011)', () => {
+  for (const nombre of ['ci-cd/enjambre-revisar.yml', 'ci-cd/enjambre-implementar.yml']) {
     const { texto } = workflows.find((w) => w.nombre === nombre);
-    for (const job of jobs) {
-      const bloque = texto.split(new RegExp(`^ {2}${job}:\\n`, 'm'))[1].split(/^ {2}\w[\w-]*:\n/m)[0];
-      assert.match(bloque, /Retirar aprobaciones que no sean de Álvaro\n\s+if: always\(\)/, `${nombre} ${job}`);
-      assert.match(bloque, /\.state == \\"APPROVED\\" and \.user\.login != \\"\$PROPIETARIO\\"/, `${nombre} ${job}`);
-      assert.match(bloque, /\/dismissals/, `${nombre} ${job}`);
-      assert.match(bloque, /if \[ "\$retiradas" -gt 0 \]; then exit 1; fi/, `${nombre} ${job}: falla si retira`);
-    }
+    const bloque = texto.split(/^ {2}aprobaciones:\n/m)[1];
+    assert.ok(bloque, `${nombre}: job aprobaciones`);
+    assert.match(bloque, /needs: \[[^\]]+\]\n\s+if: always\(\)/, nombre);
+    assert.doesNotMatch(bloque, /actions\/checkout|claude-code-action/, `${nombre}: sin checkout ni agente`);
+    assert.match(bloque, /permissions:\n\s+pull-requests: write\n\s+steps:/, `${nombre}: solo pull-requests`);
+    assert.match(bloque, /set -euo pipefail/, `${nombre}: falla cerrado`);
+    assert.match(bloque, /gh pr list --state open --limit 200/, `${nombre}: todos los PR abiertos`);
+    assert.match(bloque, /\.state == \\"APPROVED\\" and \.user\.login != \\"\$PROPIETARIO\\"/, nombre);
+    assert.match(bloque, /\/dismissals/, nombre);
+    assert.match(bloque, /if \[ "\$retiradas" -gt 0 \]; then exit 1; fi/, nombre);
+    assert.doesNotMatch(texto.split(/^ {2}aprobaciones:\n/m)[0], /Retirar aprobaciones/, `${nombre}: nada en el job del agente`);
   }
 });
