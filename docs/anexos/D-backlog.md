@@ -32,8 +32,8 @@ S17,Story,Entorno preview en Cloudflare,E4,Medium,"AC: lobby-preview Worker y D1
 S18,Story,Entorno production con aprobación,E4,Medium,"AC: despliegue solo tras aprobación de Álvaro; prueba de humo; procedimiento de rollback documentado y probado."
 E5,Epic,Enjambre - Orquestación por eventos,,High,claude-code-action y tablero.
 S19,Story,Workflow enjambre-planificar por etiqueta,E5,High,"AC: etiqueta enjambre:planificar en issue genera comentario de plan; solo usuarios con escritura; presupuesto y max-turns. HECHO en lobby#1; falta el secreto."
-S20,Story,Workflow enjambre-implementar,E5,High,"AC: etiqueta enjambre:implementar crea rama enjambre/* y PR en borrador; concurrency 1 por issue; WIP global configurable (ENJAMBRE_WIP, 3 por defecto, máx. 6; ADR 0003). HECHO en lobby#1; falta el secreto."
-S21,Story,Workflow enjambre-revisar y verificar en PR,E5,Medium,"AC: al marcar PR listo, ejecuta revisor y verificador y comenta veredictos. HECHO en lobby#1 (revisar); verificar sigue en local."
+S20,Story,Workflow enjambre-implementar,E5,High,"AC: etiqueta enjambre:implementar crea rama enjambre/* y PR en borrador; concurrency 1 por issue; WIP global configurable (ENJAMBRE_WIP, 3 por defecto, máx. 6; ADR 0003). HECHO en lobby#1; falta el secreto. Reserva WIP sin carreras y liberación del hueco (ADR 0008)."
+S21,Story,Workflow enjambre-revisar y verificar en PR,E5,Medium,"AC: al marcar PR listo, ejecuta revisor y verificador y comenta veredictos. HECHO en lobby#1 (revisar); verificar sigue en local. Primera ejecución real en lobby#1: CAMBIOS con 10 hallazgos (ADR 0008)."
 S22,Story,Integración Jira (opcional),E5,Medium,"AC: proyecto Jira con estados de §5.3; app GitHub for Jira enlaza ramas y PR; CSV importado; 2 reglas de automatización."
 E6,Epic,Enjambre - Piloto en lobby,,High,Cinco historias reales completadas por el equipo.
 S23,Story,Seleccionar 5 historias reales de lobby y refinarlas,E6,High,"AC: 5 issues en Listo con plan aprobado; mezcla back/front/bug."
@@ -43,7 +43,7 @@ S25,Story,Hook registrar-coste y coste en PR,E7,Medium,"AC: cada ejecución regi
 S26,Story,Alertas de presupuesto,E7,Medium,"AC: aviso al superar 70 % del presupuesto mensual; bloqueo de tarea al agotar su presupuesto."
 S27,Story,Telemetría OpenTelemetry de Claude Code,E7,Low,"AC: métricas de coste y tokens exportadas a destino elegido; contenido de prompts redactado."
 E8,Epic,Enjambre - Calidad de agentes (evals),,Medium,Banco de evaluaciones.
-S28,Story,Banco de 20 tareas de evaluación,E8,Medium,"AC: 20 tareas con verificador ejecutable sacadas del historial real; script que ejecuta y puntúa pass@1. HECHO: evals/ con 20 tareas y fixtures; falta la primera ejecución."
+S28,Story,Banco de 20 tareas de evaluación,E8,Medium,"AC: 20 tareas con verificador ejecutable sacadas del historial real; script que ejecuta y puntúa pass@1. HECHO: evals/ con 20 tareas y fixtures; falta la primera ejecución. Workflow evals.yml para ejecutarlo en Actions (ADR 0008)."
 S29,Story,Proceso de lecciones aprendidas,E8,Low,"AC: cada defecto escapado crea prueba, entrada en docs/lecciones.md y tarea de eval."
 E9,Epic,Enjambre - Ampliación del equipo,,Medium,Plataforma, Seguridad, finance_tracker.
 S30,Story,Agente plataforma,E9,Medium,"AC: mantiene workflows y wrangler.toml; despliega solo a preview; CI < 10 min. Definición HECHA (ADR 0003)."
@@ -70,5 +70,9 @@ S47,Story,Agente de gobernanza de código y datos,E12,High,"AC: informe con nota
 S48,Story,Coordinador como sesión principal,E12,High,"AC: claude --agent enjambre:enjambre-coordinador lanza solo agentes de Enjambre y respeta las dos puertas. HECHO (definición); falta prueba real."
 S49,Story,Hook registrar-actividad,E12,Medium,"AC: inicio y fin de cada agente en actividad.jsonl sin contenido de la conversación; nunca bloquea. HECHO."
 S50,Story,Oficina de agentes con Pixel Agents,E12,Low,"AC: Álvaro instala Pixel Agents; un personaje por rol y cuatro áreas. Pasos en docs/operacion.md."
-S51,Story,Secreto CLAUDE_CODE_OAUTH_TOKEN en lobby,E12,High,"AC: secreto creado por Álvaro con claude setup-token; ENJAMBRE_WIP=3 ya creado."
+S51,Story,Secreto CLAUDE_CODE_OAUTH_TOKEN en lobby,E12,High,"AC: secreto creado por Álvaro con claude setup-token; ENJAMBRE_WIP=3 ya creado. HECHO el 22-11-2026 en lobby y finance_tracker (ADR 0008)."
+S52,Story,Agentes de Enjambre en finance_tracker,E12,High,"AC: workflows de agentes, settings con deny de tracker/datos, .dev.vars y _origen, etiquetas y ENJAMBRE_WIP. HECHO en finance_tracker#2 (ADR 0008)."
+S53,Story,Banco de evaluaciones en GitHub Actions,E12,High,"AC: workflow manual del propietario con CLI fijada, tabla en el resumen y artefacto JSON. HECHO; primera ejecución cuando exista el secreto en enjambre."
+S54,Story,Mejoras de la primera revisión real (M9 y M10),E12,Medium,"AC: el revisor cita líneas del fichero; proteger-secretos no bloquea rutas en el cuerpo de un comentario; .claude/ desde la rama base. Lo aprueba Álvaro."
+S55,Story,Cerrar escrituras por la API de GitHub y fijar el marketplace (M11),E12,High,"AC: bloquear-comandos bloquea gh api con POST, -f/-F/--field/--input y /merges, con pruebas; plugin_marketplaces fijado a etiqueta o SHA. Reglas deny ya aplicadas en lobby y finance_tracker. Cambio de hook: lo aprueba Álvaro."
 ```

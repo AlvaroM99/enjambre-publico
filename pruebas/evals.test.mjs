@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
-import { TAREAS, aRegExp, evaluar, resumir } from '../evals/ejecutar.mjs';
+import { TAREAS, aRegExp, evaluar, modoPermisos, resumir, tablaResumen } from '../evals/ejecutar.mjs';
 import { contarTokens, evento } from '../plugins/enjambre/scripts/registrar-actividad.mjs';
 import { resumirActividad } from '../herramientas/actividad.mjs';
 
@@ -87,4 +87,22 @@ test('resumirActividad suma ejecuciones, segundos y tokens por agente', () => {
     { fecha: '2026-11-21T10:01:30Z', evento: 'fin', agente: 'enjambre-revisor', agent_id: 'x', tokens: { entrada: 10, salida: 5, cache_lectura: 2, cache_escritura: 1 } },
   ].map((o) => JSON.stringify(o));
   assert.deepEqual(resumirActividad(lineas)['enjambre-revisor'], { ejecuciones: 1, segundos: 90, tokens_entrada: 10, tokens_salida: 5, tokens_cache: 3 });
+});
+
+test('evals: solo se saltan permisos en el devcontainer o en GitHub Actions', () => {
+  assert.equal(modoPermisos({}), 'acceptEdits');
+  assert.equal(modoPermisos({ DEVCONTAINER: 'true' }), 'bypassPermissions');
+  assert.equal(modoPermisos({ GITHUB_ACTIONS: 'true' }), 'bypassPermissions');
+  assert.equal(modoPermisos({ GITHUB_ACTIONS: 'false' }), 'acceptEdits');
+});
+
+test('evals: la tabla del resumen marca cada tarea y el motivo del fallo', () => {
+  const resultados = [
+    { id: 'a', agente: 'enjambre-revisor', pasa: true, turnos: 3, segundos: 40, error: null, comprobaciones: [{ tipo: 'contiene', ok: true }] },
+    { id: 'b', agente: 'enjambre-seguridad', pasa: false, turnos: null, segundos: 9, error: null, comprobaciones: [{ tipo: 'contiene', ok: false }] },
+  ];
+  const tabla = tablaResumen(resumir(resultados), resultados);
+  assert.match(tabla, /pass@1 50 % \(1\/2\)/);
+  assert.match(tabla, /\| a \| enjambre-revisor \| PASA \| 3 \| 40 \|  \|/);
+  assert.match(tabla, /\| b \| enjambre-seguridad \| FALLA \| — \| 9 \| contiene \|/);
 });

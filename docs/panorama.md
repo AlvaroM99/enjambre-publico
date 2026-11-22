@@ -130,3 +130,6 @@ Para una web de notas en Workers, la recomendación del analista sería **Tiptap
 | M6 | Skills de TDD y depuración inspiradas en Superpowers | obra/superpowers | M | Baja |
 | M7 | Panel de actividad y tokens sobre `actividad.jsonl` (como módulo de Lobby, P13) | disler (idea) | M | Baja |
 | M8 | Semilla sintética de lobby para que `prueba.mjs` completa corra en CI | — | M | Media |
+| M9 | Revisor: citar líneas del fichero, no posiciones del diff; `proteger-secretos` sin falsos positivos en el cuerpo de `gh pr comment` (cambio de hook: lo aprueba Álvaro) | primera revisión real (ADR 0008) | S | Media |
+| M10 | El revisor carga `.claude/` desde la rama base y no desde el PR | primera revisión real (ADR 0008) | S | Media |
+| M11 | `bloquear-comandos` también bloquea `gh api` con POST o campos (`-f`, `--input`); fijar el marketplace `enjambre-publico` a una etiqueta o SHA | revisión de seguridad real (ADR 0008) | S | **Alta** |

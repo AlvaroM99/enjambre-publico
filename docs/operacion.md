@@ -37,6 +37,55 @@ lobby no tiene CI todavía; se añade en la historia S14.
 - Claude Code con el sandbox activo dentro del contenedor, de punta a punta. Hace falta iniciar sesión en Claude dentro del contenedor, y lo hace Álvaro.
 - Los hooks cargados de verdad por Claude Code al instalar el plugin en un proyecto. Las pruebas ejecutan los scripts con la misma entrada JSON que documenta Claude Code, pero no a través de Claude Code.
 
+## Secretos, repositorios y primeras ejecuciones reales (ADR 0008, 22-11-2026)
+
+| Repositorio | `CLAUDE_CODE_OAUTH_TOKEN` | `ENJAMBRE_WIP` | Etiquetas | PR de integración |
+|---|---|---|---|---|
+| `AlvaroM99/lobby` | Creado el 22-11-2026 | 3 | `enjambre:*` y hallazgos | [lobby#1](https://github.com/AlvaroM99/lobby/pull/1) |
+| `AlvaroM99/finance_tracker` | Creado el 22-11-2026 | 3 | `enjambre:*` y hallazgos | [finance_tracker#1](https://github.com/AlvaroM99/finance_tracker/pull/1) (CI) y [finance_tracker#2](https://github.com/AlvaroM99/finance_tracker/pull/2) (agentes) |
+| `AlvaroM99/enjambre` | Lo pone Álvaro (para `evals.yml`) | — | — | — |
+| `AlvaroM99/enjambre-publico` | No hace falta | — | — | — |
+
+| Comprobación | Resultado |
+|---|---|
+| `npm test` en Windows | 297/297 |
+| Revisor en Actions sobre lobby#1 | Plugin instalado desde el repo público; 15 turnos; veredicto CAMBIOS con 10 hallazgos; 0,92 USD estimados |
+| Hallazgos aplicados | Ver la tabla del ADR 0008 (job `sensible` con 403, WIP sin carreras, reglas de wrangler…) |
+| Revisor y seguridad en Actions sobre finance_tracker#2 | 1.ª vuelta: CAMBIOS (8 hallazgos) y seguridad sin publicar; 2.ª: revisor APROBAR y seguridad CAMBIOS (hueco de `gh api` con POST, M11) |
+
+### Renovar o cambiar el token (lo hace Álvaro)
+
+1. Genera uno nuevo: `claude setup-token` (o con la ruta completa del ejecutable, `C:/Users/User/.local/bin/claude.exe setup-token`). Guárdalo en tu gestor de contraseñas; no lo pegues en chats ni ficheros.
+2. Sustitúyelo en cada repo que lo usa (pide «Paste your secret»; pegarlo no se ve):
+
+```bash
+gh secret set CLAUDE_CODE_OAUTH_TOKEN -R AlvaroM99/lobby
+```
+
+```bash
+gh secret set CLAUDE_CODE_OAUTH_TOKEN -R AlvaroM99/finance_tracker
+```
+
+```bash
+gh secret set CLAUDE_CODE_OAUTH_TOKEN -R AlvaroM99/enjambre
+```
+
+3. Comprueba los nombres (nunca se ve el valor): `gh secret list -R AlvaroM99/<repo>`.
+
+Caduca al año (22-11-2027). La CLI no tiene orden para revocarlo y la web no lo documenta [POR CONFIRMAR].
+
+### Ejecutar el banco de evaluaciones en Actions
+
+```bash
+gh workflow run evals.yml -R AlvaroM99/enjambre
+```
+
+```bash
+gh workflow run evals.yml -R AlvaroM99/enjambre -f tarea=revisor-no-escribe
+```
+
+El resumen del run muestra la tabla de pass@1 y el JSON queda como artefacto `evals-resultados`.
+
 ## Fases 2 y 3: cierre técnico (ADR 0007, 21-11-2026)
 
 | Comprobación | Resultado |
@@ -77,7 +126,7 @@ Los otros siete, en la sección siguiente. Organigrama, relaciones y RACI: [orga
 | `npm test` en Windows | 258/258 |
 | `claude plugin validate .` y `./plugins/enjambre` | Validación superada |
 | Variable `ENJAMBRE_WIP=3` en `AlvaroM99/lobby` | **Creada** el 21-11-2026 con `gh variable set` |
-| Secreto `CLAUDE_CODE_OAUTH_TOKEN` en `AlvaroM99/lobby` | **Pendiente: lo crea Álvaro** (pasos abajo) |
+| Secreto `CLAUDE_CODE_OAUTH_TOKEN` en `AlvaroM99/lobby` | **Creado** el 22-11-2026 (ADR 0008) |
 
 ### Publicar en el repositorio público
 
@@ -101,7 +150,7 @@ Claude no puede hacerlo: el token se genera iniciando sesión con tu cuenta y es
 4. Comprueba que aparece el nombre (nunca el valor): `gh secret list -R AlvaroM99/lobby`.
 5. Cierra la terminal para que el token no quede en pantalla.
 
-El token gasta del mismo plan Pro que tus sesiones. Su caducidad y cómo revocarlo: [POR CONFIRMAR] en https://code.claude.com/docs/en/github-actions.
+El token gasta del mismo plan Pro que tus sesiones. Dura un año (https://code.claude.com/docs/en/authentication.md). Para renovarlo en todos los repos, ver la sección del ADR 0008 más arriba.
 
 ### Oficina de agentes: Pixel Agents
 

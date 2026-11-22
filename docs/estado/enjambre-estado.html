@@ -338,7 +338,7 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <div class="stat" role="listitem"><b>10</b><span>agentes</span></div>
       <div class="stat" role="listitem"><b>13</b><span>skills</span></div>
       <div class="stat" role="listitem"><b>4</b><span>hooks</span></div>
-      <div class="stat" role="listitem"><b>286</b><span>pruebas en verde</span></div>
+      <div class="stat" role="listitem"><b>297</b><span>pruebas en verde</span></div>
       <div class="stat" role="listitem"><b>6</b><span>carriles como máximo</span></div>
       <div class="stat" role="listitem"><b>20</b><span>evaluaciones de agentes</span></div>
       <div class="stat" role="listitem"><b>20 $</b><span>al mes (Claude Pro)</span></div>
@@ -358,6 +358,8 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <li><a href="#plugin">Anatomía del plugin</a></li>
       <li><a href="#arnes">Arnés y seguridad</a></li>
       <li><a href="#cicd">CI/CD</a></li>
+      <li><a href="#repos">Repos y secretos</a></li>
+      <li><a href="#primera">Primeras ejecuciones</a></li>
       <li><a href="#ecosistema">Ecosistema</a></li>
       <li><a href="#evals">Evaluaciones</a></li>
       <li><a href="#panorama">Competencia</a></li>
@@ -551,12 +553,12 @@ flowchart TB
 │  │  └─ ci-cd/workflows/ <span class="c"># 8 plantillas</span>
 │  ├─ hooks/hooks.json   <span class="c"># 4 hooks</span>
 │  └─ scripts/           <span class="c"># Node, sin dependencias</span>
-├─ .github/              <span class="c"># CI propia, Dependabot</span>
+├─ .github/              <span class="c"># CI propia, evals.yml, Dependabot</span>
 ├─ herramientas/publicar.mjs <span class="c"># → repo público</span>
 ├─ plantillas/           <span class="c"># settings, devcontainer,</span>
 │                        <span class="c"># plan, pr, adr, qa,</span>
 │                        <span class="c"># investigación, gobernanza</span>
-├─ pruebas/              <span class="c"># node:test, 286</span>
+├─ pruebas/              <span class="c"># node:test, 297</span>
 ├─ evals/                <span class="c"># 20 tareas + fixtures</span>
 ├─ docs/                 <span class="c"># plan, ADR 0001–0007,</span>
 │                        <span class="c"># organigrama, riesgos, panorama</span>
@@ -607,6 +609,7 @@ flowchart TB
         <div class="wf"><span class="trg">etiqueta enjambre:revisar</span><h3><code>enjambre-revisar</code></h3><p>Revisor, y seguridad si el PR toca ficheros sensibles.</p></div>
         <div class="wf"><span class="trg">manual</span><h3><code>enjambre-investigar</code></h3><p>QA exploratorio y propuestas.</p></div>
         <div class="wf"><span class="trg">manual (mensual)</span><h3><code>enjambre-gobernanza</code></h3><p>Auditoría de código y datos.</p></div>
+        <div class="wf"><span class="trg">manual · repo de Enjambre</span><h3><code>evals.yml</code></h3><p>Banco de 20 evaluaciones con la CLI fijada; tabla de pass@1 en el resumen.</p></div>
         <div class="wf prod"><span class="trg">manual · propietario · DESPLEGAR</span><h3><code>produccion.yml</code></h3><p>Pruebas y <code>wrangler deploy</code> desde <code>main</code>.</p></div>
       </div>
 
@@ -619,6 +622,76 @@ flowchart TB
         <div class="box"><b>AlvaroM99/enjambre-publico</b>Marketplace del que instalan los proyectos y la Action de GitHub.</div>
       </div>
       <p class="note">No se publica el historial porque todos los commits privados llevan el correo personal de Álvaro (ADR 0006).</p>
+    </section>
+
+    <section id="repos">
+      <div class="sec-head">
+        <span class="n">REPOSITORIOS Y SECRETOS</span>
+        <h2>Un token de Claude, copiado en cada repo que ejecuta agentes</h2>
+        <p>En una cuenta personal de GitHub los secretos van por repositorio: no hay uno común. El token es de la cuenta de Claude de Álvaro, no de Enjambre, y todos los repos gastan del mismo plan Pro (ADR 0008).</p>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Repositorio</th><th>Visibilidad</th><th><code>CLAUDE_CODE_OAUTH_TOKEN</code></th><th><code>ENJAMBRE_WIP</code></th><th>Etiquetas</th><th>Qué ejecuta</th><th>PR</th></tr></thead>
+        <tbody>
+          <tr><td><b>lobby</b></td><td>privado</td><td><span class="badge b-done">22-11-2026</span></td><td class="num">3</td><td><span class="badge b-done">sí</span></td><td>CI + 6 workflows de agentes + producción manual</td><td><a href="https://github.com/AlvaroM99/lobby/pull/1">lobby#1</a></td></tr>
+          <tr><td><b>finance_tracker</b></td><td>privado</td><td><span class="badge b-done">22-11-2026</span></td><td class="num">3</td><td><span class="badge b-done">sí</span></td><td>CI de Rust + 6 workflows de agentes (sin producción)</td><td><a href="https://github.com/AlvaroM99/finance_tracker/pull/1">#1</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/2">#2</a></td></tr>
+          <tr><td><b>enjambre</b></td><td>privado</td><td><span class="badge b-risk">lo pega Álvaro</span></td><td class="num">—</td><td>—</td><td>CI propia y <code>evals.yml</code></td><td>—</td></tr>
+          <tr><td><b>enjambre-publico</b></td><td>público</td><td><span class="badge b-todo">no hace falta</span></td><td class="num">—</td><td>—</td><td>Solo sirve el plugin (marketplace)</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <h3 class="sub">Dónde vive el token</h3>
+      <div class="sync">
+        <div class="box"><b><code>claude setup-token</code></b>Lo muestra una vez en tu terminal y no lo guarda en ningún sitio. Guárdalo en tu gestor de contraseñas.</div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="box"><b>Secretos de GitHub</b><code>gh secret set</code> por repo. Cifrado; GitHub no deja volver a verlo, solo sustituirlo.</div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="box"><b>Runner de Actions</b>La Action lo recibe en <code>claude_code_oauth_token</code>; en los logs sale como <code>***</code>.</div>
+      </div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="panel"><h3>Ciclo de vida</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">Creado el 22-11-2026, dura un año: <b>renovar antes del 22-11-2027</b> con <code>claude setup-token</code> y <code>gh secret set CLAUDE_CODE_OAUTH_TOKEN -R AlvaroM99/&lt;repo&gt;</code> en cada repo de la tabla. La CLI no tiene orden para revocarlo y la web no lo documenta [POR CONFIRMAR].</p></div>
+        <div class="panel"><h3>Riesgo aceptado</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">El token pasó por una conversación con Claude. Álvaro decidió usarlo igualmente. Mitigación: los workflows solo los dispara el propietario, los PR de forks no reciben secretos y se renueva al caducar o antes si aparece una forma de revocarlo.</p></div>
+      </div>
+    </section>
+
+    <section id="primera">
+      <div class="sec-head">
+        <span class="n">PRIMERAS EJECUCIONES REALES</span>
+        <h2>Los agentes se revisaron a sí mismos y encontraron fallos de verdad</h2>
+        <p>Con el secreto creado, Enjambre revisó en GitHub Actions los dos PR que lo instalan. Ninguna prueba local había detectado estos fallos: solo aparecen al ejecutar en un runner real.</p>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Ejecución</th><th>Agente</th><th class="num">Turnos</th><th class="num">Coste estimado</th><th>Resultado</th></tr></thead>
+        <tbody>
+          <tr><td>lobby#1 · 1.ª</td><td>revisor (Opus)</td><td class="num">15</td><td class="num">0,92 USD</td><td><span class="badge b-wip">CAMBIOS</span> 10 hallazgos; seguridad se saltó por un fallo del workflow</td></tr>
+          <tr><td>finance_tracker#2 · 1.ª</td><td>revisor (Opus)</td><td class="num">12</td><td class="num">0,57 USD</td><td><span class="badge b-wip">CAMBIOS</span> 8 hallazgos, 2 altos</td></tr>
+          <tr><td>finance_tracker#2 · 1.ª</td><td>seguridad (Sonnet)</td><td class="num">5</td><td class="num">0,20 USD</td><td><span class="badge b-risk">sin comentario</span> terminó sin publicar su veredicto</td></tr>
+          <tr><td>finance_tracker#2 · 2.ª</td><td>revisor (Opus)</td><td class="num">15</td><td class="num">0,78 USD</td><td><span class="badge b-done">APROBAR</span> hallazgos de la 1.ª resueltos</td></tr>
+          <tr><td>finance_tracker#2 · 2.ª</td><td>seguridad (Sonnet)</td><td class="num">10</td><td class="num">0,27 USD</td><td><span class="badge b-wip">CAMBIOS</span> 4 hallazgos con referencia OWASP/OpenSSF; ya publica</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Cinco ejecuciones de agentes: 2,74 USD estimados en total, unos 0,55 USD por revisión. Es la estimación del cliente: con la suscripción Pro no se factura, pero gasta del plan.</p>
+      <h3 class="sub">Qué encontraron y cómo se corrigió</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Hallazgo</th><th>Dónde</th><th>Corrección</th></tr></thead>
+        <tbody>
+          <tr><td>El job <code>sensible</code> no podía leer el diff (HTTP 403) y lo tomaba como «no sensible»: la revisión de seguridad se saltaba en silencio</td><td>plantilla <code>revisar</code></td><td><code>contents: read</code> y fallo cerrado; prueba nueva</td></tr>
+          <tr><td><code>investigar</code> y <code>gobernanza</code> usan la caché de npm y <code>npm ci</code>: en finance_tracker fallarían siempre</td><td>plantillas</td><td>Solo <code>npm ci</code> si hay <code>package-lock.json</code>; prueba para todos los workflows de agentes</td></tr>
+          <tr><td>Carrera en el límite WIP y hueco ocupado si el implementador falla</td><td>plantilla <code>implementar</code></td><td>Reserva optimista con recuento y job <code>liberar</code></td></tr>
+          <tr><td>El prompt del implementador exigía <code>npm test</code>, que lobby no tiene</td><td>plantilla <code>implementar</code></td><td>Comprobaciones según CLAUDE.md y README de cada proyecto</td></tr>
+          <tr><td>Revisor sin acceso al issue enlazado</td><td>plantilla <code>revisar</code></td><td><code>issues: read</code></td></tr>
+          <tr><td><code>allow</code> de despliegue a un entorno inexistente y <code>deny</code> sin comodín</td><td>lobby · settings</td><td><code>deny</code> de <code>wrangler deploy *</code>, <code>versions *</code>, <code>wrangler@*</code></td></tr>
+          <tr><td><code>deny</code> de push a <code>main</code> solo en su forma literal (el hook sí lo bloqueó)</td><td>los dos settings</td><td><code>deny</code> de refspecs hacia <code>main</code></td></tr>
+          <tr><td><b>Hueco real:</b> el hook bloquea <code>gh api</code> con DELETE, PUT y PATCH, pero no con POST; <code>POST /merges</code> podría fusionar en <code>main</code></td><td>hook <code>bloquear-comandos</code></td><td><code>deny</code> de escrituras por la API en los dos proyectos y en la plantilla; el hook, mejora M11 (la aprueba Álvaro)</td></tr>
+          <tr><td>Marketplace del plugin sin fijar a un commit</td><td>workflows</td><td>Solo Álvaro publica; fijarlo es la mejora M11</td></tr>
+          <tr><td>El agente de seguridad terminó sin publicar</td><td>plantilla <code>revisar</code></td><td><code>display_report</code> y prompt «tu última acción es publicar»: en la 2.ª vuelta publica</td></tr>
+          <tr><td>Faltaba la documentación del área (DEVOPS_CONTEXT, estado)</td><td>finance_tracker</td><td>Sección «Agentes de Enjambre» con la certeza de cada dato</td></tr>
+          <tr><td>CI de lobby sin error claro si <code>wrangler dev</code> no arranca; producción sin migraciones D1</td><td>lobby</td><td>Comprobación con mensaje y nota en el README</td></tr>
+        </tbody>
+      </table></div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="panel"><h3>Lo que funcionó</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">El plugin se instaló desde <code>enjambre-publico</code>. Los hooks actuaron dentro de la Action: <code>bloquear-comandos</code> paró un push hacia <code>main</code> y <code>proteger-secretos</code> no dejó tocar rutas protegidas, ni siquiera escritas en un comentario. Los veredictos separan lo comprobado de lo no comprobado.</p></div>
+        <div class="panel"><h3>Lo que hay que pulir (M9, M10)</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">El revisor cita posiciones del diff en vez de líneas del fichero. <code>proteger-secretos</code> bloquea rutas escritas dentro del cuerpo de un comentario, y el revisor carga el <code>.claude/</code> del propio PR. Los cambios de hooks los aprueba Álvaro.</p></div>
+      </div>
     </section>
 
     <section id="ecosistema">
@@ -674,8 +747,8 @@ flowchart TB
         </tbody>
       </table></div>
       <div class="grid2" style="margin-top:14px">
-        <div class="panel"><h3>Cómo se lanza</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><code>node evals/ejecutar.mjs --simular</code> valida las 20 tareas sin gastar nada. <code>node evals/ejecutar.mjs</code> las ejecuta con <code>claude -p --agent enjambre:&lt;agente&gt; --plugin-dir</code> y guarda pass@1 global y por agente, turnos y coste.</p></div>
-        <div class="panel"><h3>Objetivo</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">pass@1 de 60 % o más en F3 y de 75 % en F5. Ninguna tarea que pasaba puede dejar de pasar tras un cambio de prompt. Primera ejecución pendiente: la CLI de esta máquina aún no tiene sesión.</p></div>
+        <div class="panel"><h3>Cómo se lanza</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><code>node evals/ejecutar.mjs --simular</code> valida las 20 tareas sin gastar nada. <code>node evals/ejecutar.mjs</code> las ejecuta con <code>claude -p --agent enjambre:&lt;agente&gt; --plugin-dir</code> y guarda pass@1 global y por agente, turnos, coste y un extracto de la respuesta. En GitHub Actions: <code>gh workflow run evals.yml -R AlvaroM99/enjambre</code>, con la CLI 2.1.330 fijada y la tabla en el resumen del run.</p></div>
+        <div class="panel"><h3>Objetivo</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">pass@1 de 60 % o más en F3 y de 75 % en F5. Ninguna tarea que pasaba puede dejar de pasar tras un cambio de prompt. <!-- EVALS-ESTADO -->Primera ejecución: en cuanto exista el secreto en el repo de Enjambre.</p></div>
       </div>
     </section>
 
@@ -770,7 +843,7 @@ flowchart TB
     <section id="mejoras">
       <div class="sec-head">
         <span class="n">MEJORAS PROPUESTAS</span>
-        <h2>Ocho mejoras sacadas del panorama</h2>
+        <h2>Once mejoras: ocho del panorama y tres de las primeras revisiones reales</h2>
         <p>Ordenadas por número; la prioridad va en cada una. Ninguna se aplica sin que Álvaro la apruebe.</p>
       </div>
       <div class="mejoras">
@@ -782,22 +855,29 @@ flowchart TB
         <div class="mej"><span class="id">M6</span><div><h3>Skills de TDD y depuración</h3><p>Inspiradas en Superpowers, adaptadas a nuestras reglas. Esfuerzo M.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
         <div class="mej"><span class="id">M7</span><div><h3>Panel de actividad y tokens</h3><p>Sobre <code>actividad.jsonl</code>, como módulo de Lobby. Esfuerzo M.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
         <div class="mej"><span class="id">M8</span><div><h3>Semilla sintética para lobby</h3><p>Que la prueba completa <code>prueba.mjs</code> también corra en CI. Esfuerzo M.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
+        <div class="mej"><span class="id">M9</span><div><h3>Pulir revisor y <code>proteger-secretos</code></h3><p>Citar líneas del fichero, no del diff; no bloquear rutas escritas en el cuerpo de un comentario. Sale de la primera revisión real. Esfuerzo S.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
+        <div class="mej"><span class="id">M11</span><div><h3>Cerrar <code>gh api</code> con POST y fijar el marketplace</h3><p>El hook ya bloquea DELETE, PUT y PATCH; falta POST, que puede fusionar en <code>main</code>. Las reglas <code>deny</code> ya lo cubren en los proyectos. Esfuerzo S.</p><div class="tags"><span class="badge b-risk">alta</span></div></div></div>
+        <div class="mej"><span class="id">M10</span><div><h3><code>.claude/</code> desde la rama base</h3><p>Que un PR no pueda relajar los permisos de su propio revisor. Esfuerzo S.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
       </div>
     </section>
 
     <section id="estado">
       <div class="sec-head">
         <span class="n">ESTADO ACTUAL</span>
-        <h2>Fases 2 y 3 cerradas en todo lo que no necesita tu sesión</h2>
-        <p>Lobby y finance_tracker tienen ya su CI en verde en PR abiertos, lobby tiene los workflows de agentes, las etiquetas y la variable, y Enjambre mide tokens y tiene banco de evaluaciones (ADR 0007). Lo que queda necesita a Álvaro: el secreto de Claude, fusionar los PR e iniciar sesión en la CLI. Ningún agente ha trabajado todavía en un proyecto real, así que los criterios de salida de F2 y F3 aún no se pueden medir.</p>
+        <h2>Los agentes ya trabajan en GitHub; falta que fusiones</h2>
+        <p>El 22-11-2026 se crearon los secretos y Enjambre hizo sus primeras revisiones reales en Actions, sobre los PR que lo instalan en lobby y finance_tracker. Encontró fallos que ninguna prueba local veía, y están corregidos (ADR 0008). Para medir el criterio de salida de F2 solo falta fusionar: los workflows de etiquetas en issues solo se activan desde <code>main</code>, y fusionar es cosa de Álvaro.</p>
       </div>
       <div class="panel">
-        <div class="meter-bar" aria-label="Entregables de F1 a F3: 28 hechos, 2 en PR, 5 de Álvaro"><i style="width:80%;background:var(--done)"></i><i style="width:5.7%;background:var(--wip)"></i></div>
-        <div class="meter-label"><span>Entregables de F1 a F3</span><span>28 hechos · 2 en PR esperando fusión · 5 de Álvaro</span></div>
+        <div class="meter-bar" aria-label="Entregables de F1 a F3: 33 hechos, 3 en PR, 3 de Álvaro"><i style="width:84.6%;background:var(--done)"></i><i style="width:7.7%;background:var(--wip)"></i></div>
+        <div class="meter-label"><span>Entregables de F1 a F3</span><span>33 hechos · 3 PR esperando fusión · 3 de Álvaro</span></div>
         <div class="grid2">
           <ul class="status-list">
-            <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S51 y seis ADR</div></li>
-            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 258 pruebas</div></li>
+            <li><span class="badge b-done">hecho</span><div>Secretos de Claude en lobby y finance_tracker<small>22-11-2026 · ADR 0008</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Primeras revisiones reales en Actions<small>lobby#1 y finance_tracker#2; hallazgos corregidos</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>finance_tracker preparado con agentes, etiquetas y WIP<small>S52</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Evaluaciones ejecutables en Actions<small><code>evals.yml</code> · S53</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S55 y ocho ADR</div></li>
+            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 297 pruebas</div></li>
             <li><span class="badge b-done">hecho</span><div>Hook <code>limitar-bash</code>: lista blanca por agente<small>ADR 0004</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Analista, gobernanza y coordinador<small>ADR 0006</small></div></li>
             <li><span class="badge b-done">hecho</span><div>8 plantillas de Actions y CI propia (Linux y Windows, gitleaks)</div></li>
@@ -810,10 +890,10 @@ flowchart TB
           <ul class="status-list">
             <li><span class="badge b-wip">en PR</span><div>Lobby: settings, devcontainer, CI y workflows<small><a href="https://github.com/AlvaroM99/lobby/pull/1">lobby#1</a>, CI verde (humo 8/8)</small></div></li>
             <li><span class="badge b-wip">en PR</span><div>finance_tracker: CI de Rust y wasm<small><a href="https://github.com/AlvaroM99/finance_tracker/pull/1">finance_tracker#1</a>, CI verde</small></div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Secreto <code>CLAUDE_CODE_OAUTH_TOKEN</code> en lobby</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#1 y finance_tracker#1</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Iniciar sesión en la CLI: prueba de humo y primera ejecución de evaluaciones</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Primera historia por etiquetas en lobby</div></li>
+            <li><span class="badge b-wip">en PR</span><div>finance_tracker: agentes de Enjambre<small><a href="https://github.com/AlvaroM99/finance_tracker/pull/2">finance_tracker#2</a>, revisado por Enjambre</small></div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#1, finance_tracker#1 y #2</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Secreto en el repo de Enjambre para lanzar <code>evals.yml</code></div></li>
+            <li><span class="badge b-todo">tras fusionar</span><div>Primera historia por etiquetas en lobby (criterio de salida de F2)</div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
           </ul>
         </div>
@@ -847,6 +927,8 @@ flowchart TB
           <li><span class="badge b-done">resuelto</span><div>Bash sin límite por comando<small>Hook <code>limitar-bash</code> con <code>agent_type</code>.</small></div></li>
           <li><span class="badge b-done">resuelto</span><div>Plugin privado en Actions<small>Repo público con instantáneas sin historial.</small></div></li>
           <li><span class="badge b-done">resuelto</span><div>Opus en Pro<small>Jefe y revisor con <code>opus</code>.</small></div></li>
+          <li><span class="badge b-done">resuelto</span><div>Secreto de Claude para Actions<small>En lobby y finance_tracker; renovar antes del 22-11-2027.</small></div></li>
+          <li><span class="badge b-done">resuelto</span><div>Revisión de seguridad que se saltaba en silencio<small>Job <code>sensible</code> con <code>contents: read</code> y fallo cerrado.</small></div></li>
           <li><span class="badge b-wip">mitigado</span><div>Límites de Pro con 6 carriles<small>WIP 3; Opus en 2 roles; Max 5x si hay más de 2 bloqueos por semana.</small></div></li>
           <li><span class="badge b-wip">mitigado</span><div>GitHub Free sin protección de rama<small>Solo el propietario dispara; hooks; producción manual.</small></div></li>
           <li><span class="badge b-wip">mitigado</span><div>Analista expuesto a la web<small>Único con web; no escribe ni ve secretos; su informe es dato.</small></div></li>
@@ -864,15 +946,8 @@ flowchart TB
         <p>En orden: cada paso desbloquea el siguiente.</p>
       </div>
       <ol class="steps">
-        <li><div><h3>Crear el secreto de Claude en lobby</h3>
-          <ol>
-            <li><code>claude setup-token</code> en PowerShell (o <code>C:\Users\User\.local\bin\claude.exe setup-token</code>), iniciar sesión y autorizar.</li>
-            <li><code>gh secret set CLAUDE_CODE_OAUTH_TOKEN -R AlvaroM99/lobby</code> y pegar el token cuando lo pida.</li>
-            <li>Comprobar con <code>gh secret list -R AlvaroM99/lobby</code>. El token no se pega en ningún chat.</li>
-          </ol>
-          <div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
-        <li><div><h3>Fusionar los dos PR</h3><p><a href="https://github.com/AlvaroM99/lobby/pull/1">lobby#1</a> (settings, devcontainer, CI y workflows) y <a href="https://github.com/AlvaroM99/finance_tracker/pull/1">finance_tracker#1</a> (CI de Rust). Los dos tienen la CI en verde.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">10 min</span></div></div></li>
-        <li><div><h3>Iniciar sesión en la CLI y prueba de humo (S41)</h3><p><code>claude</code> para iniciar sesión. Después, <code>node evals/ejecutar.mjs --tarea revisor-no-escribe</code> comprueba de una vez el plugin, <code>limitar-bash</code> y el nombre real de <code>agent_type</code>; luego el banco completo para tener el pass@1 de referencia.</p><div class="tags"><span class="tag">puerta F2</span><span class="tag">30 min</span></div></div></li>
+        <li><div><h3>Fusionar los tres PR</h3><p><a href="https://github.com/AlvaroM99/lobby/pull/1">lobby#1</a> (settings, devcontainer, CI y workflows), <a href="https://github.com/AlvaroM99/finance_tracker/pull/1">finance_tracker#1</a> (CI de Rust) y <a href="https://github.com/AlvaroM99/finance_tracker/pull/2">finance_tracker#2</a> (agentes). Enjambre ya los revisó y sus hallazgos están corregidos. Son PR de arranque: más de 400 líneas y sin issue, como excepción.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">10 min</span></div></div></li>
+        <li><div><h3>Secreto en el repo de Enjambre y evaluaciones</h3><p><code>gh secret set CLAUDE_CODE_OAUTH_TOKEN -R AlvaroM99/enjambre</code> (pegar el mismo token). Después, <code>gh workflow run evals.yml -R AlvaroM99/enjambre -f tarea=revisor-no-escribe</code> y, si pasa, el banco completo para el pass@1 de referencia.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">puerta F3</span><span class="tag">5 min + 1–2 h de runner</span></div></div></li>
         <li><div><h3>Instalar Pixel Agents</h3><p>VS Code → Extensiones → «Pixel Agents», o <code>npx pixel-agents</code>. Un personaje por rol y cuatro áreas, sin «Skip Permissions».</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">15 min</span></div></div></li>
         <li><div><h3>Vigilar el plan</h3><p><code>npx ccusage blocks</code> antes y después de la primera historia, y <code>node herramientas/actividad.mjs</code> para los tokens por agente.</p><div class="tags"><span class="tag">M2</span><span class="tag">5 min</span></div></div></li>
         <li><div><h3>Primera historia por etiquetas</h3><p>Etiqueta un issue de lobby con <code>enjambre:planificar</code>, aprueba el plan, pon <code>enjambre:implementar</code> y después <code>enjambre:revisar</code> en el PR. Es el criterio de salida de F2.</p><div class="tags"><span class="tag">F2</span><span class="tag you">puertas 1 y 2</span></div></div></li>
@@ -906,8 +981,8 @@ flowchart TB
       </div>
       <div class="phases">
         <article class="phase"><header><h3>F1 · MVP local</h3><span class="badge b-done">cerrada</span></header><ul><li>Plugin con agentes, skills y hooks probados</li><li>Devcontainer y plantillas</li><li>El piloto pasa a F2</li></ul><p class="exit">Cerrada por decisión (ADR 0005).</p></article>
-        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-done">cerrada técnicamente</span></header><ul><li>CI y workflows en lobby#1 (verde)</li><li>Etiquetas y variable creadas</li><li>Falta: secreto y primera historia</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
-        <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-done">cerrada técnicamente</span></header><ul><li>10 agentes y 6 carriles</li><li>CI de finance_tracker (verde)</li><li>20 evaluaciones y tokens por agente</li><li>Falta: primera ejecución real</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
+        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-done">en marcha en GitHub</span></header><ul><li>Secretos, etiquetas y variable creados</li><li>Revisor y seguridad ejecutados en Actions</li><li>Falta: fusionar y la primera historia</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
+        <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-done">cerrada técnicamente</span></header><ul><li>10 agentes y 6 carriles</li><li>CI de finance_tracker (verde)</li><li>20 evaluaciones (también en Actions) y tokens por agente</li><li>finance_tracker con agentes (#2)</li><li>Falta: pass@1 de referencia y dos carriles reales</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
         <article class="phase"><header><h3>F4 · Datos y BI</h3><span class="badge b-todo">opcional</span></header><ul><li>Agente datos</li><li>Panel de coste y DORA</li></ul><p class="exit"><b>Sale si:</b> panel actualizado a diario.</p></article>
         <article class="phase"><header><h3>F5 · Endurecimiento</h3><span class="badge b-todo">continuo</span></header><ul><li>OpenTelemetry y alertas de coste</li><li>Perfil seccomp propio</li><li>Revisión trimestral de permisos</li></ul><p class="exit"><b>Sale si:</b> 3 meses con métricas en objetivo.</p></article>
         <article class="phase"><header><h3>Plan B</h3><span class="badge b-risk">si falla</span></header><ul><li>&lt; 2 de 5 PR útiles: implementador + revisor con planes de Álvaro</li><li>Conflictos entre carriles: WIP 1–2</li><li>Bloqueos por límite: Max 5x</li></ul><p class="exit">Vuelta atrás: desactivar el plugin en <code>enabledPlugins</code>.</p></article>
@@ -946,9 +1021,9 @@ flowchart TB
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/organigrama.md">docs/organigrama.md</a><span>Roles, relaciones, RACI, arnés y ecosistema</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/panorama.md">docs/panorama.md</a><span>Competencia, alternativas, recursos y mejoras</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/evals/README.md">evals/</a><span>Banco de 20 evaluaciones</span></li>
-          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0007; prevalecen sobre el plan</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0008; prevalecen sobre el plan</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/riesgos-y-soluciones.md">docs/riesgos-y-soluciones.md</a><span>Retos y riesgos con solución y estado</span></li>
-          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/operacion.md">docs/operacion.md</a><span>Entorno, publicación, secreto y Pixel Agents paso a paso</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/operacion.md">docs/operacion.md</a><span>Entorno, publicación, secretos por repo, renovar el token, evals en Actions y Pixel Agents</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/PLAN.md">docs/PLAN.md</a><span>Plan original: vías, roadmap y métricas</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/plugins/enjambre">plugins/enjambre/</a><span>Agentes, skills, hooks y plantillas de Actions</span></li>
         </ul></div>

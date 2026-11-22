@@ -78,3 +78,42 @@ test('implementar comprueba el límite WIP antes de lanzar al agente', () => {
   assert.match(texto, /vars\.ENJAMBRE_WIP/);
   assert.match(texto, /needs: limite-wip/);
 });
+
+test('el workflow de evaluaciones: solo a mano, solo el propietario y CLI fijada', () => {
+  const { texto } = workflows.find((w) => w.nombre.endsWith('evals.yml'));
+  const disparadores = texto.split(/^on:\n/m)[1].split(/^\S/m)[0];
+  assert.deepEqual([...disparadores.matchAll(/^ {2}(\w+):/gm)].map((m) => m[1]), ['workflow_dispatch']);
+  assert.match(texto, /github\.actor == github\.repository_owner/);
+  assert.match(texto, /CLAUDE_CODE_VERSION: \d+\.\d+\.\d+/);
+  assert.match(texto, /TAREA: \$\{\{ inputs\.tarea \}\}/, 'la entrada va por env, no dentro de run');
+});
+
+test('revisar: el job que mira ficheros sensibles puede leer el diff y falla cerrado', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/enjambre-revisar.yml');
+  const job = texto.split(/^ {2}sensible:\n/m)[1].split(/^ {2}\w[\w-]*:\n/m)[0];
+  // gh pr diff necesita contents: read además de pull-requests: read (sin él, HTTP 403 en lobby#1, 22-11-2026).
+  assert.match(job, /permissions:\n\s+contents: read\n\s+pull-requests: read/);
+  assert.match(job, /if ! ficheros="\$\(gh pr diff "\$PR" --name-only\)"; then\n\s+echo "toca=si"/);
+});
+
+test('implementar: reserva WIP sin carreras y libera el hueco si el agente falla', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/enjambre-implementar.yml');
+  assert.match(texto, /--add-label enjambre:en-curso\n\s+en_curso=\$\(contar\)\n\s+if \[ "\$en_curso" -gt "\$WIP" \]/, 'vuelve a contar tras reservar');
+  const liberar = texto.split(/^ {2}liberar:\n/m)[1];
+  assert.ok(liberar, 'job liberar');
+  assert.match(liberar, /needs\.implementar\.result != 'success'/);
+  assert.match(liberar, /--remove-label enjambre:en-curso/);
+});
+
+test('revisar: revisor y seguridad pueden leer el issue enlazado', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/enjambre-revisar.yml');
+  assert.equal((texto.match(/contents: read\n\s+issues: read\n\s+pull-requests: write/g) ?? []).length, 2);
+});
+
+test('los workflows de agentes no dan por hecho un package-lock en la raíz', () => {
+  // finance_tracker tiene el package.json en tracker/: con cache: npm o npm ci a secas, el job falla antes del agente.
+  for (const { nombre, texto } of workflows.filter((w) => /enjambre-/.test(w.nombre))) {
+    assert.doesNotMatch(texto, /cache: npm/, nombre);
+    assert.doesNotMatch(texto, /^\s*- run: npm ci\s*$/m, nombre);
+  }
+});

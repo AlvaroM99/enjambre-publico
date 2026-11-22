@@ -5,10 +5,11 @@
 //       node evals/ejecutar.mjs                      ejecuta todas (necesita `claude` con sesión iniciada)
 //       node evals/ejecutar.mjs --tarea revisor-sql  ejecuta una
 //
-// Ejecútalo dentro del devcontainer: allí usa --permission-mode bypassPermissions con el sandbox y los hooks
-// activos. Fuera del contenedor usa acceptEdits y los comandos de shell piden permiso [POR CONFIRMAR en -p].
+// Ejecútalo dentro del devcontainer o en GitHub Actions (workflow evals.yml): allí usa --permission-mode
+// bypassPermissions con los hooks activos, en una máquina desechable. Fuera usa acceptEdits.
+// La CLI se autentica con CLAUDE_CODE_OAUTH_TOKEN (claude setup-token) o con una sesión iniciada.
 import { spawnSync, execFileSync } from 'node:child_process';
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs';
+import { appendFileSync, cpSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,7 +62,7 @@ function prepararFixture(nombre) {
 }
 
 function lanzarAgente(tarea, cwd) {
-  const modo = process.env.DEVCONTAINER === 'true' ? 'bypassPermissions' : 'acceptEdits';
+  const modo = modoPermisos(process.env);
   const r = spawnSync(process.env.CLAUDE_BIN || 'claude', ['-p', tarea.encargo, '--agent', `enjambre:${tarea.agente}`,
     '--plugin-dir', PLUGIN, '--output-format', 'json', '--permission-mode', modo],
   { cwd, encoding: 'utf8', timeout: 20 * 60 * 1000, maxBuffer: 64 * 1024 * 1024 });
@@ -71,6 +72,19 @@ function lanzarAgente(tarea, cwd) {
   } catch {
     return { salida: r.stdout || '', turnos: null, coste_usd: null, error: (r.stderr || 'salida no JSON').slice(0, 500) };
   }
+}
+
+// Solo en máquinas desechables (devcontainer o runner de GitHub Actions) se salta las preguntas de permiso.
+export function modoPermisos(env) {
+  return env.DEVCONTAINER === 'true' || env.GITHUB_ACTIONS === 'true' ? 'bypassPermissions' : 'acceptEdits';
+}
+
+// Tabla en Markdown para el resumen del run de GitHub Actions.
+export function tablaResumen(resumen, resultados) {
+  const fallos = (r) => r.error ?? r.comprobaciones.filter((c) => !c.ok).map((c) => c.tipo).join(', ');
+  const filas = resultados.map((r) => `| ${r.id} | ${r.agente} | ${r.pasa ? 'PASA' : 'FALLA'} | ${r.turnos ?? '—'} | ${r.segundos} | ${fallos(r)} |`);
+  return [`## Evaluaciones de Enjambre: pass@1 ${(resumen.pass_at_1 * 100).toFixed(0)} % (${resumen.pasan}/${resumen.total})`, '',
+    '| Tarea | Agente | Resultado | Turnos | Segundos | Fallos |', '|---|---|---|---|---|---|', ...filas, ''].join('\n');
 }
 
 export function resumir(resultados) {
@@ -101,7 +115,7 @@ function principal() {
     const agente = lanzarAgente(tarea, cwd);
     const comprobaciones = evaluar(tarea, agente.salida, cwd);
     const pasa = !agente.error && comprobaciones.every((c) => c.ok);
-    resultados.push({ id: tarea.id, agente: tarea.agente, pasa, segundos: Math.round((Date.now() - inicio) / 1000), ...agente, salida: undefined, comprobaciones });
+    resultados.push({ id: tarea.id, agente: tarea.agente, pasa, segundos: Math.round((Date.now() - inicio) / 1000), ...agente, salida: undefined, extracto: agente.salida.slice(0, 3000), comprobaciones });
     console.log(`${pasa ? 'PASA ' : 'FALLA'} ${tarea.id}${agente.error ? ` (${agente.error})` : ''}`);
     rmSync(cwd, { recursive: true, force: true });
   }
@@ -114,6 +128,7 @@ function principal() {
   mkdirSync(dir, { recursive: true });
   const fichero = join(dir, `${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`);
   writeFileSync(fichero, JSON.stringify({ fecha: new Date().toISOString(), resumen, resultados }, null, 2));
+  if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, tablaResumen(resumen, resultados));
   console.log(`\npass@1: ${(resumen.pass_at_1 * 100).toFixed(0)} % (${resumen.pasan}/${resumen.total}). Detalle: ${fichero}`);
 }
 
