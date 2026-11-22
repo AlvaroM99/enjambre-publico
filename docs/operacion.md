@@ -37,11 +37,21 @@ lobby no tiene CI todavía; se añade en la historia S14.
 - Claude Code con el sandbox activo dentro del contenedor, de punta a punta. Hace falta iniciar sesión en Claude dentro del contenedor, y lo hace Álvaro.
 - Los hooks cargados de verdad por Claude Code al instalar el plugin en un proyecto. Las pruebas ejecutan los scripts con la misma entrada JSON que documenta Claude Code, pero no a través de Claude Code.
 
+## Primer intento del implementador (ADR 0010, 22-11-2026)
+
+| Paso en [lobby#2](https://github.com/AlvaroM99/lobby/issues/2) | Resultado |
+|---|---|
+| Puerta 1 | Aprobada por Álvaro |
+| `enjambre:implementar` | Hueco WIP reservado; plugin instalado desde el SHA fijado |
+| Implementador | 5 turnos, 30 s, 0,11 USD, **sin PR y sin respuesta visible** |
+| Corrección | Resumen en el issue, fallo sin PR (libera WIP), prompt más claro: [lobby#4](https://github.com/AlvaroM99/lobby/pull/4) y [finance_tracker#4](https://github.com/AlvaroM99/finance_tracker/pull/4) |
+| Reintento | Tras fusionar lobby#4, volver a poner `enjambre:implementar` |
+
 ## Primera historia, plugin versionado y evaluaciones (ADR 0009, 22-11-2026)
 
 | Comprobación | Resultado |
 |---|---|
-| `npm test` en Windows | 311/311 |
+| `npm test` en Windows | 312/312 |
 | Banco de evaluaciones en Actions (`evals.yml`) | **pass@1 100 % (20/20)**, 1,23 USD estimados, unos 8 minutos |
 | Primera historia: [lobby#2](https://github.com/AlvaroM99/lobby/issues/2) con `enjambre:planificar` | Plan publicado por el jefe (14 turnos, 0,76 USD). **Puerta 1: lo aprueba Álvaro** |
 | Plugin fijado por SHA en [lobby#3](https://github.com/AlvaroM99/lobby/pull/3) | Instalado desde `$RUNNER_TEMP/enjambre-plugin`; revisor APROBAR |

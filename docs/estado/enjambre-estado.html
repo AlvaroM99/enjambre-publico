@@ -338,7 +338,7 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <div class="stat" role="listitem"><b>10</b><span>agentes</span></div>
       <div class="stat" role="listitem"><b>13</b><span>skills</span></div>
       <div class="stat" role="listitem"><b>4</b><span>hooks</span></div>
-      <div class="stat" role="listitem"><b>311</b><span>pruebas en verde</span></div>
+      <div class="stat" role="listitem"><b>312</b><span>pruebas en verde</span></div>
       <div class="stat" role="listitem"><b>6</b><span>carriles como máximo</span></div>
       <div class="stat" role="listitem"><b>100 %</b><span>pass@1 en 20 evaluaciones</span></div>
       <div class="stat" role="listitem"><b>20 $</b><span>al mes (Claude Pro)</span></div>
@@ -704,8 +704,9 @@ flowchart TB
       <ol class="steps">
         <li><div><h3>Issue <a href="https://github.com/AlvaroM99/lobby/issues/2">lobby#2</a></h3><p>Pruebas unitarias de las utilidades puras de <code>public/js/ui.js</code> y <code>npm test</code> en la CI. Siete criterios Dado/Cuando/Entonces.</p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
         <li><div><h3>Etiqueta <code>enjambre:planificar</code> → plan del jefe (Opus)</h3><p>14 turnos y 0,76 USD estimados. Cita fichero:línea y decide la zona horaria fija y la ruta explícita para Node 18. Trae pruebas por función, 8 criterios, riesgos y un aviso fuera de alcance (<code>aCSV</code> y <code>\r</code>).</p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
-        <li><div><h3>Puerta 1: Álvaro aprueba el plan</h3><p>Ningún agente pasa de aquí sin tu visto bueno.</p><div class="tags"><span class="tag you">Álvaro</span></div></div></li>
-        <li><div><h3><code>enjambre:implementar</code> → PR en borrador</h3><p>Reserva un hueco WIP, el implementador trabaja en <code>enjambre/2-npm-test</code> y pasa las pruebas antes de abrir el PR.</p><div class="tags"><span class="badge b-todo">siguiente</span></div></div></li>
+        <li><div><h3>Puerta 1: Álvaro aprueba el plan</h3><p>«Aprobado, implementa» (22-11-2026), anotado en el issue.</p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
+        <li><div><h3><code>enjambre:implementar</code>, 1.<sup>er</sup> intento</h3><p>Reservó el hueco WIP e instaló el plugin fijado, pero el implementador terminó en 5 turnos y 30 s sin abrir PR ni dejar su respuesta a la vista, y el hueco quedó ocupado. Causa [POR CONFIRMAR]: lo probable es que parase por los [POR CONFIRMAR] del plan (ADR 0010).</p><div class="tags"><span class="badge b-risk">sin PR</span></div></div></li>
+        <li><div><h3>Corrección del workflow y 2.º intento</h3><p>Ahora su respuesta va siempre al issue y, sin PR, el job falla y libera el hueco. El prompt también es más claro: <a href="https://github.com/AlvaroM99/lobby/pull/4">lobby#4</a>. Tras fusionarlo, se vuelve a poner <code>enjambre:implementar</code>.</p><div class="tags"><span class="badge b-todo">siguiente</span></div></div></li>
         <li><div><h3><code>enjambre:revisar</code> → revisor y seguridad</h3><p>Con el respaldo nuevo, si un agente termina sin comentar, el workflow publica su respuesta. Puerta 2: fusionas tú. Así se cumple el criterio de salida de F2.</p><div class="tags"><span class="badge b-todo">pendiente</span></div></div></li>
       </ol>
       <h3 class="sub">Primer banco de evaluaciones en Actions</h3>
@@ -904,8 +905,8 @@ flowchart TB
     <section id="estado">
       <div class="sec-head">
         <span class="n">ESTADO ACTUAL</span>
-        <h2>F2 a un paso: el plan de la primera historia espera tu aprobación</h2>
-        <p>Los PR de integración están fusionados y los tres repos que ejecutan agentes tienen el secreto. La primera historia ya tiene plan publicado por el jefe. El banco de evaluaciones dio 100 %, y M11 está hecha: hook y plugin fijado por SHA (ADR 0009). Para cerrar F2 faltan tus dos puertas: aprobar el plan y, al final, fusionar el PR.</p>
+        <h2>F2 a un paso: el implementador necesita un segundo intento</h2>
+        <p>Plan aprobado, plugin fijado por SHA y evaluaciones al 100 % (ADR 0009). El primer intento del implementador terminó sin PR y sin rastro. El workflow ya está corregido para que deje siempre su respuesta en el issue y libere el hueco WIP (ADR 0010). Faltan dos pasos: fusionar lobby#4 y repetir <code>enjambre:implementar</code>. Después, la revisión y tu fusión (puerta 2) cierran F2.</p>
       </div>
       <div class="panel">
         <div class="meter-bar" aria-label="Entregables de F1 a F3: 38 hechos, 2 en curso, 2 de Álvaro"><i style="width:90.5%;background:var(--done)"></i><i style="width:4.8%;background:var(--wip)"></i></div>
@@ -919,8 +920,8 @@ flowchart TB
             <li><span class="badge b-done">hecho</span><div>Primeras revisiones reales en Actions<small>lobby#1 y finance_tracker#2; hallazgos corregidos</small></div></li>
             <li><span class="badge b-done">hecho</span><div>finance_tracker preparado con agentes, etiquetas y WIP<small>S52</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Evaluaciones ejecutables en Actions<small><code>evals.yml</code> · S53</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S58 y nueve ADR</div></li>
-            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 311 pruebas</div></li>
+            <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S58 y diez ADR</div></li>
+            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 312 pruebas</div></li>
             <li><span class="badge b-done">hecho</span><div>Hook <code>limitar-bash</code>: lista blanca por agente<small>ADR 0004</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Analista, gobernanza y coordinador<small>ADR 0006</small></div></li>
             <li><span class="badge b-done">hecho</span><div>8 plantillas de Actions y CI propia (Linux y Windows, gitleaks)</div></li>
@@ -931,10 +932,10 @@ flowchart TB
             <li><span class="badge b-done">hecho</span><div>Organigrama, RACI y riesgos con solución<small><code>docs/organigrama.md</code>, <code>docs/riesgos-y-soluciones.md</code></small></div></li>
           </ul>
           <ul class="status-list">
-            <li><span class="badge b-wip">en curso</span><div>Primera historia: plan publicado<small><a href="https://github.com/AlvaroM99/lobby/issues/2">lobby#2</a></small></div></li>
-            <li><span class="badge b-wip">en PR</span><div>Plugin fijado por SHA y respaldo de veredicto<small><a href="https://github.com/AlvaroM99/lobby/pull/3">lobby#3</a> (APROBAR) · <a href="https://github.com/AlvaroM99/finance_tracker/pull/3">finance_tracker#3</a></small></div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Puerta 1: aprobar el plan de lobby#2</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#3 y finance_tracker#3</div></li>
+            <li><span class="badge b-done">hecho</span><div>Plan de lobby#2 aprobado; plugin fijado por SHA fusionado<small>lobby#3 y finance_tracker#3</small></div></li>
+            <li><span class="badge b-wip">en curso</span><div>Primera historia: 2.º intento del implementador<small><a href="https://github.com/AlvaroM99/lobby/issues/2">lobby#2</a> · ADR 0010</small></div></li>
+            <li><span class="badge b-wip">en PR</span><div>Implementador con resumen en el issue y sin hueco WIP perdido<small><a href="https://github.com/AlvaroM99/lobby/pull/4">lobby#4</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/4">finance_tracker#4</a></small></div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#4 y finance_tracker#4</div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
           </ul>
         </div>
@@ -990,8 +991,8 @@ flowchart TB
         <p>En orden: cada paso desbloquea el siguiente.</p>
       </div>
       <ol class="steps">
-        <li><div><h3>Aprobar el plan de lobby#2 (puerta 1)</h3><p>Lee el plan en <a href="https://github.com/AlvaroM99/lobby/issues/2">lobby#2</a>. Si te vale, pon <code>enjambre:implementar</code> o pídemelo. Luego, <code>enjambre:revisar</code> en el PR y fusionar (puerta 2). Es el criterio de salida de F2.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">F2</span><span class="tag">10 min</span></div></div></li>
-        <li><div><h3>Fusionar lobby#3 y finance_tracker#3</h3><p>Plugin fijado por SHA y respaldo cuando un revisor no comenta. lobby#3 tiene APROBAR del revisor y de seguridad.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
+        <li><div><h3>Fusionar lobby#4 y finance_tracker#4</h3><p>El implementador deja su respuesta en el issue y, sin PR, libera el hueco WIP (ADR 0010).</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
+        <li><div><h3>2.º intento de lobby#2 y puerta 2</h3><p><code>enjambre:implementar</code> otra vez (puedo ponerla yo), <code>enjambre:revisar</code> en el PR y tu fusión. Es el criterio de salida de F2.</p><div class="tags"><span class="tag">F2</span><span class="tag you">puerta 2</span></div></div></li>
         <li><div><h3>Instalar Pixel Agents</h3><p>VS Code → Extensiones → «Pixel Agents», o <code>npx pixel-agents</code>. Un personaje por rol y cuatro áreas, sin «Skip Permissions».</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">15 min</span></div></div></li>
         <li><div><h3>Vigilar el plan</h3><p><code>npx ccusage blocks</code> antes y después de la primera historia, y <code>node herramientas/actividad.mjs</code> para los tokens por agente.</p><div class="tags"><span class="tag">M2</span><span class="tag">5 min</span></div></div></li>
         <li><div><h3>Dos historias en paralelo con el coordinador</h3><p><code>claude --agent enjambre:enjambre-coordinador</code> en local con dos carriles. Medir conflictos, ciclos y tokens.</p><div class="tags"><span class="tag">F3</span></div></div></li>
@@ -1024,7 +1025,7 @@ flowchart TB
       </div>
       <div class="phases">
         <article class="phase"><header><h3>F1 · MVP local</h3><span class="badge b-done">cerrada</span></header><ul><li>Plugin con agentes, skills y hooks probados</li><li>Devcontainer y plantillas</li><li>El piloto pasa a F2</li></ul><p class="exit">Cerrada por decisión (ADR 0005).</p></article>
-        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-done">en marcha en GitHub</span></header><ul><li>PR fusionados; secretos y variables creados</li><li>Primera historia: plan publicado</li><li>Falta: puerta 1, PR y revisión</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
+        <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-done">en marcha en GitHub</span></header><ul><li>PR fusionados; secretos y variables creados</li><li>Plan aprobado; 1.er intento sin PR (ADR 0010)</li><li>Falta: 2.º intento, revisión y puerta 2</li></ul><p class="exit"><b>Sale si:</b> una historia va de Listo a PR verificado sin sesión local.</p></article>
         <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-done">cerrada técnicamente</span></header><ul><li>10 agentes y 6 carriles</li><li>CI de finance_tracker (verde)</li><li>20 evaluaciones (también en Actions) y tokens por agente</li><li>finance_tracker con agentes (#2)</li><li>pass@1 de referencia: 100 %</li><li>Falta: dos carriles reales y M12</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
         <article class="phase"><header><h3>F4 · Datos y BI</h3><span class="badge b-todo">opcional</span></header><ul><li>Agente datos</li><li>Panel de coste y DORA</li></ul><p class="exit"><b>Sale si:</b> panel actualizado a diario.</p></article>
         <article class="phase"><header><h3>F5 · Endurecimiento</h3><span class="badge b-todo">continuo</span></header><ul><li>OpenTelemetry y alertas de coste</li><li>Perfil seccomp propio</li><li>Revisión trimestral de permisos</li></ul><p class="exit"><b>Sale si:</b> 3 meses con métricas en objetivo.</p></article>
@@ -1064,7 +1065,7 @@ flowchart TB
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/organigrama.md">docs/organigrama.md</a><span>Roles, relaciones, RACI, arnés y ecosistema</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/panorama.md">docs/panorama.md</a><span>Competencia, alternativas, recursos y mejoras</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/evals/README.md">evals/</a><span>Banco de 20 evaluaciones</span></li>
-          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0009; prevalecen sobre el plan</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0010; prevalecen sobre el plan</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/riesgos-y-soluciones.md">docs/riesgos-y-soluciones.md</a><span>Retos y riesgos con solución y estado</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/operacion.md">docs/operacion.md</a><span>Entorno, publicación, secretos por repo, renovar el token, evals en Actions y Pixel Agents</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/PLAN.md">docs/PLAN.md</a><span>Plan original: vías, roadmap y métricas</span></li>
