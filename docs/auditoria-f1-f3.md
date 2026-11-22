@@ -59,6 +59,8 @@ Este documento compara lo que pedía el [plan](PLAN.md) (§7) con lo que hay hoy
 | H7 | Entorno preview y procedimiento de rollback sin hacer (S17, S18) | Media | F5 |
 | H8 | Dos commits con `Co-Authored-By: Claude` en `main` de lobby (lobby#5 fusionado sin squash) | Baja | Corregida la causa (lobby#6). Solo squash: M17 |
 | H9 | Un PR de agente no puede tocar `.github/workflows/` | Por diseño | El jefe debe planificarlo como paso manual (M15) |
+| H10 | **Segunda prueba con rastro:** 17 de 21 bloqueos son falsos positivos. El peor: `proteger-secretos` bloquea cualquier informe o plan que mencione «datos» | Alta | Propuesta en el ADR 0013, pendiente de Álvaro (regla 5) |
+| H11 | Los respaldos de QA y gobernanza se confundían si corrían a la vez | Media | Título exacto: lobby#13 y finance_tracker#7 |
 
 ## Conclusión
 

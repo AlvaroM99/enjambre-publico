@@ -37,11 +37,28 @@ lobby no tiene CI todavía; se añade en la historia S14.
 - Claude Code con el sandbox activo dentro del contenedor, de punta a punta. Hace falta iniciar sesión en Claude dentro del contenedor, y lo hace Álvaro.
 - Los hooks cargados de verdad por Claude Code al instalar el plugin en un proyecto. Las pruebas ejecutan los scripts con la misma entrada JSON que documenta Claude Code, pero no a través de Claude Code.
 
+## Segunda prueba con rastro y falsos positivos de los hooks (ADR 0013, 22-11-2026)
+
+| Agente | Turnos | Coste | Bloqueos | Resultado |
+|---|---|---|---|---|
+| Analista (lobby#8) | 18 | 0,33 USD | 4 | Informe publicado por el respaldo |
+| Investigador QA | 13 | 0,18 USD | 3 | [lobby#12](https://github.com/AlvaroM99/lobby/issues/12) por el respaldo |
+| Gobernanza | 25 | 0,40 USD | 12 | Recuperado de la transcripción: [lobby#14](https://github.com/AlvaroM99/lobby/issues/14) |
+| Jefe (lobby#8) | 12 | 1,01 USD | 2 | Plan completo recuperado de la transcripción; **puerta 1 pendiente** |
+
+De 21 bloqueos, 17 son falsos positivos (cuerpos de `gh` que mencionan «datos», `sed` de lectura, lectura de la configuración, bucles, `printenv ALCANCE`). La propuesta para corregirlos está en el ADR 0013, **pendiente de la aprobación de Álvaro**: los hooks no cambian sin ella.
+
+Contar los bloqueos de una transcripción:
+
+```bash
+gh run download <run_id> -R AlvaroM99/lobby -D transcripciones
+```
+
 ## Auditoría de F1–F3 y prueba real del sistema (ADR 0012, 22-11-2026)
 
 | Comprobación | Resultado |
 |---|---|
-| `npm test` | 326/326 |
+| `npm test` | 326/326 (327/327 tras el ADR 0013) |
 | `claude plugin validate` (marketplace y plugin) | Superada |
 | Banco de evaluaciones en Actions con `v0.4.2` | 20/20 (1,26 USD) |
 | Analista en lobby#8 | 22 turnos, 0,46 USD; informe perdido |

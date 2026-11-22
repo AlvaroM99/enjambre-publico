@@ -338,7 +338,7 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <div class="stat" role="listitem"><b>10</b><span>agentes</span></div>
       <div class="stat" role="listitem"><b>13</b><span>skills</span></div>
       <div class="stat" role="listitem"><b>4</b><span>hooks</span></div>
-      <div class="stat" role="listitem"><b>326</b><span>pruebas en verde</span></div>
+      <div class="stat" role="listitem"><b>327</b><span>pruebas en verde</span></div>
       <div class="stat" role="listitem"><b>6</b><span>carriles como máximo</span></div>
       <div class="stat" role="listitem"><b>100 %</b><span>pass@1 en 20 evaluaciones</span></div>
       <div class="stat" role="listitem"><b>20 $</b><span>al mes (Claude Pro)</span></div>
@@ -756,7 +756,9 @@ flowchart TB
           <tr><td>Banco de evaluaciones en Actions con <code>v0.4.2</code></td><td><span class="badge b-done">20/20</span> 1,26 USD, sin regresión</td></tr>
           <tr><td>Analista en <a href="https://github.com/AlvaroM99/lobby/issues/8">lobby#8</a></td><td><span class="badge b-risk">sin informe</span> 22 turnos, 0,46 USD, 4 permisos denegados</td></tr>
           <tr><td>Investigador QA</td><td><span class="badge b-risk">sin rastro</span> 12 turnos, 0,17 USD, 2 permisos denegados</td></tr>
-          <tr><td>Gobernanza</td><td><span class="badge b-wip">a medias</span> 2 propuestas buenas (<a href="https://github.com/AlvaroM99/lobby/issues/9">#9</a>, <a href="https://github.com/AlvaroM99/lobby/issues/10">#10</a>), pero 41 turnos frente a un límite de 20 y 12 permisos denegados</td></tr>
+          <tr><td><b>2.ª prueba con rastro</b> (lobby#11 fusionado)</td><td><span class="badge b-done">llega todo</span> Analista e informe de QA (<a href="https://github.com/AlvaroM99/lobby/issues/12">#12</a>) por el respaldo; gobernanza (<a href="https://github.com/AlvaroM99/lobby/issues/14">#14</a>) y el plan de #8, recuperados de la transcripción</td></tr>
+          <tr><td>Bloqueos en las transcripciones</td><td><span class="badge b-risk">17 de 21 falsos positivos</span> Cuerpos de <code>gh</code> que mencionan «datos» (6), <code>sed</code> de lectura (7), lectura de la configuración (2), bucle (1) y <code>printenv ALCANCE</code> (1). Propuesta en el ADR 0013, <b>pendiente de tu aprobación</b></td></tr>
+          <tr><td>Gobernanza (1.ª prueba)</td><td><span class="badge b-wip">a medias</span> 2 propuestas buenas (<a href="https://github.com/AlvaroM99/lobby/issues/9">#9</a>, <a href="https://github.com/AlvaroM99/lobby/issues/10">#10</a>), pero 41 turnos frente a un límite de 20 y 12 permisos denegados</td></tr>
         </tbody>
       </table></div>
       <div class="grid2" style="margin-top:14px">
@@ -983,8 +985,8 @@ flowchart TB
             <li><span class="badge b-done">hecho</span><div>Primeras revisiones reales en Actions<small>lobby#1 y finance_tracker#2; hallazgos corregidos</small></div></li>
             <li><span class="badge b-done">hecho</span><div>finance_tracker preparado con agentes, etiquetas y WIP<small>S52</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Evaluaciones ejecutables en Actions<small><code>evals.yml</code> · S53</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S76 y doce ADR</div></li>
-            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 326 pruebas</div></li>
+            <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S76 y trece ADR</div></li>
+            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 327 pruebas</div></li>
             <li><span class="badge b-done">hecho</span><div>Hook <code>limitar-bash</code>: lista blanca por agente<small>ADR 0004</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Analista, gobernanza y coordinador<small>ADR 0006</small></div></li>
             <li><span class="badge b-done">hecho</span><div>8 plantillas de Actions y CI propia (Linux y Windows, gitleaks)</div></li>
@@ -1000,8 +1002,8 @@ flowchart TB
             <li><span class="badge b-done">hecho</span><div>Solo Álvaro aprueba PR: hook y job <code>aprobaciones</code>; Actions ya puede abrir PR<small><a href="https://github.com/AlvaroM99/lobby/pull/7">lobby#7</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/5">finance_tracker#5</a> · revisor y seguridad APROBAR</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Auditoría de F1–F3 y prueba del sistema<small>ADR 0012 · evaluaciones 20/20 con <code>v0.4.2</code></small></div></li>
             <li><span class="badge b-wip">en PR</span><div>Todo agente deja rastro (<code>v0.5.0</code>)<small><a href="https://github.com/AlvaroM99/lobby/pull/11">lobby#11</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/6">finance_tracker#6</a></small></div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#11 y finance_tracker#6; decidir D-F4-1 a D-F4-4</div></li>
-            <li><span class="badge b-todo">siguiente</span><div>Repetir analista, QA y gobernanza; segunda historia (lobby#8)</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Aprobar el ajuste de los hooks (ADR 0013); fusionar lobby#13 y finance_tracker#7; decidir D-F4</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Puerta 1 del plan de <a href="https://github.com/AlvaroM99/lobby/issues/8">lobby#8</a> (semilla sintética)</div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
           </ul>
         </div>
@@ -1058,9 +1060,9 @@ flowchart TB
         <p>En orden: cada paso desbloquea el siguiente.</p>
       </div>
       <ol class="steps">
-        <li><div><h3>Fusionar lobby#11 y finance_tracker#6</h3><p>Rastro de cada agente: transcripción, respuesta e informe siempre visibles (ADR 0012).</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
-        <li><div><h3>Repetir analista, QA y gobernanza, y ajustar <code>limitar-bash</code></h3><p>Con las transcripciones, se clasifica cada permiso denegado y se corrigen los falsos positivos (S65).</p><div class="tags"><span class="tag">F5</span></div></div></li>
-        <li><div><h3>Segunda historia: <a href="https://github.com/AlvaroM99/lobby/issues/8">lobby#8</a>, semilla sintética</h3><p>Análisis, plan, tu aprobación, PR abierto por el implementador, revisión y tu fusión. Es la primera historia sin pasos manuales.</p><div class="tags"><span class="tag you">puertas 1 y 2</span></div></div></li>
+        <li><div><h3>Aprobar el ajuste de los hooks (ADR 0013)</h3><p>17 de 21 bloqueos son falsos positivos. El peor: nadie puede publicar un informe que mencione «datos». Los hooks no cambian sin tu visto bueno (regla 5).</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">F5</span></div></div></li>
+        <li><div><h3>Fusionar lobby#13 y finance_tracker#7</h3><p>Cada respaldo busca su propio informe por su título exacto.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
+        <li><div><h3>Puerta 1 de <a href="https://github.com/AlvaroM99/lobby/issues/8">lobby#8</a>: semilla sintética</h3><p>Plan con 9 criterios y un hallazgo real: <code>prueba.mjs</code> termina siempre con código 0. El paso en <code>ci.yml</code> lo haremos nosotros (M15).</p><div class="tags"><span class="tag you">puertas 1 y 2</span></div></div></li>
         <li><div><h3>Decidir F4 (D-F4-1 a D-F4-4)</h3><p>Dónde vive el panel, cómo llegan los datos, OpenTelemetry y si hace falta un agente <code>datos</code>.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">F4</span></div></div></li>
         <li><div><h3>Instalar Pixel Agents</h3><p>VS Code → Extensiones → «Pixel Agents», o <code>npx pixel-agents</code>. Un personaje por rol y cuatro áreas, sin «Skip Permissions».</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">15 min</span></div></div></li>
         <li><div><h3>Vigilar el plan</h3><p><code>npx ccusage blocks</code> antes y después de la primera historia, y <code>node herramientas/actividad.mjs</code> para los tokens por agente.</p><div class="tags"><span class="tag">M2</span><span class="tag">5 min</span></div></div></li>
@@ -1134,7 +1136,7 @@ flowchart TB
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/organigrama.md">docs/organigrama.md</a><span>Roles, relaciones, RACI, arnés y ecosistema</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/panorama.md">docs/panorama.md</a><span>Competencia, alternativas, recursos y mejoras</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/evals/README.md">evals/</a><span>Banco de 20 evaluaciones</span></li>
-          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0012; prevalecen sobre el plan</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0013; prevalecen sobre el plan</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/riesgos-y-soluciones.md">docs/riesgos-y-soluciones.md</a><span>Retos y riesgos con solución y estado</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/operacion.md">docs/operacion.md</a><span>Entorno, publicación, secretos por repo, renovar el token, evals en Actions y Pixel Agents</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/PLAN.md">docs/PLAN.md</a><span>Plan original: vías, roadmap y métricas</span></li>

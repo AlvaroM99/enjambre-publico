@@ -76,7 +76,7 @@ S61,Story,Modelos dbt-duckdb con pruebas,E10,High,"AC: dbt build en memoria en e
 S62,Story,Workflow datos.yml en enjambre,E10,High,"AC: diario y manual, solo el propietario, SHA fijados; metricas.json como artefacto y tabla en el resumen."
 S63,Story,Etiqueta incidente y despliegues fallidos,E10,Medium,"AC: tasa de fallo y tiempo de recuperación calculables desde produccion.yml e issues incidente."
 S64,Story,OpenSSF Scorecard en el repo público,E13,Medium,"AC: scorecard-action en enjambre-publico (gratis en repos públicos), SHA fijado; puntuación anotada y mejoras en backlog."
-S65,Story,Ajustar limitar-bash con las transcripciones,E13,Highest,"AC: cada permiso denegado de las transcripciones se clasifica (correcto o falso positivo); los falsos positivos se corrigen con pruebas; evals sin regresión."
+S65,Story,Ajustar limitar-bash con las transcripciones,E13,Highest,"AC: cada permiso denegado de las transcripciones se clasifica (correcto o falso positivo); los falsos positivos se corrigen con pruebas; evals sin regresión. Clasificación hecha (ADR 0013: 17 de 21 falsos positivos); propuesta pendiente de la aprobación de Álvaro."
 S66,Story,El jefe planifica cambios de workflows como paso manual (M15),E13,High,"AC: el plan marca los cambios en .github/workflows/ como paso de Álvaro; el implementador no los intenta. Cambio de prompt: lo aprueba Álvaro."
 S67,Story,Skills de TDD y depuración (M6),E13,Low,"AC: dos skills con ejemplos y una tarea de eval cada una."
 S68,Story,Skill rust-worker para finance_tracker,E13,Medium,"AC: compilar, probar y comprobar wasm del Worker; una historia de finance_tracker con ella."
