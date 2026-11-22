@@ -37,6 +37,26 @@ lobby no tiene CI todavía; se añade en la historia S14.
 - Claude Code con el sandbox activo dentro del contenedor, de punta a punta. Hace falta iniciar sesión en Claude dentro del contenedor, y lo hace Álvaro.
 - Los hooks cargados de verdad por Claude Code al instalar el plugin en un proyecto. Las pruebas ejecutan los scripts con la misma entrada JSON que documenta Claude Code, pero no a través de Claude Code.
 
+## Auditoría de F1–F3 y prueba real del sistema (ADR 0012, 22-11-2026)
+
+| Comprobación | Resultado |
+|---|---|
+| `npm test` | 326/326 |
+| `claude plugin validate` (marketplace y plugin) | Superada |
+| Banco de evaluaciones en Actions con `v0.4.2` | 20/20 (1,26 USD) |
+| Analista en lobby#8 | 22 turnos, 0,46 USD; informe perdido |
+| Investigador QA en lobby | 12 turnos, 0,17 USD; sin issues |
+| Gobernanza en lobby | 41 turnos (límite 20, falla); 2 propuestas (lobby#9, #10) |
+| Rastro y respaldos | [lobby#11](https://github.com/AlvaroM99/lobby/pull/11), [finance_tracker#6](https://github.com/AlvaroM99/finance_tracker/pull/6); `ENJAMBRE_VERSION` = SHA de `v0.5.0` |
+
+Ver la transcripción de un agente (artefacto de 7 días):
+
+```bash
+gh run download <run_id> -R AlvaroM99/lobby -n transcripcion-analista
+```
+
+Planes: [F4](fases/F4-datos-y-bi.md) y [F5](fases/F5-endurecimiento.md). Detalle: [auditoría](auditoria-f1-f3.md).
+
 ## F2 cerrada y solo Álvaro aprueba (ADR 0011, 22-11-2026)
 
 | Comprobación | Resultado |
