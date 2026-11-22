@@ -906,11 +906,11 @@ flowchart TB
       <div class="sec-head">
         <span class="n">ESTADO ACTUAL</span>
         <h2>F2 cumplida; solo Álvaro aprueba PR</h2>
-        <p>La primera historia (lobby#2) fue de Listo a PR fusionado por eventos (ADR 0010). Ahora los agentes podrán abrir PR solos, y la aprobación queda solo para ti con dos barreras independientes: el hook y un job aparte que retira cualquier aprobación ajena (ADR 0011). Revisor y seguridad aprobaron esa barrera en su tercera ronda. Falta que fusiones lobby#7 y finance_tracker#5; después activo el ajuste de Actions.</p>
+        <p>La primera historia (lobby#2) fue de Listo a PR fusionado por eventos (ADR 0010). Ahora los agentes podrán abrir PR solos, y la aprobación queda solo para ti con dos barreras independientes: el hook y un job aparte que retira cualquier aprobación ajena (ADR 0011). Revisor y seguridad aprobaron esa barrera en su tercera ronda. lobby#7 y finance_tracker#5 están fusionados y el ajuste de Actions, activado: los agentes ya pueden abrir PR, pero no aprobarlos.</p>
       </div>
       <div class="panel">
-        <div class="meter-bar" aria-label="Entregables de F1 a F3: 41 hechos, 1 en PR, 1 de Álvaro"><i style="width:95.3%;background:var(--done)"></i><i style="width:2.3%;background:var(--wip)"></i></div>
-        <div class="meter-label"><span>Entregables de F1 a F3</span><span>41 hechos · 1 en PR · 1 de Álvaro</span></div>
+        <div class="meter-bar" aria-label="Entregables de F1 a F3: 43 hechos"><i style="width:100%;background:var(--done)"></i></div>
+        <div class="meter-label"><span>Entregables de F1 a F3</span><span>43 hechos · F2 cumplida · F3 en marcha</span></div>
         <div class="grid2">
           <ul class="status-list">
             <li><span class="badge b-done">hecho</span><div>PR de integración fusionados<small>lobby#1, finance_tracker#1 y #2</small></div></li>
@@ -934,8 +934,8 @@ flowchart TB
           <ul class="status-list">
             <li><span class="badge b-done">hecho</span><div>Plan de lobby#2 aprobado; plugin fijado por SHA fusionado<small>lobby#3 y finance_tracker#3</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Primera historia fusionada: F2 cumplida<small><a href="https://github.com/AlvaroM99/lobby/pull/5">lobby#5</a> · 17 pruebas y <code>npm test</code> en CI</small></div></li>
-            <li><span class="badge b-wip">en PR</span><div>Solo Álvaro aprueba PR: hook y job <code>aprobaciones</code><small><a href="https://github.com/AlvaroM99/lobby/pull/7">lobby#7</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/5">finance_tracker#5</a> · revisor y seguridad APROBAR</small></div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Fusionar lobby#7 y finance_tracker#5; después se activa que Actions abra PR</div></li>
+            <li><span class="badge b-done">hecho</span><div>Solo Álvaro aprueba PR: hook y job <code>aprobaciones</code>; Actions ya puede abrir PR<small><a href="https://github.com/AlvaroM99/lobby/pull/7">lobby#7</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/5">finance_tracker#5</a> · revisor y seguridad APROBAR</small></div></li>
+            <li><span class="badge b-todo">siguiente</span><div>Segunda historia, de la etiqueta a tu aprobación sin pasos manuales</div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
           </ul>
         </div>
@@ -992,8 +992,7 @@ flowchart TB
         <p>En orden: cada paso desbloquea el siguiente.</p>
       </div>
       <ol class="steps">
-        <li><div><h3>Fusionar lobby#7 y finance_tracker#5</h3><p>Hook <code>gh-pr-aprobar</code> (ya activo por SHA) y job <code>aprobaciones</code>: solo tú apruebas PR (ADR 0011).</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">5 min</span></div></div></li>
-        <li><div><h3>Activar que Actions abra PR</h3><p>En los dos repos, «Allow GitHub Actions to create and approve pull requests». Lo hago yo tras tu fusión. Desde ahí el implementador abre su PR solo, y la segunda historia irá de la etiqueta a tu aprobación sin pasos manuales, salvo cambios en <code>.github/workflows/</code> (M15).</p><div class="tags"><span class="tag">F3</span></div></div></li>
+        <li><div><h3>Segunda historia por etiquetas</h3><p>Actions ya puede abrir PR (activado el 22-11-2026). Etiqueta un issue con <code>enjambre:planificar</code>: el jefe publica el plan, tú lo apruebas, el implementador abre el PR en borrador, revisor y seguridad dan su veredicto, y tú apruebas y fusionas. Solo los cambios en <code>.github/workflows/</code> siguen siendo manuales (M15).</p><div class="tags"><span class="tag">F3</span><span class="tag you">puertas 1 y 2</span></div></div></li>
         <li><div><h3>Instalar Pixel Agents</h3><p>VS Code → Extensiones → «Pixel Agents», o <code>npx pixel-agents</code>. Un personaje por rol y cuatro áreas, sin «Skip Permissions».</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">15 min</span></div></div></li>
         <li><div><h3>Vigilar el plan</h3><p><code>npx ccusage blocks</code> antes y después de la primera historia, y <code>node herramientas/actividad.mjs</code> para los tokens por agente.</p><div class="tags"><span class="tag">M2</span><span class="tag">5 min</span></div></div></li>
         <li><div><h3>Dos historias en paralelo con el coordinador</h3><p><code>claude --agent enjambre:enjambre-coordinador</code> en local con dos carriles. Medir conflictos, ciclos y tokens.</p><div class="tags"><span class="tag">F3</span></div></div></li>

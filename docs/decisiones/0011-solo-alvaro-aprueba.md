@@ -33,6 +33,6 @@ Se activa el ajuste para que los agentes abran PR, y la parte de aprobar se cier
 
 ## Consecuencias
 
-- Tras fusionar [lobby#7](https://github.com/AlvaroM99/lobby/pull/7) y [finance_tracker#5](https://github.com/AlvaroM99/finance_tracker/pull/5) se activa el ajuste en los dos repos. Desde entonces, el flujo es: etiqueta → plan → **puerta 1** (Álvaro) → implementador abre PR en borrador → CI → revisor y seguridad → **puerta 2** (Álvaro aprueba y fusiona).
+- Álvaro fusionó [lobby#7](https://github.com/AlvaroM99/lobby/pull/7) y [finance_tracker#5](https://github.com/AlvaroM99/finance_tracker/pull/5), y el ajuste quedó **activado** en los dos repos el 22-11-2026 con `gh api -X PUT repos/AlvaroM99/<repo>/actions/permissions/workflow`. Los permisos por defecto del token siguen siendo de solo lectura. Desde entonces, el flujo es: etiqueta → plan → **puerta 1** (Álvaro) → implementador abre PR en borrador → CI → revisor y seguridad → **puerta 2** (Álvaro aprueba y fusiona).
 - Los cambios en `.github/workflows/` nunca los puede subir un agente, porque el `GITHUB_TOKEN` no tiene permiso `workflows`. Quedan como paso de Álvaro o de su sesión (M15).
 - **Atribución:** lobby#5 se fusionó con commit de fusión, no con squash. Por eso dos commits con `Co-Authored-By: Claude` quedaron en `main` de lobby (`d8a8d1f` y `f56c202`). Corregirlo exigiría un push forzado a `main`, que está prohibido; queda anotado. Desde lobby#6 los agentes ya no añaden esa línea. Para que no se repita, se propone dejar solo «squash merge» en los ajustes de los repos, lo que decide Álvaro.

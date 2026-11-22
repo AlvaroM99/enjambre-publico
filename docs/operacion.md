@@ -45,7 +45,7 @@ lobby no tiene CI todavía; se añade en la historia S14.
 | `npm test` en Windows | 325/325 |
 | Hook `gh-pr-aprobar` | 7 comandos bloqueados y 3 permitidos en pruebas; activo en los proyectos con `ENJAMBRE_VERSION` = SHA de `v0.4.2` |
 | Job `aprobaciones` | Probado en lobby#7: «PR abiertos revisados: 1; aprobaciones retiradas: 0». Tercera ronda: revisor y seguridad APROBAR |
-| Ajuste «Allow GitHub Actions to create and approve pull requests» | Se activa tras fusionar lobby#7 y finance_tracker#5 |
+| Ajuste «Allow GitHub Actions to create and approve pull requests» | **Activado** el 22-11-2026 en lobby y finance_tracker, tras fusionar lobby#7 y finance_tracker#5 (`can_approve_pull_request_reviews: true`, permisos por defecto del token: `read`) |
 
 Comprobar el ajuste (solo lectura):
 
