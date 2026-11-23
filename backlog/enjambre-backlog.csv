@@ -88,3 +88,4 @@ S73,Story,Runbooks R1-R4,E13,High,"AC: token comprometido, agente fuera de su pa
 S74,Story,Versión fija del plugin también en local (M14),E13,Medium,"AC: confirmar si extraKnownMarketplaces admite ref; si sí, fijado por SHA; si no, documentado."
 S75,Story,Primera historia de plataforma,E13,Medium,"AC: el agente plataforma lleva una historia de CI de punta a punta."
 S76,Story,Dos historias en paralelo con el coordinador,E13,Medium,"AC: sesión local con claude --agent enjambre:enjambre-coordinador y dos carriles; conflictos, ciclos y tokens medidos."
+S77,Story,Revisión automática y PR listo para Álvaro (ADR 0014),E13,High,"AC: el implementador lanza la CI y enjambre-revisar con workflow_dispatch sin el aviso de aprobación; con APROBAR el PR pasa a listo con la revisión pedida a Álvaro; comprobado en una historia real."

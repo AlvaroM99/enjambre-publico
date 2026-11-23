@@ -49,10 +49,30 @@ lobby no tiene CI todavía; se añade en la historia S14.
 | Implementador #11 (carril 1) | 8 | 0,12 USD | 1 | **PR abierto por el agente**: [finance_tracker#18](https://github.com/AlvaroM99/finance_tracker/pull/18) |
 | Implementador #15 (carril 2, en paralelo) | 9 | 0,14 USD | 1 | **PR abierto por el agente**: [finance_tracker#19](https://github.com/AlvaroM99/finance_tracker/pull/19) |
 | CI (Rust + wasm) | — | — | — | Verde en los dos |
-| Revisor | — | — | — | **APROBAR en los dos, sin cambios** (seguridad se omite: no tocan ficheros sensibles) |
+| Revisor | 6 y 7 | 0,28 y 0,29 USD | 0 | **APROBAR en los dos, sin cambios** (seguridad se omite: no tocan ficheros sensibles) |
 | Atribución | — | — | — | Ningún commit con `Co-Authored-By: Claude` (corrección de lobby#6 confirmada) |
 
-Primera vez con **dos carriles a la vez** (`enjambre:en-curso` en #11 y #15, WIP 3) y primera vez sin ningún ciclo de cambios. Falta la fusión de Álvaro (puerta 2).
+| Puerta 2 | — | — | — | Álvaro fusionó #18 (09:51:06 UTC) y #19 (09:51:27 UTC); issues cerrados y etiquetas de trabajo retiradas |
+
+Primera vez con **dos carriles a la vez** (`enjambre:en-curso` en #11 y #15, WIP 3) y primera vez sin ningún ciclo de cambios.
+
+**Medición.** El lead time cuenta desde la primera etiqueta que pone Álvaro en el issue hasta la fusión. Es la misma cuenta que en lobby, donde el issue se etiquetaba nada más crearlo. #11 y #15 eran propuestas de gobernanza y QA, así que el reloj empieza cuando Álvaro las coge.
+
+| Historia | Lead time | Ciclos de cambios |
+|---|---|---|
+| lobby#2 | 4 h 31 min | 1 (los arregló la sesión) |
+| lobby#8 | 14 h 16 min (incluye la noche hasta la fusión) | 1 (los arregló la sesión) |
+| finance_tracker#11 | 1 h 59 min | **0** |
+| finance_tracker#15 | 1 h 50 min | **0** |
+| **Mediana (n = 4)** | **3 h 15 min** | 4 de 4 con ≤ 1 ciclo |
+
+**Pasos que aún hizo una persona** entre el PR y la fusión:
+- Álvaro pulsó «Approve workflows to run» para que corriera la CI.
+- La sesión puso `enjambre:revisar` y marcó los PR como listos.
+
+Álvaro pidió quitarlos («no quiero tener que aprobar yo el workflow de revisión») y quedar solo como último confirmador: [ADR 0014](decisiones/0014-revision-automatica.md). Los workflows nuevos llegan por [lobby#17](https://github.com/AlvaroM99/lobby/pull/17) y [finance_tracker#20](https://github.com/AlvaroM99/finance_tracker/pull/20).
+
+**Coste por historia:** #11 ≈ 0,81 USD (analista, jefe, implementador y revisor); #15 ≈ 0,74 USD (jefe, implementador y revisor), sin contar la ejecución de QA que la encontró (0,41 USD).
 
 Los bloqueos del investigador fueron `xargs` (correcto), `git -C` y un subshell `( cargo test … )`, estos dos falsos positivos menores de la siguiente tanda.
 

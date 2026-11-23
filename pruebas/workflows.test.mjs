@@ -181,6 +181,60 @@ test('un job aparte retira las aprobaciones que no sean de Álvaro en todos los 
   }
 });
 
+// Jobs de un workflow como { nombre: texto }.
+const jobsDe = (texto) => Object.fromEntries((texto.split(/^jobs:\n/m)[1] ?? '').split(/^(?= {2}[\w-]+:\n)/m)
+  .filter((j) => /^ {2}[\w-]+:\n/.test(j)).map((j) => [j.match(/^ {2}([\w-]+):/)[1], j]));
+
+test('implementar lanza la CI y la revisión sin pasar por Álvaro, con workflow_dispatch (ADR 0014)', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/enjambre-implementar.yml');
+  const job = jobsDe(texto)['pedir-revision'];
+  assert.ok(job, 'falta el job pedir-revision');
+  assert.match(job, /needs: implementar\n/);
+  assert.match(job, /permissions:\n\s+actions: write\n\s+pull-requests: read\n\s+steps:/, 'solo lanzar workflows y leer PR');
+  assert.doesNotMatch(job, /actions\/checkout|claude-code-action/, 'sin checkout ni agente');
+  assert.match(job, /gh run list --commit "\$sha" --status action_required/, 'quita el aviso «Approve workflows to run»');
+  assert.match(job, /gh workflow run ci\.yml --ref "\$rama"/);
+  assert.match(job, /gh workflow run enjambre-revisar\.yml -f pr="\$pr"/);
+  assert.match(texto, /no\s+#?\s*etiquetes el PR/, 'el prompt no pide etiquetar');
+});
+
+test('revisar admite workflow_dispatch solo del bot (ramas enjambre/) o de Álvaro, y revisa el commit del PR (ADR 0014)', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/enjambre-revisar.yml');
+  assert.match(texto, /^ {2}workflow_dispatch:\n\s+inputs:\n\s+pr:/m);
+  const jobs = jobsDe(texto);
+  const preparar = jobs.preparar;
+  assert.ok(preparar, 'falta el job preparar');
+  assert.match(preparar, /github\.actor == 'github-actions\[bot\]' \|\| github\.actor == github\.repository_owner/);
+  assert.match(preparar, /github\.event\.sender\.login == github\.repository_owner/, 'la etiqueta, solo Álvaro');
+  assert.match(preparar, /grep -Eq '\^\[0-9\]\+\$'/, 'número de PR validado');
+  assert.match(preparar, /"\$repo" != "\$GH_REPO"/, 'solo PR de este repositorio');
+  assert.match(preparar, /\[\[ "\$rama" != enjambre\/\* \]\]/, 'el bot solo para ramas enjambre/');
+  assert.match(preparar, /permissions:\n\s+pull-requests: read\n/);
+  for (const n of ['revisor', 'seguridad']) {
+    assert.match(jobs[n], /needs: (preparar|\[preparar, sensible\])\n/, n);
+    assert.match(jobs[n], /ref: \$\{\{ needs\.preparar\.outputs\.sha \}\}/, `${n}: checkout del commit del PR`);
+    assert.doesNotMatch(jobs[n], /github\.event\.pull_request/, `${n}: el PR sale de preparar`);
+  }
+  assert.match(jobs.sensible, /needs: preparar\n/);
+});
+
+test('revisar marca el PR como listo solo con APROBAR y nunca aprueba ni fusiona (ADR 0011 y 0014)', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/enjambre-revisar.yml');
+  const listo = jobsDe(texto).listo;
+  assert.ok(listo, 'falta el job listo');
+  assert.match(listo, /needs\.revisor\.result == 'success'/);
+  assert.match(listo, /needs\.seguridad\.result == 'success' \|\| needs\.seguridad\.result == 'skipped'/);
+  assert.match(listo, /\[ "\$revisor" != APROBAR \]/);
+  assert.match(listo, /select\(\.user\.login == \\"github-actions\[bot\]\\"/, 'solo veredictos del bot');
+  assert.match(listo, /gh pr ready "\$PR"/);
+  assert.match(listo, /requested_reviewers" -f "reviewers\[\]=\$PROPIETARIO"/);
+  assert.doesNotMatch(listo, /actions\/checkout|claude-code-action/);
+  assert.match(jobsDe(texto).aprobaciones, /needs: \[[^\]]*listo[^\]]*\]/, 'la guardia va después de listo');
+  for (const { nombre, texto: t } of workflows) {
+    assert.doesNotMatch(lineas(t).join('\n'), /gh pr merge|--approve\b|event=APPROVE/, `${nombre}: ningún workflow aprueba ni fusiona`);
+  }
+});
+
 test('todo job con agente y pull-requests: write va seguido del job aprobaciones (ADR 0011)', () => {
   for (const { nombre, texto } of workflows.filter((w) => /enjambre-/.test(w.nombre))) {
     const jobs = (texto.split(/^jobs:\n/m)[1] ?? '').split(/^(?= {2}[\w-]+:\n)/m).filter((j) => /^ {2}[\w-]+:\n/.test(j));

@@ -15,8 +15,8 @@ En la carpeta `workflows/` de esta skill (`${CLAUDE_SKILL_DIR}/workflows/`). Se 
 |---|---|---|---|
 | `ci.yml` | PR, push a main, manual | `npm ci`, `npm run check`, `npm test`, `npm audit`; e2e local (desactivado hasta adaptarlo) | 1 |
 | `enjambre-planificar.yml` | etiqueta `enjambre:planificar` en un issue | el jefe de proyecto publica el plan | 2 |
-| `enjambre-implementar.yml` | etiqueta `enjambre:implementar` | comprueba el límite WIP (`vars.ENJAMBRE_WIP`, 3 por defecto, máx. 6) y un implementador abre el PR en borrador | 2 |
-| `enjambre-revisar.yml` | etiqueta `enjambre:revisar` en un PR | revisor de código; revisor de seguridad si toca ficheros sensibles | 2 |
+| `enjambre-implementar.yml` | etiqueta `enjambre:implementar` | comprueba el límite WIP (`vars.ENJAMBRE_WIP`, 3 por defecto, máx. 6), un implementador abre el PR en borrador y el job `pedir-revision` lanza la CI y la revisión (ADR 0014) | 2 |
+| `enjambre-revisar.yml` | `workflow_dispatch` desde `enjambre-implementar`, o la etiqueta `enjambre:revisar` de Álvaro para repetir | revisor de código; revisor de seguridad si toca ficheros sensibles; con APROBAR, marca el PR listo y pide la revisión de Álvaro | 2 |
 | `enjambre-investigar.yml` | manual (semanal más adelante) | el investigador abre issues `enjambre:propuesta` | 3 |
 | `enjambre-analizar.yml` | etiqueta `enjambre:analizar` en un issue | el analista publica el informe de estado del arte | 3 |
 | `enjambre-gobernanza.yml` | manual (mensual más adelante) | auditoría de gobernanza y propuestas | 3 |
@@ -49,7 +49,7 @@ Los agentes **no** crean ni leen secretos (`gh secret` está bloqueado por `bloq
 
 ## 4. Particularidades que hay que conocer
 
-- **Los PR y pushes hechos con `GITHUB_TOKEN` no disparan otros workflows** (salvo `workflow_dispatch` y `repository_dispatch`). Por eso el implementador pasa las pruebas antes de abrir el PR, y `ci.yml` también se dispara con `labeled` y `ready_for_review`: cuando Álvaro etiqueta el PR, la CI corre. Con una GitHub App propia (`enjambre-bot`) esto desaparece. Fuente: https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication
+- **Los PR y pushes hechos con `GITHUB_TOKEN` no disparan workflows normales.** Un PR abierto así deja sus ejecuciones de `pull_request` (`opened`, `synchronize`, `reopened`) **pendientes de aprobación**, con el aviso «Approve workflows to run». Las de `labeled` o `ready_for_review` ni se crean. `workflow_dispatch` y `repository_dispatch` siempre crean ejecuciones. Por eso `pedir-revision` borra las pendientes y lanza `ci.yml` y `enjambre-revisar.yml` con `workflow_dispatch` (ADR 0014). Fuente: https://docs.github.com/en/actions/concepts/security/github_token. Con una GitHub App propia (`enjambre-bot`) esto desaparece.
 - **El plugin se instala desde una versión fija del marketplace público** `AlvaroM99/enjambre-publico` (ADR 0006 y 0009). `plugin_marketplaces` solo acepta URLs `.git` o rutas locales, sin `#ref` ([install-plugins.ts](https://github.com/anthropics/claude-code-action/blob/acfe7992852970efb4fee683d63d628e3e52df67/base-action/src/install-plugins.ts)). Por eso cada job hace checkout de la etiqueta `vars.ENJAMBRE_VERSION` (o la de la plantilla), la saca del espacio de trabajo a `$RUNNER_TEMP` y pasa esa ruta. Álvaro publica con `node herramientas/publicar.mjs` y crea la etiqueta; un cambio en `main` del repo público no llega a los proyectos hasta que se sube la versión.
 - **`--agent enjambre:<agente>` en `claude_args`**: nombre con espacio de nombres del plugin. Confirmado en la primera ejecución real (22-11-2026, ADR 0008).
 - **Minutos**: los repos privados con Free tienen una cuota mensual de minutos de Actions, y los runners de Windows cuentan más que los de Linux [POR CONFIRMAR la cifra en https://docs.github.com/en/billing/concepts/product-billing/github-actions]. Mide los minutos por historia en las primeras semanas.
