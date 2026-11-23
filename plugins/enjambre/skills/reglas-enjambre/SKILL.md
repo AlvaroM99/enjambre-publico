@@ -60,7 +60,7 @@ Es mejor parar con una pregunta clara que improvisar. Marca el issue con `necesi
 |---|---|---|
 | Refinar | jefe de proyecto | plan con la skill `planificar` |
 | Aprobar plan | **Álvaro** | historia en Listo |
-| Implementar | implementador | PR en borrador (skills `git-enjambre`, `pruebas`, `documentar`) |
+| Implementar | implementador | PR listo para revisión (skills `git-enjambre`, `pruebas`, `documentar`) |
 | Revisar | revisor | veredicto APROBAR, CAMBIOS o BLOQUEAR (máximo 2 ciclos) |
 | Verificar | verificador | informe PASA o FALLA (skill `verificar-e2e`) |
 | Fusionar y desplegar | **Álvaro** | Hecho |

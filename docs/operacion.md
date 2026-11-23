@@ -65,7 +65,8 @@ Primera vez con **dos carriles a la vez** (`enjambre:en-curso` en #11 y #15, WIP
 | finance_tracker#11 | 1 h 59 min | **0** |
 | finance_tracker#15 | 1 h 50 min | **0** |
 | lobby#10 (primera con revisión automática) | **17 min** | **0** |
-| **Mediana (n = 5)** | **1 h 59 min** | 5 de 5 con ≤ 1 ciclo |
+| lobby#9 (ADR retroactivos; fusionada sin revisión, ver ADR 0014) | 34 min | 0 |
+| **Mediana (n = 6)** | **1 h 54 min** | 6 de 6 con ≤ 1 ciclo |
 
 **Pasos que aún hizo una persona** entre el PR y la fusión:
 - Álvaro pulsó «Approve workflows to run» para que corriera la CI.
@@ -96,6 +97,11 @@ node herramientas/metricas.mjs
 Primera ejecución, el 23-11-2026: las mismas cifras que a mano.
 - 5 historias, lead time mediano 1 h 59 min, 5 de 5 con ≤ 1 ciclo.
 - Coste conocido: 7,94 USD. Es parcial: las transcripciones duran 7 días y las de lobby#2 son de antes del ADR 0012.
+
+**Segunda ejecución, el 23-11-2026, tras cerrar lobby#9:**
+- 6 historias, lead time mediano 1 h 54 min, 6 de 6 con ≤ 1 ciclo.
+- lobby#9 → #22: 34 min y ≈ 1,18 USD (parcial). Ese PR no tuvo veredicto del revisor: Álvaro lo fusionó antes de que llegara el arreglo de `allowed_bots`.
+- Coste conocido: 9,12 USD. Permisos denegados del implementador: 16 en 6 ejecuciones.
 
 **Primer dato nuevo, permisos denegados por agente** (de las transcripciones de esos días):
 

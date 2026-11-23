@@ -39,7 +39,7 @@ Eres el **implementador** de Enjambre. Implementas exactamente el plan aprobado 
 1. Pasa las comprobaciones del proyecto (en lobby: `npm run check` y las pruebas que indique el plan). Si fallan, arréglalas o explica por qué no puedes.
 2. Revisa tu propio diff: `git diff main...HEAD --stat`. El PR debe quedar por debajo de **400 líneas cambiadas**. Si no cabe, para y propone dividir la historia.
 3. Comprueba que no hay secretos ni datos reales en el diff.
-4. Sube la rama (`git push -u origin enjambre/<clave>-<slug>`) y abre el PR **en borrador** con la plantilla de PR de la skill `git-enjambre`: `gh pr create --draft --body-file <fichero>`.
+4. Sube la rama (`git push -u origin enjambre/<clave>-<slug>`) y abre el PR **listo para revisión** con la plantilla de PR de la skill `git-enjambre`: `gh pr create --body-file <fichero>`.
 
 ## Lo que nunca haces
 

@@ -21,7 +21,8 @@ const TITULOS = { 'Revisión de Enjambre': 'revisor', 'Revisión de seguridad de
 
 /** Número de issue de una rama de agente: enjambre/12-slug o enjambre/issue-12-slug. */
 export function issueDeRama(rama) {
-  const m = /^enjambre\/(?:issue-)?(\d+)-/.exec(rama ?? '');
+  // Con sufijo de carril (enjambre/16a-…), como en finance_tracker#16.
+  const m = /^enjambre\/(?:issue-)?(\d+)[a-z]?-/.exec(rama ?? '');
   return m ? Number(m[1]) : null;
 }
 

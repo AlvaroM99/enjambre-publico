@@ -1,0 +1,31 @@
+# Worker «enjambre-panel»: panel en vivo de los agentes (ADR 0015).
+# Un Durable Object con SQLite guarda el estado y las sesiones y empuja los cambios por WebSocket.
+name = "enjambre-panel"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = false
+
+# El Worker atiende todo para poner las cabeceras de seguridad; los ficheros de public/ los sirve ASSETS.
+[assets]
+directory = "public"
+binding = "ASSETS"
+run_worker_first = true
+
+[[durable_objects.bindings]]
+name = "SALA"
+class_name = "Sala"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Sala"]
+
+[vars]
+# Cuentas de GitHub que pueden entrar, separadas por comas.
+PROPIETARIOS = "AlvaroM99"
+
+[observability]
+enabled = true
+
+# Secretos (nunca aquí; `npx wrangler secret put NOMBRE`): GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+# WEBHOOK_SECRET y CLAVE_SESION (npm run clave). Pasos en docs/panel.md.

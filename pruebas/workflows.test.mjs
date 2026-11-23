@@ -146,7 +146,11 @@ test('implementar: deja su respuesta en el issue y sin PR libera el hueco WIP', 
   const job = texto.split(/^ {2}implementar:\n/m)[1].split(/^ {2}liberar:\n/m)[0];
   assert.match(job, /- id: agente\n\s+uses: anthropics\/claude-code-action@/);
   assert.match(job, /Publicar el resumen del implementador en el issue\n\s+if: always\(\) && steps\.agente\.outputs\.execution_file != ''/);
-  assert.match(job, /startswith\(\\"enjambre\/\$ISSUE-\\"\) or startswith\(\\"enjambre\/issue-\$ISSUE-\\"\)\) \| \.headRefName" \| wc -l\)\n\s+if \[ "\$prs" -eq 0 \]; then/);
+  // Ramas enjambre/16-…, enjambre/16a-… (carril del plan) y enjambre/issue-16-… (finance_tracker#16 usó 16a, 23-11-2026).
+  assert.match(job, /test\(\\"\^enjambre\/\(issue-\)\?\$ISSUE\[a-z\]\?-\\"\)\) \| \.headRefName" \| wc -l\)\n\s+if \[ "\$prs" -eq 0 \]; then/);
+  const patron = /^enjambre\/(issue-)?16[a-z]?-/;
+  assert.ok(['enjambre/16-ci', 'enjambre/16a-iguales', 'enjambre/issue-16-x'].every((r) => patron.test(r)));
+  assert.ok(!['enjambre/160-x', 'enjambre/1-x', 'enjambre/16ab-x'].some((r) => patron.test(r)));
   assert.match(job, /Publicar el resumen del implementador en el issue\n[^\n]+\n[^\n]+\n\s+continue-on-error: true/, 'el resumen solo informa');
   assert.match(job, /github-actions\[bot\] o por el propietario/, 'solo vale el plan del bot o de Álvaro');
   assert.match(job, /«## Plan»/, 'el prompt señala el comentario del plan, no el último');
@@ -190,7 +194,9 @@ test('implementar lanza la CI y la revisión sin pasar por Álvaro, con workflow
   const job = jobsDe(texto)['pedir-revision'];
   assert.ok(job, 'falta el job pedir-revision');
   assert.match(job, /needs: implementar\n/);
-  assert.match(job, /permissions:\n\s+actions: write\n\s+pull-requests: read\n\s+statuses: write\n\s+steps:/, 'lanzar workflows, leer PR y poner el estado del commit');
+  assert.match(job, /permissions:\n\s+actions: write\n\s+contents: write\n\s+pull-requests: write\n\s+statuses: write\n\s+steps:/, 'lanzar workflows, marcar listo y poner el estado del commit');
+  // El PR llega listo para revisión aunque el agente lo abriera en borrador (Álvaro, 23-11-2026).
+  assert.match(job, /isDraft --jq \.isDraft\)" = true \]; then\n\s+gh pr ready "\$pr"/);
   assert.match(job, /context="ci \(Enjambre\)"/, 'estado pendiente en el commit del PR');
   assert.doesNotMatch(job, /actions\/checkout|claude-code-action/, 'sin checkout ni agente');
   assert.match(job, /gh run list --commit "\$sha" --status action_required/, 'quita el aviso «Approve workflows to run»');
@@ -235,7 +241,7 @@ test('revisar marca el PR como listo solo con APROBAR y nunca aprueba ni fusiona
   assert.match(listo, /needs\.seguridad\.result == 'success' \|\| needs\.seguridad\.result == 'skipped'/);
   assert.match(listo, /\[ "\$revisor" != APROBAR \]/);
   assert.match(listo, /select\(\.user\.login == \\"github-actions\[bot\]\\"/, 'solo veredictos del bot');
-  assert.match(listo, /gh pr ready "\$PR"\n/, 'sin || true: si falla, se ve');
+  assert.match(listo, /= true \]; then gh pr ready "\$PR"; fi\n/, 'solo si aún es borrador, y sin || true: si falla, se ve');
   assert.match(listo, /permissions:\n\s+contents: write\n\s+pull-requests: write\n/, 'gh pr ready necesita contents: write');
   assert.match(listo, /requested_reviewers" -f "reviewers\[\]=\$PROPIETARIO"/);
   assert.doesNotMatch(listo, /actions\/checkout|claude-code-action/);

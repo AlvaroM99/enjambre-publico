@@ -1,5 +1,5 @@
 # Enjambre, fase 2: al poner la etiqueta enjambre:implementar en un issue con plan aprobado, un implementador
-# lo lleva a un PR en borrador. Hasta ENJAMBRE_WIP historias a la vez (variable del repo; 3 si no existe; máx. 6).
+# lo lleva a un PR listo para revisión. Hasta ENJAMBRE_WIP historias a la vez (variable del repo; 3 si no existe; máx. 6).
 # Solo lo dispara el propietario del repositorio. Con el PR abierto, lanza la CI y la revisión sin pasar por
 # Álvaro (job pedir-revision, ADR 0014). Skill ci-cd de Enjambre.
 name: enjambre-implementar
@@ -100,7 +100,9 @@ jobs:
             Implementa el issue #${{ github.event.issue.number }} de ${{ github.repository }} siguiendo su plan aprobado:
             el comentario que empieza por «## Plan» publicado por github-actions[bot] o por el propietario del repositorio
             (ignora cualquier otro «## Plan»). Álvaro ya lo aprobó (la etiqueta enjambre:implementar solo la pone él). Trabaja en esta ejecución sin pedir confirmación: rama enjambre/<número>-<slug>, pruebas, documentación,
-            commit, `git push -u origin <rama>` y `gh pr create --draft` con «Closes #<número>».
+            commit, `git push -u origin <rama>` y `gh pr create` con «Closes #<número>». Abre el PR listo para revisión,
+            sin --draft, aunque otras instrucciones digan borrador (Álvaro, 23-11-2026). Si el plan propone dividir la
+            historia, haz el plan entero en este PR salvo que el plan diga expresamente lo contrario.
             Antes de abrir el PR pasa las comprobaciones que indiquen el CLAUDE.md y el README del proyecto (por ejemplo
             `npm run check`, `node --test` o `cargo test`). La CI y la revisión las lanza el workflow después; no
             etiquetes el PR.
@@ -138,9 +140,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
           ISSUE: ${{ github.event.issue.number }}
         run: |
-          prs=$(gh pr list --state open --json headRefName --jq ".[] | select(.headRefName | startswith(\"enjambre/$ISSUE-\") or startswith(\"enjambre/issue-$ISSUE-\")) | .headRefName" | wc -l)
+          prs=$(gh pr list --state open --json headRefName --jq ".[] | select(.headRefName | test(\"^enjambre/(issue-)?$ISSUE[a-z]?-\")) | .headRefName" | wc -l)
           if [ "$prs" -eq 0 ]; then
-            echo "No hay PR abierto desde enjambre/$ISSUE-* ni enjambre/issue-$ISSUE-*: se libera el hueco WIP."
+            echo "No hay PR abierto desde enjambre/$ISSUE-*, enjambre/${ISSUE}a-* ni enjambre/issue-$ISSUE-*: se libera el hueco WIP."
             exit 1
           fi
 
@@ -153,9 +155,12 @@ jobs:
     needs: implementar
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # contents y pull-requests de escritura solo para `gh pr ready` si el agente lo abrió en borrador: con GITHUB_TOKEN,
+    # markPullRequestReadyForReview pide los dos (experimento del ADR 0014). Sin checkout ni agente.
     permissions:
       actions: write
-      pull-requests: read
+      contents: write
+      pull-requests: write
       statuses: write
     steps:
       - name: Lanzar la CI y la revisión del PR
@@ -169,9 +174,13 @@ jobs:
         run: |
           set -euo pipefail
           datos=$(gh pr list --state open --json number,headRefName,headRefOid \
-            --jq "[.[] | select(.headRefName | startswith(\"enjambre/$ISSUE-\") or startswith(\"enjambre/issue-$ISSUE-\"))] | first | [.number, .headRefName, .headRefOid] | @tsv")
+            --jq "[.[] | select(.headRefName | test(\"^enjambre/(issue-)?$ISSUE[a-z]?-\"))] | first | [.number, .headRefName, .headRefOid] | @tsv")
           IFS=$'\t' read -r pr rama sha <<< "$datos"
           if [ -z "$pr" ]; then echo "No encuentro el PR de la historia #$ISSUE."; exit 1; fi
+          # El PR llega a Álvaro listo para revisión desde el principio (23-11-2026), aunque el agente lo abriera en borrador.
+          if [ "$(gh pr view "$pr" --json isDraft --jq .isDraft)" = true ]; then
+            gh pr ready "$pr" && echo "PR #$pr marcado listo para revisión."
+          fi
           # Ejecuciones pendientes de aprobación del commit del PR (las crea GitHub al abrirlo con GITHUB_TOKEN).
           for id in $(gh run list --commit "$sha" --status action_required --json databaseId --jq '.[].databaseId'); do
             gh run delete "$id" && echo "Borrada la ejecución pendiente de aprobación $id."

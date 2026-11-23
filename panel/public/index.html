@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Enjambre en vivo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3l11 6.5v13L16 29 5 22.5v-13z' fill='%23f2a93b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/panel.css">
+  <script src="/panel.js" defer></script>
+</head>
+<body>
+  <header class="barra">
+    <div class="marca">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l11 6.5v13L16 29 5 22.5v-13z"/></svg>
+      <div><b>Enjambre</b><span>panel en vivo</span></div>
+    </div>
+    <div class="salud" id="salud" aria-live="polite">
+      <span class="pulso" id="conexion">Conectando…</span>
+      <span id="ultimo-webhook">Último webhook: —</span>
+      <span id="conciliacion">Conciliado: —</span>
+      <button type="button" class="enlace" id="conciliar">Conciliar ahora</button>
+    </div>
+    <div class="usuario"><span id="login"></span><button type="button" class="enlace" id="salir" hidden>Salir</button></div>
+  </header>
+
+  <main id="app" hidden>
+    <nav class="filtros" id="filtros" aria-label="Repositorios"></nav>
+    <p class="aviso" id="error-github" hidden></p>
+
+    <section aria-labelledby="t-agentes">
+      <div class="cab"><h2 id="t-agentes">Agentes trabajando ahora</h2><span class="contador" id="n-agentes">0</span></div>
+      <div class="agentes" id="agentes"></div>
+      <h3 class="sub">Terminado en las últimas 2 horas</h3>
+      <ol class="recientes" id="recientes"></ol>
+    </section>
+
+    <section aria-labelledby="t-prs">
+      <div class="cab"><h2 id="t-prs">PR abiertos</h2><span class="contador" id="n-prs">0</span></div>
+      <div class="prs" id="prs"></div>
+    </section>
+
+    <section aria-labelledby="t-tablero">
+      <div class="cab"><h2 id="t-tablero">Issues por etapa</h2><span class="contador" id="n-issues">0</span></div>
+      <div class="tablero" id="tablero"></div>
+    </section>
+
+    <section aria-labelledby="t-cronologia">
+      <div class="cab"><h2 id="t-cronologia">Cronología</h2><span class="nota">lo que GitHub ha contado, lo más nuevo arriba</span></div>
+      <ol class="cronologia" id="cronologia"></ol>
+    </section>
+  </main>
+
+  <section class="entrar" id="entrar" hidden>
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l11 6.5v13L16 29 5 22.5v-13z"/></svg>
+    <h1>Enjambre en vivo</h1>
+    <p>Los agentes trabajando en tus repos, al instante. Etiqueta issues, revisa, aprueba y fusiona PR.</p>
+    <a class="boton" href="/login">Entrar con GitHub</a>
+  </section>
+
+  <aside class="cajon" id="cajon" hidden aria-modal="true" role="dialog" aria-labelledby="cajon-titulo">
+    <div class="cajon-cab">
+      <h2 id="cajon-titulo">PR</h2>
+      <button type="button" class="cerrar" id="cerrar-cajon" aria-label="Cerrar">×</button>
+    </div>
+    <div class="cajon-cuerpo" id="cajon-cuerpo"></div>
+  </aside>
+  <div class="velo" id="velo" hidden></div>
+
+  <div class="avisos" id="avisos" aria-live="assertive"></div>
+</body>
+</html>

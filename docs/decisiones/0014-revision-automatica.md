@@ -70,12 +70,24 @@ Los tres arreglos van en el plugin `v0.6.4`. Llegan a los proyectos por PR, porq
 | `preparar` | Aceptó el `workflow_dispatch` de `github-actions[bot]` |
 | Revisor | **No arrancó.** `claude-code-action` rechaza por defecto los runs iniciados por un bot: «Workflow initiated by non-human actor: github-actions (type: Bot). Add bot to allowed_bots list». Arreglado en `v0.6.5`: `allowed_bots: github-actions[bot]` solo en revisor y seguridad, nunca `'*'`, con una prueba que lo exige. Fuente: `action.yml` y `src/github/validation/actor.ts` de la Action en `acfe799` |
 | `listo` | No corrió, porque falló el revisor |
+| Puerta 2 | Álvaro fusionó #22 a las 12:31:27 UTC, diez segundos antes que el arreglo (lobby#23). Al volver a lanzar `pedir-revision` (12:32:58) ya no había PR abierto: «No encuentro el PR de la historia #9.» y paró sin hacer nada, como debe |
+
+**Resultado:** lead time 34 min, coste ≈ 1,18 USD (parcial), **sin veredicto del revisor**. Es la única historia medida que entró sin revisión de agente; la revisó solo Álvaro.
 
 ## Sin comprobar
 
-Este flujo no se ha ejecutado aún en una historia real. La primera historia que pase por `enjambre:implementar` después de fusionar los PR de los workflows lo comprobará. Hay que mirar cuatro cosas:
+Comprobado en lobby#9: la CI arranca sin el aviso, el actor del `workflow_dispatch` es `github-actions[bot]` y los checks se ven en el PR. Falta comprobarlo de principio a fin con `v0.6.5` en la próxima historia:
 
-- que `ci` y `enjambre-revisar` arrancan sin el aviso;
-- que el actor del `workflow_dispatch` es `github-actions[bot]`;
-- que el PR pasa a listo con la revisión pedida a Álvaro;
-- que los checks de la CI se ven en el PR.
+- que el revisor arranca con el `workflow_dispatch` del bot y deja su veredicto;
+- que, con APROBAR, el PR pasa a listo con la revisión pedida a Álvaro.
+
+## Cambio del 23-11-2026 (v0.7.0): el PR se abre listo para revisión
+
+Lo pidió Álvaro: «la PR debe abrirse ya lista para review (no la abras en draft)».
+
+- **El implementador abre el PR listo**, sin `--draft`. Lo dicen el prompt de `enjambre-implementar.yml`, el agente `enjambre-implementador`, `enjambre-plataforma` y las skills `git-enjambre`, `ci-cd` y `reglas-enjambre`.
+- **Si aun así lo abre en borrador**, `pedir-revision` lo marca listo. Por eso este job pasa a tener `contents: write` y `pull-requests: write`, lo mismo que pide `gh pr ready` en el experimento de arriba. Sigue sin checkout ni agente.
+- **`listo`** ya no saca el PR de borrador salvo que aún lo esté. Con APROBAR solo pide la revisión de Álvaro.
+- **Ramas con sufijo de carril.** En finance_tracker#16 el implementador abrió la rama `enjambre/16a-iguales-longitud`, como proponía el plan. El job `implementar` buscaba `enjambre/16-…`, no la encontró y liberó el hueco WIP. `pedir-revision` no corrió, así que no se lanzaron ni la CI ni la revisión.
+  - **Arreglo:** el patrón ahora es `^enjambre/(issue-)?<n>[a-z]?-`, en los workflows, el panel y `extraer.mjs`, con pruebas.
+- **Plan dividido en carriles.** El prompt ahora pide hacer el plan entero en un solo PR, salvo que el plan diga expresamente lo contrario. En #16 el implementador solo hizo el carril A.

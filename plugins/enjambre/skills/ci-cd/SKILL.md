@@ -15,7 +15,7 @@ En la carpeta `workflows/` de esta skill (`${CLAUDE_SKILL_DIR}/workflows/`). Se 
 |---|---|---|---|
 | `ci.yml` | PR, push a main, manual | `npm ci`, `npm run check`, `npm test`, `npm audit`; e2e local (desactivado hasta adaptarlo) | 1 |
 | `enjambre-planificar.yml` | etiqueta `enjambre:planificar` en un issue | el jefe de proyecto publica el plan | 2 |
-| `enjambre-implementar.yml` | etiqueta `enjambre:implementar` | comprueba el límite WIP (`vars.ENJAMBRE_WIP`, 3 por defecto, máx. 6), un implementador abre el PR en borrador y el job `pedir-revision` lanza la CI y la revisión (ADR 0014) | 2 |
+| `enjambre-implementar.yml` | etiqueta `enjambre:implementar` | comprueba el límite WIP (`vars.ENJAMBRE_WIP`, 3 por defecto, máx. 6), un implementador abre el PR listo para revisión y el job `pedir-revision` lanza la CI y la revisión (ADR 0014) | 2 |
 | `enjambre-revisar.yml` | `workflow_dispatch` desde `enjambre-implementar`, o la etiqueta `enjambre:revisar` de Álvaro para repetir | revisor de código; revisor de seguridad si toca ficheros sensibles; con APROBAR, marca el PR listo y pide la revisión de Álvaro | 2 |
 | `enjambre-investigar.yml` | manual (semanal más adelante) | el investigador abre issues `enjambre:propuesta` | 3 |
 | `enjambre-analizar.yml` | etiqueta `enjambre:analizar` en un issue | el analista publica el informe de estado del arte | 3 |
@@ -62,7 +62,7 @@ Los agentes **no** crean ni leen secretos (`gh secret` está bloqueado por `bloq
 
 ## 5. Cómo probar un workflow
 
-1. Rama `enjambre/<clave>-ci-...` y PR en borrador.
+1. Rama `enjambre/<clave>-ci-...` y PR listo para revisión.
 2. Los workflows con `pull_request` corren en el propio PR; los de `issues` o `workflow_dispatch` solo existen cuando están en `main`, así que se prueban después de fusionar, con un issue de prueba.
 3. Enlaza la ejecución en el PR y anota los minutos que ha consumido.
 

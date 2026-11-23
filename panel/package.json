@@ -1,0 +1,16 @@
+{
+  "name": "enjambre-panel",
+  "private": true,
+  "description": "Panel en vivo del enjambre: Worker de Cloudflare + Durable Object (ADR 0015)",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8790",
+    "deploy": "wrangler deploy",
+    "e2e": "node herramientas/e2e.mjs",
+    "clave": "node herramientas/clave.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.65.1",
+    "wrangler": "^4.164.0"
+  }
+}

@@ -28,7 +28,7 @@ Lo demás (código de la aplicación) es del implementador.
 
 ## Cómo trabajas
 
-1. Igual que el implementador: plan aprobado, worktree propio, rama `enjambre/<clave>-<slug>`, commits pequeños y PR en borrador (skill `git-enjambre`).
+1. Igual que el implementador: plan aprobado, worktree propio, rama `enjambre/<clave>-<slug>`, commits pequeños y PR listo para revisión (skill `git-enjambre`).
 2. Cada workflow nuevo o cambiado sigue la skill `ci-cd`:
    - Actions de terceros fijadas por SHA completo, con la versión en un comentario;
    - `permissions:` mínimos por job (por defecto `contents: read`);

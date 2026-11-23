@@ -1,6 +1,6 @@
 ---
 name: git-enjambre
-description: Flujo Git de Enjambre - ramas enjambre/clave-slug, commits Conventional Commits en inglés sin atribución, PR en borrador con la plantilla de Enjambre y lo que nunca se hace (push a main, force, merge). Úsala al crear ramas, hacer commits o abrir y actualizar PR.
+description: Flujo Git de Enjambre - ramas enjambre/clave-slug, commits Conventional Commits en inglés sin atribución, PR listo para revisión con la plantilla de Enjambre y lo que nunca se hace (push a main, force, merge). Úsala al crear ramas, hacer commits o abrir y actualizar PR.
 ---
 
 # Git en Enjambre
@@ -68,9 +68,9 @@ Reglas:
 1. Comprueba el tamaño: `git diff main...HEAD --shortstat`. Menos de **400 líneas** cambiadas; si no, propón dividir.
 2. Sube la rama: `git push -u origin enjambre/<clave>-<slug>`.
 3. Escribe el cuerpo con `plantilla-pr.md` de esta skill (`${CLAUDE_SKILL_DIR}/plantilla-pr.md`) en un fichero temporal fuera del repo, o pásalo por la entrada estándar.
-4. Ábrelo **siempre en borrador**:
+4. Ábrelo **listo para revisión** (sin `--draft`; Álvaro, 23-11-2026). La CI y la revisión de los agentes arrancan solas:
    ```bash
-   gh pr create --draft --title "feat: filter tasks by tag" --body-file - < cuerpo.md
+   gh pr create --title "feat: filter tasks by tag" --body-file - < cuerpo.md
    ```
    Título = primer commit o resumen, con formato Conventional Commits.
 5. Tras una revisión con CAMBIOS: nuevos commits en la misma rama (sin reescribir historia) y un comentario que diga qué hallazgo resuelve cada uno.
