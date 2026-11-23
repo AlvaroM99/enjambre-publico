@@ -273,11 +273,12 @@ pre.mermaid { margin: 0; background: transparent; font-family: var(--body); colo
 .mini { font-family: var(--mono); font-size: .66rem; font-weight: 600; padding: 1px 5px; border-radius: 4px; }
 /* Recorrido de un comando */
 .route { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: stretch; }
-@media (max-width: 1000px) { .route { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 1200px) { .route { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .route { grid-template-columns: minmax(0, 1fr); } }
 .hop { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: grid; gap: 4px; align-content: start; position: relative; min-width: 0; }
 .hop .k { font-family: var(--mono); font-size: .68rem; color: var(--muted); }
-.hop b { font-family: var(--display); font-size: .92rem; }
+.hop b { font-family: var(--display); font-size: .92rem; overflow-wrap: anywhere; hyphens: auto; }
+.hop p, .ph h3 { overflow-wrap: anywhere; hyphens: auto; }
 .hop p { font-size: .8rem; color: var(--muted); }
 .hop.stop { border-color: var(--risk); }
 .hop.go { border-color: var(--done); background: var(--done-soft); }
@@ -301,19 +302,52 @@ pre.mermaid { margin: 0; background: transparent; font-family: var(--body); colo
 .mej { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; }
 .mej .id { font-family: var(--display); font-weight: 800; color: var(--honey); font-size: 1.1rem; }
 .mej p { font-size: .84rem; color: var(--muted); margin-top: 2px; }
+/* Fases (dónde estamos) */
+.tl { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 980px) { .tl { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .tl { grid-template-columns: minmax(0, 1fr); } }
+.ph { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.ph .k { font-family: var(--mono); font-size: .7rem; color: var(--muted); }
+.ph h3 { font-size: 1rem; }
+.ph p { font-size: .8rem; color: var(--muted); }
+.ph.ok { border-color: var(--done); }
+.ph.wip { border-color: var(--wip); background: var(--wip-soft); }
+.ph.wip p { color: var(--ink); }
+.ph.todo { border-style: dashed; }
+.ph.aqui { outline: 3px solid var(--human); outline-offset: 2px; }
+.pc { height: 7px; border-radius: 999px; background: var(--todo-soft); overflow: hidden; }
+.pc i { display: block; height: 100%; background: var(--done); }
+.ph.wip .pc i { background: var(--wip); }
+.aqui-tag { font-family: var(--mono); font-size: .68rem; font-weight: 600; color: var(--human); }
+/* Matriz de pruebas */
+.mx td, .mx th { text-align: center; }
+.mx td:first-child, .mx th:first-child { text-align: left; }
+.c-ok { background: var(--done-soft); color: var(--done); font-weight: 600; font-family: var(--mono); font-size: .78rem; }
+.c-no { background: var(--risk-soft); color: var(--risk); font-family: var(--mono); font-size: .78rem; }
+.c-na { color: var(--muted); font-family: var(--mono); font-size: .78rem; }
+.c-pa { background: var(--wip-soft); color: var(--ink); font-family: var(--mono); font-size: .78rem; }
+/* Barras de coste */
+.bars { display: grid; gap: 6px; }
+.bar { display: grid; grid-template-columns: 150px minmax(0, 1fr) 132px; gap: 10px; align-items: center; font-size: .84rem; }
+@media (max-width: 560px) { .bar { grid-template-columns: 96px minmax(0, 1fr) 96px; font-size: .74rem; } }
+.bar .track { height: 16px; background: var(--sunken); border-radius: 4px; position: relative; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; border-radius: 4px; }
+.bar .v { font-family: var(--mono); font-size: .74rem; text-align: right; font-variant-numeric: tabular-nums; }
 footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--line); margin-top: 40px; padding-block: 20px 40px; }
 </style>
 
 <header class="hero">
   <div class="hero-inner">
     <div>
-      <p class="kicker">ALVAROM99/ENJAMBRE · ESTADO A 21-11-2026</p>
+      <p class="kicker">ALVAROM99/ENJAMBRE · ESTADO A 23-11-2026 · PLUGIN v0.6.2</p>
       <h1>Enjambre<span>.</span></h1>
       <p class="lede">Un equipo de diez agentes de Claude organizado como una pequeña empresa de software. Investiga antes de construir, planifica, implementa hasta seis historias a la vez, revisa, verifica y audita. Álvaro decide, aprueba, fusiona y despliega.</p>
       <div class="pills">
-        <span class="pill d"><i></i>F1 cerrada</span>
-        <span class="pill d"><i></i>F2 y F3 cerradas técnicamente</span><span class="pill w"><i></i>falta lo que necesita tu sesión</span>
-        <span class="pill"><i style="background:var(--human)"></i>repo público para instalar</span>
+        <span class="pill d"><i></i>F1 cerrada por decisión</span>
+        <span class="pill d"><i></i>F2 cumplida</span>
+        <span class="pill w"><i></i>F3: entregables hechos, midiendo</span>
+        <span class="pill"><i style="background:var(--todo)"></i>F4 planificada</span>
+        <span class="pill"><i style="background:var(--human)"></i>F5 en marcha</span>
       </div>
     </div>
     <div class="hive" aria-label="Panal con Álvaro en el centro y los diez agentes alrededor" role="img">
@@ -338,10 +372,10 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <div class="stat" role="listitem"><b>10</b><span>agentes</span></div>
       <div class="stat" role="listitem"><b>13</b><span>skills</span></div>
       <div class="stat" role="listitem"><b>4</b><span>hooks</span></div>
-      <div class="stat" role="listitem"><b>360</b><span>pruebas en verde</span></div>
-      <div class="stat" role="listitem"><b>6</b><span>carriles como máximo</span></div>
-      <div class="stat" role="listitem"><b>100 %</b><span>pass@1 en 20 evaluaciones</span></div>
-      <div class="stat" role="listitem"><b>20 $</b><span>al mes (Claude Pro)</span></div>
+      <div class="stat" role="listitem"><b>360</b><span>pruebas automáticas</span></div>
+      <div class="stat" role="listitem"><b>38</b><span>ejecuciones reales de agentes</span></div>
+      <div class="stat" role="listitem"><b>20/20</b><span>evaluaciones (v0.6.1)</span></div>
+      <div class="stat" role="listitem"><b>2</b><span>historias de punta a punta</span></div>
     </div>
   </div>
 </header>
@@ -350,6 +384,7 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
   <nav class="toc" aria-label="Índice">
     <p>CONTENIDO</p>
     <ol>
+      <li><a href="#donde">Dónde estamos</a></li>
       <li><a href="#idea">La idea</a></li>
       <li><a href="#oficina">La oficina</a></li>
       <li><a href="#organigrama">Organigrama</a></li>
@@ -359,8 +394,10 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       <li><a href="#arnes">Arnés y seguridad</a></li>
       <li><a href="#cicd">CI/CD</a></li>
       <li><a href="#repos">Repos y secretos</a></li>
-      <li><a href="#primera">Primeras ejecuciones</a></li>
-      <li><a href="#historia">Primera historia</a></li>
+      <li><a href="#pruebas">Matriz de pruebas</a></li>
+      <li><a href="#historias">Historias reales</a></li>
+      <li><a href="#coste">Coste</a></li>
+      <li><a href="#primera">Primeras revisiones</a></li>
       <li><a href="#auditoria">Auditoría F1–F3</a></li>
       <li><a href="#f4f5">Plan F4 y F5</a></li>
       <li><a href="#ecosistema">Ecosistema</a></li>
@@ -378,6 +415,39 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
   </nav>
 
   <main>
+    <section id="donde">
+      <div class="sec-head">
+        <span class="n">DÓNDE ESTAMOS · 23-11-2026</span>
+        <h2>Entre F3 y F5: las fases no están todas terminadas</h2>
+        <p>F0, F1 y F2 están cerradas. F3 tiene todos sus entregables, pero su criterio de salida solo se ha medido con dos historias. F4 está planificada y espera tus cuatro decisiones. F5 ya funciona como ciclo continuo: las versiones v0.5 y v0.6 del plugin salieron de él.</p>
+      </div>
+      <div class="tl" role="list" aria-label="Estado de las seis fases">
+        <div class="ph ok" role="listitem"><span class="k">F0 · DESCUBRIMIENTO</span><h3>Cerrada</h3><div class="pc"><i style="width:100%"></i></div><p>Vía C híbrida, cuentas, línea base de lobby (ADR 0001).</p></div>
+        <div class="ph ok" role="listitem"><span class="k">F1 · MVP LOCAL</span><h3>Cerrada por decisión</h3><div class="pc"><i style="width:100%"></i></div><p>Plugin muy por encima del plan; 2 de 5 historias reales (ADR 0005).</p></div>
+        <div class="ph ok" role="listitem"><span class="k">F2 · POR EVENTOS</span><h3>Cumplida</h3><div class="pc"><i style="width:100%"></i></div><p>lobby#2 de Listo a PR fusionado por etiquetas (ADR 0010–0011).</p></div>
+        <div class="ph wip aqui" role="listitem"><span class="aqui-tag">● ESTAMOS AQUÍ</span><span class="k">F3 · MÁS EQUIPO</span><h3>Midiendo</h3><div class="pc"><i style="width:85%"></i></div><p>Entregables hechos. Lead time y retrabajo en objetivo, pero con n = 2.</p></div>
+        <div class="ph todo" role="listitem"><span class="k">F4 · DATOS Y BI</span><h3>Planificada</h3><div class="pc"><i style="width:10%"></i></div><p>Plan y modelo de datos; faltan D-F4-1 a D-F4-4.</p></div>
+        <div class="ph wip" role="listitem"><span class="k">F5 · ENDURECIMIENTO</span><h3>En marcha (continua)</h3><div class="pc"><i style="width:30%"></i></div><p>3 ciclos hechos: rastro (0012), hooks (0013), implementador (lobby#15).</p></div>
+      </div>
+      <h3 class="sub">Criterios de salida, medidos</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Fase</th><th>Criterio del plan (§7)</th><th>Medido</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td><b>F1</b></td><td>≥ 3 de 5 PR de historias fusionados con ≤ 1 ciclo de cambios; 0 incidentes; coste medido</td><td>2 historias (lobby#5 y lobby#16), las dos con 1 ciclo; 0 incidentes; coste por ejecución en cada run</td><td><span class="badge b-wip">2 de 5 · cerrada por decisión</span></td></tr>
+          <tr><td><b>F2</b></td><td>Una historia de «Listo» a PR verificado sin sesión local</td><td>lobby#2: plan, implementador, CI y revisión en Actions. La sesión hizo 2 pasos que GitHub impedía; ya no hacen falta salvo los workflows</td><td><span class="badge b-done">cumplido</span></td></tr>
+          <tr><td><b>F3</b></td><td>Lead time mediano &lt; 2 días</td><td>lobby#2: 4 h 31 min · lobby#8: 14 h 16 min (incluye la noche hasta tu fusión) · mediana 9 h 23 min</td><td><span class="badge b-done">en objetivo (n = 2)</span></td></tr>
+          <tr><td><b>F3</b></td><td>≥ 60 % de PR sin retrabajo (≤ 1 ciclo)</td><td>2 de 2. En lobby#16 las correcciones las hizo la sesión, no el agente: no hay aún un paso de «corregir hallazgos» automático</td><td><span class="badge b-wip">en objetivo con matiz</span></td></tr>
+          <tr><td><b>F3</b></td><td>pass@1 ≥ 60 %</td><td>6 bancos completos en Actions: 4 con 20/20 y 2 con 19/20 (el fixture de <code>jefe-plan</code> era ambiguo; corregido, después 20/20). Mínimo 95 %</td><td><span class="badge b-done">cumplido</span></td></tr>
+          <tr><td><b>F4</b></td><td>Panel con coste por tarea y DORA actualizado a diario</td><td>Sin empezar: decisiones D-F4 pendientes</td><td><span class="badge b-todo">pendiente</span></td></tr>
+          <tr><td><b>F5</b></td><td>3 meses con métricas en objetivo</td><td>Continuo; se mide con F4</td><td><span class="badge b-todo">no aplica aún</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="panel"><h3>¿Están completas todas las fases?</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><b>No.</b> Para dar F3 por cerrada con datos, faltan más historias y que el panel de F4 mida lead time y retrabajo de forma continua. F4 no ha empezado. F5 no se termina: es el ciclo de mantenimiento del arnés.</p></div>
+        <div class="panel"><h3>¿Está probado el sistema entero?</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><b>Casi.</b> En el repo de Enjambre, los 10 agentes pasan sus 20 evaluaciones. En lobby han trabajado de verdad 7 de los 10 agentes; en finance_tracker, 3. Faltan plataforma, verificador y coordinador en real, el workflow de producción y una historia completa en finance_tracker. Detalle en la <a href="#pruebas">matriz de pruebas</a>.</p></div>
+      </div>
+    </section>
+
     <section id="idea">
       <div class="sec-head">
         <span class="n">LA IDEA</span>
@@ -537,7 +607,7 @@ flowchart TB
       <div class="sec-head">
         <span class="n">ARNÉS Y SEGURIDAD</span>
         <h2>El comportamiento lo fija el arnés, no solo el prompt</h2>
-        <p>Cada agente está atado por herramientas, hooks, modelo, turnos y aislamiento. Las capas se apilan de la más débil a la más fuerte: ninguna basta sola.</p>
+        <p>Cada agente está atado por herramientas, hooks, modelo, turnos y aislamiento. Las siete capas se apilan de la más débil a la más fuerte: ninguna basta sola. Las capas 4 y 6 se han ajustado con las ejecuciones reales (ADR 0008–0013).</p>
       </div>
       <div class="grid2">
         <div class="layers">
@@ -546,7 +616,8 @@ flowchart TB
           <div class="layer"><span class="lv">3</span><div><h3>Permisos del proyecto</h3><p>Reglas <code>deny</code>/<code>allow</code> en <code>.claude/settings.json</code> desde la plantilla.</p></div><span class="badge b-wip">media</span></div>
           <div class="layer"><span class="lv">4</span><div><h3>Hooks del plugin</h3><p><code>proteger-secretos</code>, <code>bloquear-comandos</code> y <code>limitar-bash</code> (lista blanca por agente). Fallan cerrados y corren dentro de los subagentes.</p></div><span class="badge b-done">fuerte</span></div>
           <div class="layer"><span class="lv">5</span><div><h3>Aislamiento</h3><p>Worktree por escritor; devcontainer con red limitada o runner efímero de CI.</p></div><span class="badge b-done">fuerte</span></div>
-          <div class="layer"><span class="lv">6</span><div><h3>Aprobación humana</h3><p>Dos puertas; solo el propietario dispara agentes en Actions; producción manual escribiendo <code>DESPLEGAR</code>.</p></div><span class="badge b-done">fuerte</span></div>
+          <div class="layer"><span class="lv">6</span><div><h3>Workflow fuera del agente</h3><p>Plugin fijado por SHA (si falta, el job se para), job <code>aprobaciones</code> aparte y sin checkout, respaldo de respuestas y transcripción guardada. El <code>GITHUB_TOKEN</code> no puede tocar workflows.</p></div><span class="badge b-done">fuerte</span></div>
+          <div class="layer"><span class="lv">7</span><div><h3>Aprobación humana</h3><p>Dos puertas; solo el propietario dispara agentes; solo Álvaro aprueba y fusiona PR; producción manual escribiendo <code>DESPLEGAR</code>.</p></div><span class="badge b-done">fuerte</span></div>
         </div>
         <pre class="tree" aria-label="Estructura del repositorio"><span class="h">enjambre/</span>
 ├─ .claude-plugin/marketplace.json
@@ -556,16 +627,19 @@ flowchart TB
 │  │  └─ ci-cd/workflows/ <span class="c"># 8 plantillas</span>
 │  ├─ hooks/hooks.json   <span class="c"># 4 hooks</span>
 │  └─ scripts/           <span class="c"># Node, sin dependencias</span>
+│     └─ lib/comun.mjs   <span class="c"># sinCuerposDeGh, bloquear…</span>
 ├─ .github/              <span class="c"># CI propia, evals.yml, Dependabot</span>
-├─ herramientas/publicar.mjs <span class="c"># → repo público</span>
+├─ herramientas/         <span class="c"># publicar.mjs (etiqueta vX.Y.Z),</span>
+│                        <span class="c"># actividad.mjs</span>
 ├─ plantillas/           <span class="c"># settings, devcontainer,</span>
 │                        <span class="c"># plan, pr, adr, qa,</span>
 │                        <span class="c"># investigación, gobernanza</span>
-├─ pruebas/              <span class="c"># node:test, 297</span>
+├─ pruebas/              <span class="c"># node:test, 360</span>
 ├─ evals/                <span class="c"># 20 tareas + fixtures</span>
-├─ docs/                 <span class="c"># plan, ADR 0001–0007,</span>
+├─ docs/                 <span class="c"># plan, ADR 0001–0013, auditoría,</span>
+│                        <span class="c"># fases/F4 y F5, operación,</span>
 │                        <span class="c"># organigrama, riesgos, panorama</span>
-└─ backlog/              <span class="c"># S1–S51 en CSV</span></pre>
+└─ backlog/              <span class="c"># S1–S76 en CSV</span></pre>
       </div>
 
       <h3 class="sub">El hook <code>limitar-bash</code> en acción</h3>
@@ -574,11 +648,32 @@ flowchart TB
         <tbody>
           <tr><td>Revisor</td><td><code>gh pr diff 12 | head -200</code></td><td class="yes">permitido</td><td>lectura de su lista</td></tr>
           <tr><td>Revisor</td><td><code>echo x &gt; fichero.txt</code></td><td class="no">bloqueado</td><td>redirección a fichero</td></tr>
-          <tr><td>Revisor</td><td><code>gh pr review 12 --approve</code></td><td class="no">bloqueado</td><td>aprobar es de Álvaro</td></tr>
+          <tr><td>Revisor</td><td><code>gh pr review 12 --approve</code></td><td class="no">bloqueado</td><td>aprobar es de Álvaro (también <code>bloquear-comandos</code>)</td></tr>
+          <tr><td>Analista</td><td><code>sed -n 1,60p herramientas/prueba.mjs</code></td><td class="yes">permitido</td><td><code>sed</code> de solo lectura (desde v0.6.0)</td></tr>
+          <tr><td>Revisor</td><td><code>sed 's/a/b/w copia.txt' x.js</code></td><td class="no">bloqueado</td><td><code>sed</code> que escribe o ejecuta</td></tr>
+          <tr><td>Gobernanza</td><td><code>for f in .github/workflows/*.yml; do grep -n uses: $f; done</code></td><td class="yes">permitido</td><td>cada comando del bucle está en su lista</td></tr>
+          <tr><td>Investigador</td><td><code>printenv ALCANCE</code></td><td class="yes">permitido</td><td>solo esa variable y solo él</td></tr>
           <tr><td>Analista</td><td><code>git clone https://…</code></td><td class="no">bloqueado</td><td>evalúa leyendo la web, no ejecutando código ajeno</td></tr>
           <tr><td>Gobernanza</td><td><code>git grep -nIE 'TODO|FIXME'</code></td><td class="yes">permitido</td><td>auditoría de solo lectura</td></tr>
           <tr><td>Coordinador</td><td><code>gh pr merge 3</code></td><td class="no">bloqueado</td><td>fuera de lista y reservado a Álvaro</td></tr>
           <tr><td>Cualquiera limitado</td><td><code>cat "$(whoami)"</code></td><td class="no">bloqueado</td><td>sustitución de comandos</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 class="sub">Las reglas de los hooks, una a una</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Hook</th><th>Regla</th><th>Bloquea</th><th>Desde</th></tr></thead>
+        <tbody>
+          <tr><td><code>proteger-secretos</code></td><td>env, dev-vars, datos, clave-local, credenciales, ssh, estado de wrangler, claves privadas</td><td>Leer, escribir o buscar en esas rutas con cualquier herramienta, y su mención en comandos. Ignora solo el texto de comentarios e issues que <code>gh</code> recibe en un heredoc entre comillas</td><td>F1 · ajuste ADR 0013</td></tr>
+          <tr><td><code>proteger-secretos</code></td><td><code>configuracion-claude</code></td><td>Edit/Write sobre <code>.claude/settings*.json</code>, hooks y políticas gestionadas</td><td>F1</td></tr>
+          <tr><td><code>bloquear-comandos</code></td><td>wrangler (deploy fuera de preview, D1 remoto, secret, delete, rollback), npm reservados</td><td>Desplegar o tocar producción y secretos del Worker</td><td>F1</td></tr>
+          <tr><td><code>bloquear-comandos</code></td><td>git push forzado o a <code>main</code> (también refspecs y <code>git push</code> estando en <code>main</code>)</td><td>Saltarse el PR</td><td>F1</td></tr>
+          <tr><td><code>bloquear-comandos</code></td><td><code>gh-merge</code>, <code>gh-pr-aprobar</code></td><td>Fusionar y aprobar PR (<code>--approve</code>, <code>-a</code>, <code>-ab</code>…)</td><td>F1 · ADR 0011</td></tr>
+          <tr><td><code>bloquear-comandos</code></td><td><code>gh-api-escritura</code></td><td>Cualquier <code>gh api</code> que no sea GET, campos (<code>-f</code>, <code>-F</code>, <code>--input</code>), <code>/merges</code> y mutaciones de GraphQL</td><td>ADR 0009 (M11)</td></tr>
+          <tr><td><code>bloquear-comandos</code></td><td><code>gh-repo-admin</code>, <code>gh-secretos</code>, borrado masivo, descarga ejecutada</td><td>Administrar repos, secretos o rulesets; <code>rm -rf</code> de raíz; <code>curl | sh</code></td><td>F1</td></tr>
+          <tr><td><code>bloquear-comandos</code></td><td><code>configuracion-claude</code></td><td>Escribir la configuración de Claude Code por Bash (<code>&gt;</code>, <code>tee</code>, <code>cp</code>, <code>sed -i</code>, <code>git checkout</code>…). Leerla está permitido</td><td>F1 · ajuste ADR 0013</td></tr>
+          <tr><td><code>limitar-bash</code></td><td>Lista blanca por <code>agent_type</code> (7 agentes de solo lectura)</td><td>Todo lo que no esté en la lista: redirecciones, <code>$(…)</code>, <code>find -exec</code>, <code>xargs</code>, <code>awk</code>, PowerShell, <code>sed</code> que escribe</td><td>ADR 0004 · ajuste ADR 0013</td></tr>
+          <tr><td><code>registrar-actividad</code></td><td>SubagentStart / SubagentStop</td><td>Nada: apunta inicio, fin y tokens en <code>actividad.jsonl</code></td><td>ADR 0006</td></tr>
         </tbody>
       </table></div>
 
@@ -605,7 +700,7 @@ flowchart TB
         <p>GitHub Free no tiene protección de rama en repos privados. Lo compensan cuatro cosas: solo el propietario dispara agentes, los hooks impiden fusionar y desplegar, producción es manual y <code>npm test</code> comprueba que cada workflow cumple las reglas (SHA fijados, permisos mínimos, <code>concurrency</code>, <code>timeout-minutes</code>, sin <code>pull_request_target</code>).</p>
       </div>
       <div class="pipe">
-        <div class="wf"><span class="trg">PR · push a main</span><h3><code>ci.yml</code></h3><p>Check, pruebas y <code>npm audit</code>; e2e local preparado.</p></div>
+        <div class="wf"><span class="trg">PR · push a main · etiqueta</span><h3><code>ci.yml</code></h3><p>lobby: sintaxis, <code>npm audit</code>, <code>npm test</code> (38), humo 8/8 y prueba completa 60/60 con la semilla. finance_tracker: <code>cargo test</code> y <code>cargo check</code> para wasm.</p></div>
         <div class="wf"><span class="trg">etiqueta enjambre:analizar</span><h3><code>enjambre-analizar</code></h3><p>El analista publica el informe de estado del arte.</p></div>
         <div class="wf"><span class="trg">etiqueta enjambre:planificar</span><h3><code>enjambre-planificar</code></h3><p>El jefe publica el plan en el issue.</p></div>
         <div class="wf"><span class="trg">etiqueta enjambre:implementar</span><h3><code>enjambre-implementar</code></h3><p>Comprueba el WIP y un implementador abre el PR.</p></div>
@@ -614,6 +709,46 @@ flowchart TB
         <div class="wf"><span class="trg">manual (mensual)</span><h3><code>enjambre-gobernanza</code></h3><p>Auditoría de código y datos.</p></div>
         <div class="wf"><span class="trg">manual · repo de Enjambre</span><h3><code>evals.yml</code></h3><p>Banco de 20 evaluaciones con la CLI fijada; tabla de pass@1 en el resumen.</p></div>
         <div class="wf prod"><span class="trg">manual · propietario · DESPLEGAR</span><h3><code>produccion.yml</code></h3><p>Pruebas y <code>wrangler deploy</code> desde <code>main</code>.</p></div>
+      </div>
+
+      <h3 class="sub">Anatomía de un job de agente (plantillas v0.6.2)</h3>
+      <div class="route" role="list" aria-label="Pasos de un job de agente en GitHub Actions">
+        <div class="hop" role="listitem"><span class="k">1 · DISPARO</span><b>Etiqueta o manual</b><p>Solo si quien la pone es el propietario (<code>sender.login == repository_owner</code>).</p></div>
+        <div class="hop" role="listitem"><span class="k">2 · CHECKOUT</span><b>Código del proyecto</b><p>SHA de Actions fijados; <code>persist-credentials: false</code> salvo en implementar.</p></div>
+        <div class="hop stop" role="listitem"><span class="k">3 · VERSIÓN</span><b>¿SHA válido?</b><p><code>ENJAMBRE_VERSION</code> de 40 caracteres o el job se para.</p></div>
+        <div class="hop" role="listitem"><span class="k">4 · PLUGIN</span><b>Fuera del workspace</b><p>Checkout de <code>enjambre-publico</code> en ese SHA, movido a <code>$RUNNER_TEMP</code>.</p></div>
+        <div class="hop" role="listitem"><span class="k">5 · AGENTE</span><b><code>claude-code-action</code></b><p><code>--agent enjambre:…</code>, turnos máximos y atribución vacía. Corre con los 4 hooks.</p></div>
+        <div class="hop" role="listitem"><span class="k">6 · RASTRO</span><b>Transcripción y respaldo</b><p>Artefacto de 7 días y, si el agente no publicó, su respuesta final.</p></div>
+        <div class="hop go" role="listitem"><span class="k">7 · GUARDIA</span><b>Job <code>aprobaciones</code></b><p>Otra máquina sin checkout: retira aprobaciones ajenas en todos los PR y falla cerrado.</p></div>
+      </div>
+      <div class="table-wrap" style="margin-top:12px"><table>
+        <thead><tr><th>Workflow</th><th>Agente</th><th class="num">Turnos máx.</th><th>Permisos de escritura</th><th>Respaldo</th></tr></thead>
+        <tbody>
+          <tr><td><code>enjambre-analizar</code></td><td>analista</td><td class="num">35</td><td>issues</td><td>respuesta en el issue</td></tr>
+          <tr><td><code>enjambre-planificar</code></td><td>jefe de proyecto</td><td class="num">30</td><td>issues</td><td>respuesta en el issue</td></tr>
+          <tr><td><code>enjambre-implementar</code></td><td>implementador</td><td class="num">60</td><td>contents, pull-requests, issues</td><td>resumen en el issue; sin PR, falla y libera el hueco WIP</td></tr>
+          <tr><td><code>enjambre-revisar</code></td><td>revisor · seguridad (si es sensible)</td><td class="num">20 · 15</td><td>pull-requests</td><td>veredicto publicado por el workflow</td></tr>
+          <tr><td><code>enjambre-investigar</code></td><td>investigador QA</td><td class="num">35</td><td>issues</td><td>issue «Informe de investigación QA»</td></tr>
+          <tr><td><code>enjambre-gobernanza</code></td><td>gobernanza</td><td class="num">45</td><td>issues</td><td>issue «Informe de gobernanza»</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 class="sub">Versiones del plugin: de un commit a los proyectos</h3>
+      <div class="route" role="list" aria-label="Cómo llega una versión del plugin a los proyectos">
+        <div class="hop" role="listitem"><span class="k">1</span><b>Commit en Enjambre</b><p>Pruebas y CI en verde; versión en <code>plugin.json</code>.</p></div>
+        <div class="hop" role="listitem"><span class="k">2</span><b>Evaluaciones</b><p><code>evals.yml</code>: 20/20 antes de publicar.</p></div>
+        <div class="hop" role="listitem"><span class="k">3</span><b><code>publicar.mjs</code></b><p>Instantánea al repo público y etiqueta <code>v0.6.2</code>.</p></div>
+        <div class="hop" role="listitem"><span class="k">4</span><b>SHA impreso</b><p>El script muestra el commit de la etiqueta.</p></div>
+        <div class="hop stop" role="listitem"><span class="k">5</span><b>Tú decides</b><p><code>gh variable set ENJAMBRE_VERSION</code> en cada proyecto.</p></div>
+        <div class="hop" role="listitem"><span class="k">6</span><b>Plantillas</b><p>Los workflows se copian por PR, porque el token no puede tocarlos.</p></div>
+        <div class="hop go" role="listitem"><span class="k">7</span><b>Siguiente run</b><p>Los agentes usan ese SHA exacto.</p></div>
+      </div>
+      <p class="note">Hoy: plugin <code>v0.6.2</code> publicado; los proyectos tienen el SHA de <code>v0.6.1</code> (hooks iguales; <code>v0.6.2</code> solo cambia la plantilla del implementador, que ya está en los dos proyectos por lobby#15 y finance_tracker#14). 14 etiquetas: de <code>v0.2.0</code> a <code>v0.6.2</code>.</p>
+
+      <h3 class="sub">Por qué los agentes no tocan los workflows</h3>
+      <div class="grid2">
+        <div class="panel"><h3>La regla de GitHub</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">Los agentes suben con el <code>GITHUB_TOKEN</code> del run, que <b>nunca</b> tiene permiso <code>workflows</code>: GitHub rechaza cualquier push que cambie <code>.github/workflows/</code>. Es intencionado, para que un workflow no pueda reescribirse ni darse más permisos. Tu cuenta, y la sesión que la usa, sí tienen ese permiso.</p></div>
+        <div class="panel"><h3>Qué tienes que hacer</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">Nada de forma habitual. Si un plan cambia un workflow, el implementador lo deja descrito en el PR y la sesión lo añade en un commit aparte, que revisor y seguridad revisan. No se recomienda dar a los agentes un token con <code>workflows</code>: podrían quitarse sus propias barreras (el job <code>aprobaciones</code>, el disparo solo del propietario).</p></div>
       </div>
 
       <h3 class="sub">Del repo privado al público</h3>
@@ -636,12 +771,24 @@ flowchart TB
       <div class="table-wrap"><table>
         <thead><tr><th>Repositorio</th><th>Visibilidad</th><th><code>CLAUDE_CODE_OAUTH_TOKEN</code></th><th><code>ENJAMBRE_WIP</code></th><th>Etiquetas</th><th>Qué ejecuta</th><th>PR</th></tr></thead>
         <tbody>
-          <tr><td><b>lobby</b></td><td>privado</td><td><span class="badge b-done">22-11-2026</span></td><td class="num">3</td><td><span class="badge b-done">sí</span></td><td>CI + 6 workflows de agentes + producción manual</td><td><a href="https://github.com/AlvaroM99/lobby/pull/1">#1</a> · <a href="https://github.com/AlvaroM99/lobby/pull/3">#3</a></td></tr>
-          <tr><td><b>finance_tracker</b></td><td>privado</td><td><span class="badge b-done">22-11-2026</span></td><td class="num">3</td><td><span class="badge b-done">sí</span></td><td>CI de Rust + 6 workflows de agentes (sin producción)</td><td><a href="https://github.com/AlvaroM99/finance_tracker/pull/1">#1</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/2">#2</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/3">#3</a></td></tr>
+          <tr><td><b>lobby</b></td><td>privado</td><td><span class="badge b-done">22-11-2026</span></td><td class="num">3</td><td><span class="badge b-done">sí</span></td><td>CI + 6 workflows de agentes + producción manual</td><td>10 fusionados: #1, #3–#7, #11, #13, #15, #16</td></tr>
+          <tr><td><b>finance_tracker</b></td><td>privado</td><td><span class="badge b-done">22-11-2026</span></td><td class="num">3</td><td><span class="badge b-done">sí</span></td><td>CI de Rust + 6 workflows de agentes (sin producción)</td><td>8 fusionados: #1–#7, #14</td></tr>
           <tr><td><b>enjambre</b></td><td>privado</td><td><span class="badge b-done">22-11-2026</span></td><td class="num">—</td><td>—</td><td>CI propia y <code>evals.yml</code></td><td>—</td></tr>
           <tr><td><b>enjambre-publico</b></td><td>público</td><td><span class="badge b-todo">no hace falta</span></td><td class="num">—</td><td>—</td><td>Solo sirve el plugin y pasa su CI de pruebas. Sin agentes, el secreto sería superficie de ataque sin uso</td><td>—</td></tr>
         </tbody>
       </table></div>
+      <h3 class="sub">Variables y ajustes por proyecto</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Ajuste</th><th>lobby</th><th>finance_tracker</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr><td><code>ENJAMBRE_VERSION</code></td><td><code>5636418…</code> (v0.6.1)</td><td><code>5636418…</code> (v0.6.1)</td><td>SHA del plugin que usan los agentes</td></tr>
+          <tr><td><code>ENJAMBRE_WIP</code></td><td>3</td><td>3</td><td>Historias a la vez (máx. 6)</td></tr>
+          <tr><td>Actions puede crear PR</td><td class="yes">sí (22-11)</td><td class="yes">sí (22-11)</td><td>El implementador abre su PR; aprobar lo impiden el hook y el job <code>aprobaciones</code></td></tr>
+          <tr><td>Permisos por defecto del token</td><td>lectura</td><td>lectura</td><td>Cada job pide solo lo que necesita</td></tr>
+          <tr><td>Workflows de agentes</td><td class="yes">6, iguales a la plantilla</td><td class="yes">6, iguales a la plantilla</td><td>Comprobado con <code>diff</code> el 23-11</td></tr>
+        </tbody>
+      </table></div>
+
       <h3 class="sub">Dónde vive el token</h3>
       <div class="sync">
         <div class="box"><b><code>claude setup-token</code></b>Lo muestra una vez en tu terminal y no lo guarda en ningún sitio. Guárdalo en tu gestor de contraseñas.</div>
@@ -656,9 +803,127 @@ flowchart TB
       </div>
     </section>
 
+    <section id="pruebas">
+      <div class="sec-head">
+        <span class="n">MATRIZ DE PRUEBAS</span>
+        <h2>Qué se ha probado, dónde y cuántas veces</h2>
+        <p>Cuatro entornos. En <b>Enjambre</b> se prueban los hooks y las plantillas con <code>npm test</code>, y los agentes con el banco de evaluaciones, que carga el plugin desde el propio repo. En <b>lobby</b> y <b>finance_tracker</b>, el plugin se instala como lo usarás: desde <code>enjambre-publico</code>, fijado por SHA. Los números son ejecuciones reales a 23-11-2026.</p>
+      </div>
+      <h3 class="sub" style="margin-top:0">Agentes × entornos</h3>
+      <div class="table-wrap"><table class="mx">
+        <thead><tr><th>Agente</th><th>Enjambre · evaluaciones</th><th>lobby · Actions</th><th>finance_tracker · Actions</th><th>Sesión local con el plugin</th></tr></thead>
+        <tbody>
+          <tr><td>Coordinador</td><td class="c-ok">2/2 ×6</td><td class="c-na">no aplica (sesión local)</td><td class="c-na">no aplica</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Analista</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · lobby#8</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Jefe de proyecto</td><td class="c-pa">2/2 ×4 · 1/2 ×2</td><td class="c-ok">2 · #2, #8</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Implementador</td><td class="c-ok">2/2 ×6</td><td class="c-ok">4 · PR #5 y #16</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Plataforma</td><td class="c-ok">1/1 ×6</td><td class="c-no">0</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Revisor</td><td class="c-ok">4/4 ×6</td><td class="c-ok">10</td><td class="c-ok">3</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Seguridad</td><td class="c-ok">2/2 ×6</td><td class="c-ok">9</td><td class="c-ok">3</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Verificador</td><td class="c-ok">1/1 ×6</td><td class="c-no">0 (sin workflow, S69)</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Investigador QA</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · #12</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Gobernanza</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · #9, #10, #14</td><td class="c-ok">1 · #8–#13</td><td class="c-no">sin probar</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">«×6»: seis ejecuciones completas del banco en Actions. Todas las tareas pasaron siempre, salvo <code>jefe-plan</code>, que falló en dos por un fixture ambiguo (corregido). La sesión local no se ha probado porque la CLI de este equipo no tiene sesión iniciada: los agentes corren con el token en Actions. Los hooks sí se prueban fuera de Claude Code con <code>npm test</code> (360 pruebas), y dentro de Claude Code en cada ejecución de Actions.</p>
+
+      <h3 class="sub">Workflows × repositorios</h3>
+      <div class="table-wrap"><table class="mx">
+        <thead><tr><th>Workflow</th><th>enjambre</th><th>enjambre-publico</th><th>lobby</th><th>finance_tracker</th></tr></thead>
+        <tbody>
+          <tr><td><code>ci</code></td><td class="c-ok">33 verdes</td><td class="c-ok">26 verdes</td><td class="c-ok">33 verdes · e2e 60/60</td><td class="c-ok">22 verdes · Rust + wasm</td></tr>
+          <tr><td><code>evals</code></td><td class="c-ok">11</td><td class="c-na">—</td><td class="c-na">—</td><td class="c-na">—</td></tr>
+          <tr><td><code>enjambre-analizar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-no">0</td></tr>
+          <tr><td><code>enjambre-planificar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-no">0</td></tr>
+          <tr><td><code>enjambre-implementar</code> (WIP, liberar, aprobaciones)</td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">4 (2 fallos de diseño, corregidos)</td><td class="c-no">0</td></tr>
+          <tr><td><code>enjambre-revisar</code> (sensible, respaldo, aprobaciones)</td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">10</td><td class="c-ok">3</td></tr>
+          <tr><td><code>enjambre-investigar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-no">0</td></tr>
+          <tr><td><code>enjambre-gobernanza</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-ok">1</td></tr>
+          <tr><td><code>produccion</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-no">0 (faltan secretos de Cloudflare)</td><td class="c-na">sin workflow</td></tr>
+          <tr><td>Dependabot</td><td class="c-pa">1 fallo histórico</td><td class="c-pa">1 fallo histórico</td><td class="c-na">—</td><td class="c-na">—</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Los fallos de Dependabot son del 21-11-2026: <code>ci.yml</code> tenía un error de YAML (<code>dependency_file_not_parseable</code>), corregido ese mismo día. La siguiente ejecución semanal lo dirá.</p>
+
+      <h3 class="sub">Ejecuciones de comprobación fuera de los agentes</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Comprobación</th><th>Dónde</th><th>Resultado</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm test</code> (hooks, agentes, skills, plantillas, workflows, evals, publicación)</td><td>Enjambre · Windows y Linux, Node 22 y 24</td><td class="yes">360/360</td></tr>
+          <tr><td><code>claude plugin validate</code> (marketplace y plugin)</td><td>Enjambre · CLI 2.1.330</td><td class="yes">superada</td></tr>
+          <tr><td>21 bloqueos reales repetidos con los hooks nuevos</td><td>Transcripciones de lobby</td><td class="yes">16 permitidos · 5 bloqueados (4 correctos + 1 ambiguo)</td></tr>
+          <tr><td><code>semilla.mjs</code> + <code>prueba.mjs</code> contra <code>wrangler dev</code>, Playwright con Chrome</td><td>Clon limpio en Windows, credenciales sintéticas</td><td class="yes">humo 8/8 · prueba 60/60 · repetición 60/60</td></tr>
+          <tr><td>Misma prueba en CI</td><td>lobby · ubuntu</td><td class="yes">60/60 tres veces seguidas</td></tr>
+          <tr><td><code>LOBBY_BASE</code> no local</td><td>Clon limpio</td><td class="yes">semilla y prueba se niegan (código 1)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 class="sub">Lo que falta por probar</h3>
+      <ul class="status-list panel">
+        <li><span class="badge b-todo">F3</span><div>Coordinador con dos carriles en una sesión local<small>S76: necesita <code>claude</code> con sesión iniciada en tu equipo.</small></div></li>
+        <li><span class="badge b-todo">F3</span><div>Plataforma de punta a punta<small>S75: una historia de CI. Ojo: sus PR tocan <code>.github/workflows/</code>, que el token de Actions no puede subir.</small></div></li>
+        <li><span class="badge b-todo">F5</span><div>Verificador en CI<small>S69: hoy solo corre en evaluaciones; los PR los verifica la CI con <code>prueba.mjs</code>.</small></div></li>
+        <li><span class="badge b-todo">F3</span><div>Historia completa en finance_tracker<small>Analista, jefe, implementador e investigador aún no han trabajado allí.</small></div></li>
+        <li><span class="badge b-todo">F5</span><div>Retirada real de una aprobación ajena<small>El job <code>aprobaciones</code> corre en cada revisión (0 retiradas). El camino de retirar está [POR CONFIRMAR], porque nunca ha habido una aprobación de bot.</small></div></li>
+        <li><span class="badge b-risk">Álvaro</span><div>Workflow de producción<small>Necesita <code>CLOUDFLARE_API_TOKEN</code> y <code>CLOUDFLARE_ACCOUNT_ID</code>; mientras, despliegas con <code>wrangler</code> en local.</small></div></li>
+      </ul>
+    </section>
+
+    <section id="historias">
+      <div class="sec-head">
+        <span class="n">HISTORIAS REALES</span>
+        <h2>Dos historias de punta a punta, y lo que aprendimos en cada paso</h2>
+        <p>Las dos historias salieron de hallazgos del propio Enjambre: la primera, de la revisión de lobby#1 (faltaba <code>npm test</code>); la segunda, de la mejora M8 (la prueba completa dependía de los datos reales). Cada fallo de los agentes acabó en una corrección del arnés.</p>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Paso</th><th><a href="https://github.com/AlvaroM99/lobby/issues/2">lobby#2</a> · <code>npm test</code> (S)</th><th><a href="https://github.com/AlvaroM99/lobby/issues/8">lobby#8</a> · semilla sintética (M)</th></tr></thead>
+        <tbody>
+          <tr><td>Análisis</td><td>— (historia pequeña)</td><td>Analista: 2 ejecuciones (22 y 18 turnos). La 1.ª sin rastro; la 2.ª, con el respaldo de la v0.5.0. Opciones con fuentes y aviso de que <code>prueba.mjs</code> fallaría en diciembre</td></tr>
+          <tr><td>Plan</td><td>Jefe (Opus): 14 turnos, 0,76 USD; 8 criterios</td><td>Jefe: 12 turnos, 1,01 USD; 9 criterios; hallazgo: <code>prueba.mjs</code> siempre salía con 0. Bloqueado por un falso positivo («datos»); recuperado de la transcripción</td></tr>
+          <tr><td>Puerta 1</td><td>«Aprobado, implementa»</td><td>«Créala»</td></tr>
+          <tr><td>Implementador</td><td>1.º: 5 turnos, sin PR ni rastro → lobby#4. 2.º: rama con 17 pruebas; Actions no podía abrir PR → lo abrió la sesión (lobby#5)</td><td>1.º: trabajo hecho, pero el push se rechazó por tocar <code>ci.yml</code> y se quedó sin turnos (31/30) → lobby#15. 2.º: <b>abrió el PR él solo</b> (41 turnos, 0,85 USD) → lobby#16</td></tr>
+          <tr><td>Workflows</td><td>La sesión añadió <code>npm test</code> a <code>ci.yml</code></td><td>La sesión añadió <code>semilla.mjs</code> + <code>prueba.mjs</code> a <code>ci.yml</code></td></tr>
+          <tr><td>Revisión</td><td>Seguridad APROBAR; revisor CAMBIOS (<code>Co-Authored-By</code>) → lobby#6</td><td>1.ª ronda: CAMBIOS (seguridad alta: <code>LOBBY_BASE</code> sin protección). Corregido por la sesión. 2.ª ronda: los dos APROBAR</td></tr>
+          <tr><td>CI</td><td>17/17</td><td>59/60 → dos causas de fragilidad corregidas → 60/60 tres veces; 60/60 en local con Chrome</td></tr>
+          <tr><td>Puerta 2</td><td>Fusionado el 22-11 16:29</td><td>Fusionado el 23-11 07:16</td></tr>
+          <tr><td>Lead time</td><td class="num">4 h 31 min</td><td class="num">14 h 16 min</td></tr>
+          <tr><td>Coste estimado</td><td class="num">≈ 1,49 USD</td><td class="num">≈ 5,93 USD</td></tr>
+        </tbody>
+      </table></div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="panel"><h3>Lo que funcionó</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">Los planes citan <code>fichero:línea</code> y encuentran fallos reales. La revisión de seguridad paró un riesgo alto (una prueba que podía borrar datos de producción). Con la v0.6.2, el implementador ya abre su PR sin ayuda. Las dos puertas humanas se respetaron siempre.</p></div>
+        <div class="panel"><h3>Lo que aún necesita a la sesión</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">Los cambios en <code>.github/workflows/</code> (por diseño de GitHub) y corregir los hallazgos de revisión, porque no hay un paso automático de «implementador corrige». Esto último es candidato a mejora: relanzar al implementador sobre el PR existente con los veredictos.</p></div>
+      </div>
+    </section>
+
+    <section id="coste">
+      <div class="sec-head">
+        <span class="n">COSTE</span>
+        <h2>15,35 USD estimados en 38 ejecuciones reales, más unos 7 USD de evaluaciones</h2>
+        <p>Es la cifra que calcula el cliente de Claude Code (<code>total_cost_usd</code>) en cada ejecución. Con la suscripción Pro no se factura, pero mide lo que se gasta del plan. Datos del 22 y 23-11-2026, sacados de los logs de Actions de lobby y finance_tracker.</p>
+      </div>
+      <div class="panel">
+        <h3>Por agente (proyectos)</h3>
+        <div class="bars" role="img" aria-label="Coste estimado por agente: revisor 7,45 USD, implementador 2,13, jefe 1,77, gobernanza 1,45, seguridad 1,41, analista 0,79, investigador 0,35" style="margin-top:12px">
+          <div class="bar"><span>Revisor (Opus)</span><span class="track"><span class="fill" style="width:100%;background:var(--g-cal)"></span></span><span class="v">7,45 $ · 13 ej.</span></div>
+          <div class="bar"><span>Implementador</span><span class="track"><span class="fill" style="width:28.6%;background:var(--g-cons)"></span></span><span class="v">2,13 $ · 4 ej.</span></div>
+          <div class="bar"><span>Jefe (Opus)</span><span class="track"><span class="fill" style="width:23.8%;background:var(--g-desc)"></span></span><span class="v">1,77 $ · 2 ej.</span></div>
+          <div class="bar"><span>Gobernanza</span><span class="track"><span class="fill" style="width:19.5%;background:var(--g-mej)"></span></span><span class="v">1,45 $ · 3 ej.</span></div>
+          <div class="bar"><span>Seguridad</span><span class="track"><span class="fill" style="width:18.9%;background:var(--g-cal)"></span></span><span class="v">1,41 $ · 12 ej.</span></div>
+          <div class="bar"><span>Analista</span><span class="track"><span class="fill" style="width:10.6%;background:var(--g-desc)"></span></span><span class="v">0,79 $ · 2 ej.</span></div>
+          <div class="bar"><span>Investigador QA</span><span class="track"><span class="fill" style="width:4.7%;background:var(--g-mej)"></span></span><span class="v">0,35 $ · 2 ej.</span></div>
+        </div>
+        <p class="note">Barras relativas al revisor. El revisor es lo más caro porque usa Opus y revisa todos los PR, también los de infraestructura de Enjambre (lobby#1 a #16). En el job <code>revisar</code>, el agente de seguridad se separa del revisor por coste, porque los logs no nombran el agente de cada paso [inferido: el paso más barato de cada run es seguridad, con Sonnet].</p>
+      </div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="panel"><h3>Por historia</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">lobby#2: <b>≈ 1,49 USD</b>. lobby#8: <b>≈ 5,93 USD</b>, con dos intentos de implementador y dos revisiones. El objetivo de F3 es ≤ 6 USD por historia, y F5 lo baja a ≤ 4 USD.</p></div>
+        <div class="panel"><h3>Por tipo de trabajo</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">Una revisión completa (revisor + seguridad) cuesta entre 0,35 y 1,15 USD. Una auditoría de gobernanza, unos 0,5 USD. Un banco completo de evaluaciones, entre 1,07 y 1,29 USD.</p></div>
+      </div>
+    </section>
+
     <section id="primera">
       <div class="sec-head">
-        <span class="n">PRIMERAS EJECUCIONES REALES</span>
+        <span class="n">PRIMERAS REVISIONES REALES · 22-11-2026</span>
         <h2>Los agentes se revisaron a sí mismos y encontraron fallos de verdad</h2>
         <p>Con el secreto creado, Enjambre revisó en GitHub Actions los dos PR que lo instalan. Ninguna prueba local había detectado estos fallos: solo aparecen al ejecutar en un runner real.</p>
       </div>
@@ -697,42 +962,6 @@ flowchart TB
       </div>
     </section>
 
-    <section id="historia">
-      <div class="sec-head">
-        <span class="n">PRIMERA HISTORIA Y EVALUACIONES</span>
-        <h2>De una etiqueta a un plan revisable, y 20 de 20 en el banco</h2>
-        <p>Con los PR fusionados, Enjambre trabaja solo en GitHub. La primera historia sale de un hallazgo del propio revisor: lobby no tenía <code>npm test</code> (ADR 0009).</p>
-      </div>
-      <ol class="steps">
-        <li><div><h3>Issue <a href="https://github.com/AlvaroM99/lobby/issues/2">lobby#2</a></h3><p>Pruebas unitarias de las utilidades puras de <code>public/js/ui.js</code> y <code>npm test</code> en la CI. Siete criterios Dado/Cuando/Entonces.</p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
-        <li><div><h3>Etiqueta <code>enjambre:planificar</code> → plan del jefe (Opus)</h3><p>14 turnos y 0,76 USD estimados. Cita fichero:línea y decide la zona horaria fija y la ruta explícita para Node 18. Trae pruebas por función, 8 criterios, riesgos y un aviso fuera de alcance (<code>aCSV</code> y <code>\r</code>).</p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
-        <li><div><h3>Puerta 1: Álvaro aprueba el plan</h3><p>«Aprobado, implementa» (22-11-2026), anotado en el issue.</p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
-        <li><div><h3><code>enjambre:implementar</code>, 1.<sup>er</sup> intento</h3><p>Reservó el hueco WIP e instaló el plugin fijado, pero el implementador terminó en 5 turnos y 30 s sin abrir PR ni dejar su respuesta a la vista, y el hueco quedó ocupado. Causa [POR CONFIRMAR]: lo probable es que parase por los [POR CONFIRMAR] del plan (ADR 0010).</p><div class="tags"><span class="badge b-risk">sin PR</span></div></div></li>
-        <li><div><h3>2.º intento: rama con 17 pruebas</h3><p>Con el workflow corregido (<a href="https://github.com/AlvaroM99/lobby/pull/4">lobby#4</a>), la respuesta del implementador aparece en el issue: 8 turnos, 0,12 USD, rama <code>enjambre/2-npm-test</code>. Chocó con dos límites de GitHub: Actions no puede abrir PR en este repo y el <code>GITHUB_TOKEN</code> no puede tocar <code>ci.yml</code>. Esos dos pasos los hizo la sesión: <a href="https://github.com/AlvaroM99/lobby/pull/5">lobby#5</a>.</p><div class="tags"><span class="badge b-done">PR abierto</span></div></div></li>
-        <li><div><h3><code>enjambre:revisar</code> y puerta 2</h3><p>CI en verde (17/17); seguridad: APROBAR; el revisor pidió quitar <code>Co-Authored-By</code>, corregido en lobby#6 para el futuro. Álvaro fusionó <a href="https://github.com/AlvaroM99/lobby/pull/5">lobby#5</a> y el issue se cerró solo. <b>F2 cumplida.</b></p><div class="tags"><span class="badge b-done">hecho</span></div></div></li>
-      </ol>
-      <h3 class="sub">Primer banco de evaluaciones en Actions</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Agente</th><th class="num">Tareas</th><th class="num">Pasan</th><th class="num">Turnos</th><th class="num">Coste estimado</th></tr></thead>
-        <tbody>
-          <tr><td>Coordinador</td><td class="num">2</td><td class="num">2</td><td class="num">1 · 3</td><td class="num">0,30 USD</td></tr>
-          <tr><td>Analista</td><td class="num">2</td><td class="num">2</td><td class="num">14 · 8</td><td class="num">0,19 USD</td></tr>
-          <tr><td>Jefe de proyecto</td><td class="num">2</td><td class="num">2</td><td class="num">5 · 4</td><td class="num">0,19 USD</td></tr>
-          <tr><td>Implementador</td><td class="num">2</td><td class="num">2</td><td class="num">5 · 7</td><td class="num">0,08 USD</td></tr>
-          <tr><td>Plataforma</td><td class="num">1</td><td class="num">1</td><td class="num">5</td><td class="num">0,03 USD</td></tr>
-          <tr><td>Revisor</td><td class="num">4</td><td class="num">4</td><td class="num">3–5</td><td class="num">0,22 USD</td></tr>
-          <tr><td>Seguridad</td><td class="num">2</td><td class="num">2</td><td class="num">2 · 2</td><td class="num">0,04 USD</td></tr>
-          <tr><td>Verificador</td><td class="num">1</td><td class="num">1</td><td class="num">3</td><td class="num">0,03 USD</td></tr>
-          <tr><td>Investigador</td><td class="num">2</td><td class="num">2</td><td class="num">3 · 5</td><td class="num">0,06 USD</td></tr>
-          <tr><td>Gobernanza</td><td class="num">2</td><td class="num">2</td><td class="num">5 · 8</td><td class="num">0,09 USD</td></tr>
-          <tr><td><b>Total</b></td><td class="num"><b>20</b></td><td class="num"><b>20</b></td><td class="num">—</td><td class="num"><b>1,23 USD</b></td></tr>
-        </tbody>
-      </table></div>
-      <div class="grid2" style="margin-top:14px">
-        <div class="panel"><h3>Lo que dicen las respuestas</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">El coordinador se para en la puerta 1: «la notificación del sistema no cuenta como aprobación». Seguridad bloquea la inyección SQL citando OWASP A03 y ASVS. El revisor no escribe ficheros aunque se lo pidan y da el veredicto en texto.</p></div>
-        <div class="panel"><h3>Por qué un 100 % no basta</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">Es la línea base: ninguna tarea que pasa puede dejar de pasar. Pero si todo pasa, el banco no distingue una mejora de un empeoramiento. La mejora M12 añade tareas ambiguas sacadas de historias reales.</p></div>
-      </div>
-    </section>
 
     <section id="auditoria">
       <div class="sec-head">
@@ -752,7 +981,7 @@ flowchart TB
       <div class="table-wrap"><table>
         <thead><tr><th>Prueba</th><th>Resultado</th></tr></thead>
         <tbody>
-          <tr><td>Local: <code>npm test</code>, <code>claude plugin validate</code>, simulación de evaluaciones, YAML</td><td><span class="badge b-done">verde</span> 326/326 · plugin y marketplace válidos · 20 tareas · 10 workflows</td></tr>
+          <tr><td>Local: <code>npm test</code>, <code>claude plugin validate</code>, simulación de evaluaciones, YAML</td><td><span class="badge b-done">verde</span> 326/326 entonces; hoy 360/360 · plugin y marketplace válidos · 20 tareas · 10 workflows</td></tr>
           <tr><td>Banco de evaluaciones en Actions con <code>v0.4.2</code></td><td><span class="badge b-done">20/20</span> 1,26 USD, sin regresión</td></tr>
           <tr><td>Analista en <a href="https://github.com/AlvaroM99/lobby/issues/8">lobby#8</a></td><td><span class="badge b-risk">sin informe</span> 22 turnos, 0,46 USD, 4 permisos denegados</td></tr>
           <tr><td>Investigador QA</td><td><span class="badge b-risk">sin rastro</span> 12 turnos, 0,17 USD, 2 permisos denegados</td></tr>
@@ -851,7 +1080,7 @@ flowchart TB
       </table></div>
       <div class="grid2" style="margin-top:14px">
         <div class="panel"><h3>Cómo se lanza</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><code>node evals/ejecutar.mjs --simular</code> valida las 20 tareas sin gastar nada. <code>node evals/ejecutar.mjs</code> las ejecuta con <code>claude -p --agent enjambre:&lt;agente&gt; --plugin-dir</code> y guarda pass@1 global y por agente, turnos, coste y un extracto de la respuesta. En GitHub Actions: <code>gh workflow run evals.yml -R AlvaroM99/enjambre</code>, con la CLI 2.1.330 fijada y la tabla en el resumen del run.</p></div>
-        <div class="panel"><h3>Objetivo</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">pass@1 de 60 % o más en F3 y de 75 % en F5. Ninguna tarea que pasaba puede dejar de pasar tras un cambio de prompt. Primera ejecución (22-11-2026): <b>100 % (20/20)</b> en unos 8 minutos y 1,23 USD estimados. Detalle en <a href="#historia">Primera historia</a>.</p></div>
+        <div class="panel"><h3>Historial</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem">11 ejecuciones en Actions, 6 de ellas del banco completo: 20/20 dos veces antes de los cambios de hooks (1,23 y 1,26 USD) y una con los hooks v0.6.0 (1,29 USD). Después hubo dos 19/20 (1,08 y 1,12 USD): <code>jefe-plan</code> pedía filtrar una lista de productos que no existía. Con el fixture corregido, 20/20 (1,07 USD). Se arregló el fixture, no la comprobación (ADR 0013). Objetivo: ≥ 60 % en F3, cumplido; ≥ 75 % en F5. M12: tareas más difíciles, porque un 100 % no distingue versiones.</p></div>
       </div>
     </section>
 
@@ -946,7 +1175,7 @@ flowchart TB
     <section id="mejoras">
       <div class="sec-head">
         <span class="n">MEJORAS PROPUESTAS</span>
-        <h2>Catorce mejoras: ocho del panorama y seis de las ejecuciones reales</h2>
+        <h2>Diecisiete mejoras: ocho del panorama y nueve de las ejecuciones reales</h2>
         <p>Ordenadas por número; la prioridad va en cada una. Ninguna se aplica sin que Álvaro la apruebe.</p>
       </div>
       <div class="mejoras">
@@ -957,12 +1186,15 @@ flowchart TB
         <div class="mej"><span class="id">M5</span><div><h3>Specs para épicas</h3><p>Analista y jefe producen una spec al estilo Spec Kit antes de partir en historias. Esfuerzo M.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
         <div class="mej"><span class="id">M6</span><div><h3>Skills de TDD y depuración</h3><p>Inspiradas en Superpowers, adaptadas a nuestras reglas. Esfuerzo M.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
         <div class="mej"><span class="id">M7</span><div><h3>Panel de actividad y tokens</h3><p>Sobre <code>actividad.jsonl</code>, como módulo de Lobby. Esfuerzo M.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
-        <div class="mej"><span class="id">M8</span><div><h3>Semilla sintética para lobby</h3><p>Que la prueba completa <code>prueba.mjs</code> también corra en CI. Esfuerzo M.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
-        <div class="mej"><span class="id">M9</span><div><h3>Pulir revisor y <code>proteger-secretos</code></h3><p>Citar líneas del fichero, no del diff; no bloquear rutas escritas en el cuerpo de un comentario. Sale de la primera revisión real. Esfuerzo S.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
+        <div class="mej"><span class="id">M8</span><div><h3>Semilla sintética para lobby</h3><p>La prueba completa corre en CI con datos inventados: 60/60. Segunda historia de Enjambre (lobby#16).</p><div class="tags"><span class="badge b-done">hecha</span></div></div></div>
+        <div class="mej"><span class="id">M9</span><div><h3>Pulir revisor y <code>proteger-secretos</code></h3><p>La parte del hook está hecha (ADR 0013: el texto de comentarios e issues es dato). Falta que el revisor cite líneas del fichero y no posiciones del diff.</p><div class="tags"><span class="badge b-wip">a medias</span></div></div></div>
         <div class="mej"><span class="id">M11</span><div><h3>Cerrar <code>gh api</code> y fijar el plugin por SHA</h3><p>El hook bloquea cualquier escritura por la API (también POST y <code>/merges</code>), y los agentes instalan el SHA de <code>ENJAMBRE_VERSION</code>. Si falta, se paran.</p><div class="tags"><span class="badge b-done">hecha</span></div></div></div>
         <div class="mej"><span class="id">M12</span><div><h3>Banco de evaluaciones más difícil</h3><p>El primer pass@1 fue 100 %: hacen falta tareas ambiguas sacadas de historias reales para distinguir versiones. Esfuerzo M.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
         <div class="mej"><span class="id">M13</span><div><h3>Acción compuesta para instalar el plugin</h3><p>El mismo bloque se repite 7 veces en 6 workflows. Esfuerzo S.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
         <div class="mej"><span class="id">M14</span><div><h3>Versión fija también en local</h3><p><code>extraKnownMarketplaces</code> sigue la rama por defecto [POR CONFIRMAR si admite <code>ref</code>]. Esfuerzo S.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
+        <div class="mej"><span class="id">M15</span><div><h3>Workflows como paso manual</h3><p>Hecho en el implementador (no los toca y los describe en el PR) y bloqueo de <code>--approve</code>. Falta que el jefe lo marque ya en el plan (S66).</p><div class="tags"><span class="badge b-wip">a medias</span></div></div></div>
+        <div class="mej"><span class="id">M16</span><div><h3>Guardia de aprobaciones reutilizable</h3><p><code>workflow_call</code> en lugar del mismo job copiado en dos workflows.</p><div class="tags"><span class="badge b-todo">baja</span></div></div></div>
+        <div class="mej"><span class="id">M17</span><div><h3>Solo squash merge</h3><p>Para que los commits de los agentes no lleguen tal cual a <code>main</code> (lo decide Álvaro en los ajustes del repo).</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
         <div class="mej"><span class="id">M10</span><div><h3><code>.claude/</code> desde la rama base</h3><p>Que un PR no pueda relajar los permisos de su propio revisor. Esfuerzo S.</p><div class="tags"><span class="badge b-wip">media</span></div></div></div>
       </div>
     </section>
@@ -970,41 +1202,32 @@ flowchart TB
     <section id="estado">
       <div class="sec-head">
         <span class="n">ESTADO ACTUAL</span>
-        <h2>Sistema auditado: F2 cumplida, F3 por medir, F4 y F5 planificadas</h2>
-        <p>La primera historia (lobby#2) fue de Listo a PR fusionado por eventos (ADR 0010). Ahora los agentes podrán abrir PR solos, y la aprobación queda solo para ti con dos barreras independientes: el hook y un job aparte que retira cualquier aprobación ajena (ADR 0011). Revisor y seguridad aprobaron esa barrera en su tercera ronda. Los agentes ya pueden abrir PR, pero no aprobarlos. La auditoría del 22-11-2026 (ADR 0012) estrenó al analista, QA y gobernanza en GitHub y encontró que su trabajo no siempre llega a GitHub. La corrección, en <code>v0.5.0</code>, espera tu fusión.</p>
+        <h2>Sistema operativo en dos proyectos; sin nada pendiente de fusionar</h2>
+        <p>Todos los PR de Enjambre en lobby y finance_tracker están fusionados, y los dos proyectos tienen los mismos workflows y el plugin <code>v0.6.1</code> fijado por SHA. Lo abierto son decisiones tuyas: las propuestas de gobernanza y QA, las decisiones de F4 y la siguiente tanda de falsos positivos menores.</p>
       </div>
       <div class="panel">
-        <div class="meter-bar" aria-label="Entregables de F1 a F3: 43 hechos"><i style="width:100%;background:var(--done)"></i></div>
-        <div class="meter-label"><span>Entregables de F1 a F3</span><span>43 hechos · F2 cumplida · F3 en marcha</span></div>
+        <div class="meter-bar" aria-label="Historias del backlog: 42 hechas, 2 a medias, 32 pendientes"><i style="width:55.3%;background:var(--done)"></i><i style="width:2.6%;background:var(--wip)"></i></div>
+        <div class="meter-label"><span>Backlog S1–S76 (76 historias)</span><span>42 hechas · 2 a medias · 32 pendientes: 20 de F4 y F5, el resto aplazadas (Jira, GitHub App, preview) o por probar en real</span></div>
         <div class="grid2">
           <ul class="status-list">
-            <li><span class="badge b-done">hecho</span><div>PR de integración fusionados<small>lobby#1, finance_tracker#1 y #2</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>pass@1 de referencia: 100 % (20/20)<small><code>evals.yml</code> en Actions · 1,23 USD</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>M11: escrituras por <code>gh api</code> bloqueadas y plugin fijado por SHA<small>ADR 0009 · <code>v0.3.0</code></small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Secretos de Claude en lobby, finance_tracker y enjambre<small>22-11-2026 · ADR 0008</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Primeras revisiones reales en Actions<small>lobby#1 y finance_tracker#2; hallazgos corregidos</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>finance_tracker preparado con agentes, etiquetas y WIP<small>S52</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Evaluaciones ejecutables en Actions<small><code>evals.yml</code> · S53</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Plan, anexos, backlog S1–S76 y trece ADR</div></li>
-            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks y 360 pruebas</div></li>
-            <li><span class="badge b-done">hecho</span><div>Hook <code>limitar-bash</code>: lista blanca por agente<small>ADR 0004</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Analista, gobernanza y coordinador<small>ADR 0006</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>8 plantillas de Actions y CI propia (Linux y Windows, gitleaks)</div></li>
-            <li><span class="badge b-done">hecho</span><div>Repo público y script de publicación sin historial</div></li>
-            <li><span class="badge b-done">hecho</span><div>Variable <code>ENJAMBRE_WIP=3</code> y etiquetas <code>enjambre:*</code> en lobby</div></li>
-            <li><span class="badge b-done">hecho</span><div>Banco de 20 evaluaciones y tokens por agente<small>S28 y S25</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Panorama de competencia y recursos públicos<small><code>docs/panorama.md</code></small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Organigrama, RACI y riesgos con solución<small><code>docs/organigrama.md</code>, <code>docs/riesgos-y-soluciones.md</code></small></div></li>
+            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks, 360 pruebas<small>Plugin <code>v0.6.2</code> · 14 versiones publicadas</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Dos historias de punta a punta<small>lobby#2 → #5 y lobby#8 → #16</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Solo Álvaro aprueba PR; Actions puede abrirlos<small>Hook <code>gh-pr-aprobar</code> y job <code>aprobaciones</code> (ADR 0011)</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Plugin fijado por SHA y escrituras por API bloqueadas<small>ADR 0009 (M11)</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Todo agente deja rastro<small>Transcripción y respaldos (ADR 0012)</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>17 falsos positivos de hooks: 16 resueltos<small>ADR 0013 · v0.6.1</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Semilla sintética y prueba completa en CI<small>60/60 en CI y en local con Chrome</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Auditoría F1–F3 y planes de F4 y F5<small>ADR 0012 · <code>docs/fases/</code></small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Banco de evaluaciones en Actions<small>20/20 en el último banco (v0.6.1, fixture corregido)</small></div></li>
           </ul>
           <ul class="status-list">
-            <li><span class="badge b-done">hecho</span><div>Plan de lobby#2 aprobado; plugin fijado por SHA fusionado<small>lobby#3 y finance_tracker#3</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Primera historia fusionada: F2 cumplida<small><a href="https://github.com/AlvaroM99/lobby/pull/5">lobby#5</a> · 17 pruebas y <code>npm test</code> en CI</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Solo Álvaro aprueba PR: hook y job <code>aprobaciones</code>; Actions ya puede abrir PR<small><a href="https://github.com/AlvaroM99/lobby/pull/7">lobby#7</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/5">finance_tracker#5</a> · revisor y seguridad APROBAR</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Auditoría de F1–F3 y prueba del sistema<small>ADR 0012 · evaluaciones 20/20 con <code>v0.4.2</code></small></div></li>
-            <li><span class="badge b-wip">en PR</span><div>Todo agente deja rastro (<code>v0.5.0</code>)<small><a href="https://github.com/AlvaroM99/lobby/pull/11">lobby#11</a> · <a href="https://github.com/AlvaroM99/finance_tracker/pull/6">finance_tracker#6</a></small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Falsos positivos de los hooks corregidos<small>ADR 0013 · <code>v0.6.1</code> en los dos proyectos · evaluaciones 20/20</small></div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Decidir D-F4 y la siguiente tanda de falsos positivos menores</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Puerta 1 del plan de <a href="https://github.com/AlvaroM99/lobby/issues/8">lobby#8</a> (semilla sintética)</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Triar propuestas<small>lobby: <a href="https://github.com/AlvaroM99/lobby/issues/14">#14</a>, #9, #10, #12 · finance_tracker: <a href="https://github.com/AlvaroM99/finance_tracker/issues/8">#8</a>–#13</small></div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Decisiones de F4 (D-F4-1 a D-F4-4)</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Siguiente tanda de falsos positivos<small><code>cmp</code>, <code>git -C</code>, <code>for-each-ref</code>, <code>timeout</code>, <code>grep -vi secret</code></small></div></li>
+            <li><span class="badge b-todo">F3</span><div>Probar plataforma, verificador y coordinador en real</div></li>
+            <li><span class="badge b-todo">F3</span><div>Primera historia en finance_tracker</div></li>
+            <li><span class="badge b-todo">F5</span><div>Revisor: subir de 20 turnos<small>Agotó el límite en lobby#16, aunque publicó</small></div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Secretos de Cloudflare para <code>produccion.yml</code><small>Opcional: hoy despliegas en local</small></div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
           </ul>
         </div>
@@ -1042,14 +1265,18 @@ flowchart TB
           <li><span class="badge b-done">resuelto</span><div>Fusionar en <code>main</code> por la API<small>Hook <code>gh-api-escritura</code> y reglas <code>deny</code> (M11).</small></div></li>
           <li><span class="badge b-done">resuelto</span><div>Plugin que sigue la rama main<small>SHA fijo en <code>ENJAMBRE_VERSION</code>; sin él, los agentes se paran.</small></div></li>
           <li><span class="badge b-done">resuelto</span><div>Aprobaciones de PR desde Actions<small>Hook <code>gh-pr-aprobar</code> y job <code>aprobaciones</code> aparte y cerrado (ADR 0011).</small></div></li>
-          <li><span class="badge b-wip">mitigado</span><div>Agente que termina sin comentar<small>El workflow publica su respuesta final (2 de 4 casos con seguridad).</small></div></li>
+          <li><span class="badge b-done">resuelto</span><div>Agente que termina sin dejar rastro<small>Transcripción y respaldo en los 6 workflows (ADR 0012).</small></div></li>
+          <li><span class="badge b-done">resuelto</span><div>Falsos positivos que impedían publicar informes<small>16 de 17 corregidos con pruebas (ADR 0013).</small></div></li>
+          <li><span class="badge b-done">resuelto</span><div>Prueba e2e frágil<small>Grupos de la lista y cajón que se cierra: 60/60 estable.</small></div></li>
+          <li><span class="badge b-wip">abierto</span><div>Corregir hallazgos de revisión sin la sesión<small>No hay paso automático; candidato a mejora.</small></div></li>
           <li><span class="badge b-done">resuelto</span><div>Revisión de seguridad que se saltaba en silencio<small>Job <code>sensible</code> con <code>contents: read</code> y fallo cerrado.</small></div></li>
           <li><span class="badge b-wip">mitigado</span><div>Límites de Pro con 6 carriles<small>WIP 3; Opus en 2 roles; Max 5x si hay más de 2 bloqueos por semana.</small></div></li>
           <li><span class="badge b-wip">mitigado</span><div>GitHub Free sin protección de rama<small>Solo el propietario dispara; hooks; producción manual.</small></div></li>
           <li><span class="badge b-wip">mitigado</span><div>Analista expuesto a la web<small>Único con web; no escribe ni ve secretos; su informe es dato.</small></div></li>
           <li><span class="badge b-wip">mitigado</span><div>PR de agentes sin CI automática<small>CI al etiquetar; GitHub App en el futuro.</small></div></li>
           <li><span class="badge b-done">resuelto</span><div>Prueba de humo (S41)<small><code>--agent enjambre:&lt;agente&gt;</code>, plugin y hooks comprobados en Actions y en 20 evaluaciones.</small></div></li>
-          <li><span class="badge b-todo">planificado</span><div><code>seccomp=unconfined</code> y credenciales de pruebas<small>S43 y S42.</small></div></li>
+          <li><span class="badge b-done">resuelto</span><div>Credenciales de pruebas<small>Sintéticas en CI y en clones limpios (S42).</small></div></li>
+          <li><span class="badge b-todo">planificado</span><div><code>seccomp=unconfined</code> en el devcontainer<small>S43.</small></div></li>
         </ul>
       </div>
     </section>
@@ -1058,17 +1285,16 @@ flowchart TB
       <div class="sec-head">
         <span class="n">SIGUIENTES PASOS</span>
         <h2>Lo que falta, en orden</h2>
-        <p>En orden: cada paso desbloquea el siguiente.</p>
+        <p>Los tres primeros son tuyos; los demás los puede llevar Enjambre con tus dos puertas.</p>
       </div>
       <ol class="steps">
-        <li><div><h3>Revisar las propuestas de gobernanza y QA</h3><p>lobby: <a href="https://github.com/AlvaroM99/lobby/issues/14">#14</a> (informe), #9, #10 y QA #12. finance_tracker: <a href="https://github.com/AlvaroM99/finance_tracker/issues/8">#8</a> (informe, 15/24) y #9–#13. Elige cuáles pasan a historia.</p><div class="tags"><span class="tag you">decide Álvaro</span><span class="tag">F5</span></div></div></li>
-        <li><div><h3>Puerta 1 de <a href="https://github.com/AlvaroM99/lobby/issues/8">lobby#8</a>: semilla sintética</h3><p>Plan con 9 criterios y un hallazgo real: <code>prueba.mjs</code> termina siempre con código 0. El paso en <code>ci.yml</code> lo haremos nosotros (M15).</p><div class="tags"><span class="tag you">puertas 1 y 2</span></div></div></li>
-        <li><div><h3>Decidir F4 (D-F4-1 a D-F4-4)</h3><p>Dónde vive el panel, cómo llegan los datos, OpenTelemetry y si hace falta un agente <code>datos</code>.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">F4</span></div></div></li>
-        <li><div><h3>Instalar Pixel Agents</h3><p>VS Code → Extensiones → «Pixel Agents», o <code>npx pixel-agents</code>. Un personaje por rol y cuatro áreas, sin «Skip Permissions».</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">15 min</span></div></div></li>
-        <li><div><h3>Vigilar el plan</h3><p><code>npx ccusage blocks</code> antes y después de la primera historia, y <code>node herramientas/actividad.mjs</code> para los tokens por agente.</p><div class="tags"><span class="tag">M2</span><span class="tag">5 min</span></div></div></li>
-        <li><div><h3>Dos historias en paralelo con el coordinador</h3><p><code>claude --agent enjambre:enjambre-coordinador</code> en local con dos carriles. Medir conflictos, ciclos y tokens.</p><div class="tags"><span class="tag">F3</span></div></div></li>
-        <li><div><h3>Primera auditoría de gobernanza e investigación QA</h3><p>Triar las propuestas con el jefe y decidir cuáles entran.</p><div class="tags"><span class="tag">F3</span><span class="tag you">decide Álvaro</span></div></div></li>
-        <li><div><h3>Subir carriles y medir</h3><p>De 3 a 6 tras dos semanas sin bloqueos; banco de 20 evaluaciones antes de tocar prompts.</p><div class="tags"><span class="tag">F3</span></div></div></li>
+        <li><div><h3>Triar las propuestas de gobernanza y QA</h3><p>lobby: <a href="https://github.com/AlvaroM99/lobby/issues/14">#14</a> (informe 16/24), #9 (ADR), #10 (README) y QA #12. finance_tracker: <a href="https://github.com/AlvaroM99/finance_tracker/issues/8">#8</a> (informe 15/24) y #9–#13. Las que elijas pasan a historia con <code>enjambre:planificar</code>.</p><div class="tags"><span class="tag you">decide Álvaro</span><span class="tag">F3</span></div></div></li>
+        <li><div><h3>Decidir F4</h3><p>D-F4-1 (panel en Lobby), D-F4-2 (token para subir datos), D-F4-3 (sin OpenTelemetry de momento), D-F4-4 (skill antes que agente).</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">F4</span></div></div></li>
+        <li><div><h3>Segunda tanda de falsos positivos</h3><p>Cinco casos menores vistos en finance_tracker (ADR 0013). Son cambios de hooks: los apruebas tú.</p><div class="tags"><span class="tag you">Álvaro</span><span class="tag">F5</span></div></div></li>
+        <li><div><h3>Primera historia en finance_tracker</h3><p>Una propuesta de gobernanza pequeña (por ejemplo, la E: auditoría de dependencias en CI). Estrena allí al analista, al jefe y al implementador.</p><div class="tags"><span class="tag">F3</span><span class="tag you">puertas 1 y 2</span></div></div></li>
+        <li><div><h3>Plataforma y verificador en real</h3><p>S75 (historia de CI con plataforma, con el paso de workflows por la sesión) y S69 (verificador tras revisar).</p><div class="tags"><span class="tag">F3 · F5</span></div></div></li>
+        <li><div><h3>Coordinador con dos carriles</h3><p><code>claude --agent enjambre:enjambre-coordinador</code> en tu equipo, con sesión iniciada. Medir conflictos, ciclos y tokens (S76).</p><div class="tags"><span class="tag you">necesita tu sesión</span><span class="tag">F3</span></div></div></li>
+        <li><div><h3>Ciclo semanal de F5</h3><p>Evaluaciones, <code>npx ccusage blocks</code> y revisión de transcripciones con permisos denegados.</p><div class="tags"><span class="tag">F5</span><span class="tag">30 min/semana</span></div></div></li>
       </ol>
     </section>
 
@@ -1076,7 +1302,7 @@ flowchart TB
       <div class="sec-head">
         <span class="n">ROADMAP</span>
         <h2>Seis fases, de local a automatizado</h2>
-        <p>Calendario orientativo con 6–8 horas de supervisión a la semana, desde la semana del 23-11-2026.</p>
+        <p>F0–F2 se recorrieron en tres días (21 al 23-11-2026), mucho antes del calendario orientativo del plan. Las barras muestran el estado, no fechas reales.</p>
       </div>
       <div class="panel" style="overflow-x:auto">
         <div class="gantt">
@@ -1088,18 +1314,18 @@ flowchart TB
           <div class="g-head" style="grid-column: span 6">sem 19 →</div>
           <div class="g-label"><b>F0 Descubrimiento</b><small>6–8 h</small></div><div class="g-bar g-done" style="grid-column: 2 / span 1"></div>
           <div class="g-label"><b>F1 MVP local</b><small>cerrada</small></div><div class="g-bar g-done" style="grid-column: 3 / span 1"></div>
-          <div class="g-label"><b>F2 Por eventos</b><small>20–25 h</small></div><div class="g-bar g-wip" style="grid-column: 4 / span 5">piloto + CI</div>
-          <div class="g-label"><b>F3 Más equipo</b><small>30–40 h</small></div><div class="g-bar g-wip" style="grid-column: 4 / span 10">carriles · QA · gobernanza · evals</div>
-          <div class="g-label"><b>F4 Datos y BI</b><small>opcional</small></div><div class="g-bar g-todo" style="grid-column: 16 / span 4">panel de coste</div>
-          <div class="g-label"><b>F5 Endurecimiento</b><small>4–6 h/mes</small></div><div class="g-bar g-ongoing" style="grid-column: 20 / span 6">continuo</div>
+          <div class="g-label"><b>F2 Por eventos</b><small>cumplida</small></div><div class="g-bar g-done" style="grid-column: 4 / span 5"></div>
+          <div class="g-label"><b>F3 Más equipo</b><small>midiendo</small></div><div class="g-bar g-wip" style="grid-column: 4 / span 10">entregables hechos · faltan datos</div>
+          <div class="g-label"><b>F4 Datos y BI</b><small>planificada</small></div><div class="g-bar g-todo" style="grid-column: 12 / span 6">extraer · dbt · panel</div>
+          <div class="g-label"><b>F5 Endurecimiento</b><small>en marcha</small></div><div class="g-bar g-ongoing" style="grid-column: 8 / span 18">continuo · 3 ciclos hechos</div>
         </div>
       </div>
       <div class="phases">
-        <article class="phase"><header><h3>F1 · MVP local</h3><span class="badge b-done">cerrada</span></header><ul><li>Plugin con agentes, skills y hooks probados</li><li>Devcontainer y plantillas</li><li>El piloto pasa a F2</li></ul><p class="exit">Cerrada por decisión (ADR 0005).</p></article>
+        <article class="phase"><header><h3>F1 · MVP local</h3><span class="badge b-done">cerrada</span></header><ul><li>Plugin con agentes, skills y hooks probados</li><li>Devcontainer y plantillas</li><li>2 de 5 historias reales (lobby#5, #16)</li></ul><p class="exit">Cerrada por decisión (ADR 0005).</p></article>
         <article class="phase"><header><h3>F2 · Por eventos</h3><span class="badge b-done">cumplida</span></header><ul><li>Primera historia de Listo a PR fusionado (lobby#2 → #5)</li><li>Plugin fijado por SHA; solo Álvaro aprueba</li><li>Dos pasos manuales por límites de GitHub (ADR 0010)</li></ul><p class="exit"><b>Salió:</b> 22-11-2026, al fusionar lobby#5.</p></article>
-        <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-wip">entregables cumplidos</span></header><ul><li>10 agentes y 6 carriles</li><li>CI de finance_tracker (verde)</li><li>20 evaluaciones (también en Actions) y tokens por agente</li><li>finance_tracker con agentes (#2)</li><li>pass@1 de referencia: 100 % (dos veces)</li><li>Falta: medir lead time y retrabajo (F4)</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
+        <article class="phase"><header><h3>F3 · Más equipo</h3><span class="badge b-wip">entregables cumplidos</span></header><ul><li>10 agentes y 6 carriles</li><li>CI de finance_tracker (verde)</li><li>20 evaluaciones (también en Actions) y tokens por agente</li><li>finance_tracker con agentes (#2)</li><li>pass@1: 95–100 % en 6 bancos completos (20/20 en el último)</li><li>Lead time mediano 9 h 23 min (n = 2)</li><li>Falta: más historias, plataforma, verificador y coordinador en real</li></ul><p class="exit"><b>Sale si:</b> lead time &lt; 2 días y ≥ 60 % de PR sin retrabajo.</p></article>
         <article class="phase"><header><h3>F4 · Datos y BI</h3><span class="badge b-wip">planificada</span></header><ul><li>Extraer → dbt-duckdb → panel en Lobby</li><li>DORA (5 métricas), coste por historia, pass@1 y permisos denegados</li><li>4 decisiones tuyas (D-F4)</li></ul><p class="exit"><b>Sale si:</b> panel actualizado a diario durante 2 semanas.</p></article>
-        <article class="phase"><header><h3>F5 · Endurecimiento</h3><span class="badge b-wip">planificada · continua</span></header><ul><li>Ciclo medir → detectar → proponer → aprobar → publicar</li><li>Cadencias semanal, mensual, trimestral y anual</li><li>Seis líneas de trabajo y runbooks R1–R4</li></ul><p class="exit"><b>Sale si:</b> 3 meses con métricas en objetivo.</p></article>
+        <article class="phase"><header><h3>F5 · Endurecimiento</h3><span class="badge b-wip">en marcha · continua</span></header><ul><li>Ciclos hechos: rastro (v0.5), hooks (v0.6.1), implementador (v0.6.2)</li><li>Ciclo medir → detectar → proponer → aprobar → publicar</li><li>Cadencias semanal, mensual, trimestral y anual</li><li>Seis líneas de trabajo y runbooks R1–R4</li></ul><p class="exit"><b>Sale si:</b> 3 meses con métricas en objetivo.</p></article>
         <article class="phase"><header><h3>Plan B</h3><span class="badge b-risk">si falla</span></header><ul><li>&lt; 2 de 5 PR útiles: implementador + revisor con planes de Álvaro</li><li>Conflictos entre carriles: WIP 1–2</li><li>Bloqueos por límite: Max 5x</li></ul><p class="exit">Vuelta atrás: desactivar el plugin en <code>enabledPlugins</code>.</p></article>
       </div>
     </section>
@@ -1107,20 +1333,21 @@ flowchart TB
     <section id="metricas">
       <div class="sec-head">
         <span class="n">MÉTRICAS</span>
-        <h2>Cómo sabremos que funciona</h2>
-        <p>Objetivos por fase (plan §7.2, ampliados). DORA mide la entrega; el resto, la calidad y el coste de los agentes.</p>
+        <h2>Cómo sabremos que funciona, y qué marcan hoy</h2>
+        <p>Objetivos por fase (plan §7.2, ampliados) y el valor medido a 23-11-2026. Con dos historias, los valores son indicativos: F4 los medirá de forma continua.</p>
       </div>
       <div class="table-wrap"><table>
-        <thead><tr><th>Métrica</th><th>Fuente</th><th>F1</th><th>F3</th><th>F5</th></tr></thead>
+        <thead><tr><th>Métrica</th><th>Fuente</th><th>F1</th><th>F3</th><th>F5</th><th>Hoy</th></tr></thead>
         <tbody>
-          <tr><td>Lead time (Listo → fusionado)</td><td>GitHub</td><td class="num">&lt; 5 días</td><td class="num">&lt; 2 días</td><td class="num">&lt; 1 día</td></tr>
-          <tr><td>PR aceptados sin retrabajo</td><td>PR</td><td class="num">≥ 50 %</td><td class="num">≥ 60 %</td><td class="num">≥ 75 %</td></tr>
-          <tr><td>Tasa de fallo de cambios</td><td>incidentes</td><td class="num">&lt; 30 %</td><td class="num">&lt; 15 %</td><td class="num">&lt; 10 %</td></tr>
-          <tr><td>Coste IA por historia</td><td>logs</td><td class="num">medir</td><td class="num">≤ 6 $</td><td class="num">≤ 4 $</td></tr>
-          <tr><td>Nota de gobernanza</td><td>informe</td><td class="num">—</td><td class="num">≥ 18/24</td><td class="num">≥ 21/24</td></tr>
-          <tr><td>Bloqueos por límite de uso</td><td><code>operacion.md</code></td><td class="num">medir</td><td class="num">≤ 2/semana</td><td class="num">≤ 1/semana</td></tr>
-          <tr><td>Evaluaciones pass@1</td><td>evals</td><td class="num">—</td><td class="num">≥ 60 %</td><td class="num">≥ 75 %</td></tr>
-          <tr><td>Incidentes de seguridad por agentes</td><td>auditoría</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td>Lead time (Listo → fusionado)</td><td>GitHub</td><td class="num">&lt; 5 días</td><td class="num">&lt; 2 días</td><td class="num">&lt; 1 día</td><td class="num yes">9 h 23 min (mediana, n = 2)</td></tr>
+          <tr><td>PR aceptados sin retrabajo (≤ 1 ciclo)</td><td>PR</td><td class="num">≥ 50 %</td><td class="num">≥ 60 %</td><td class="num">≥ 75 %</td><td class="num yes">2 de 2</td></tr>
+          <tr><td>Tasa de fallo de cambios</td><td>incidentes</td><td class="num">&lt; 30 %</td><td class="num">&lt; 15 %</td><td class="num">&lt; 10 %</td><td class="num">sin despliegues por workflow</td></tr>
+          <tr><td>Coste IA por historia</td><td>logs</td><td class="num">medir</td><td class="num">≤ 6 $</td><td class="num">≤ 4 $</td><td class="num yes">1,49 $ y 5,93 $</td></tr>
+          <tr><td>Nota de gobernanza</td><td>informe</td><td class="num">—</td><td class="num">≥ 18/24</td><td class="num">≥ 21/24</td><td class="num no">lobby 16/24 · finance 15/24</td></tr>
+          <tr><td>Bloqueos por límite de uso</td><td><code>operacion.md</code></td><td class="num">medir</td><td class="num">≤ 2/semana</td><td class="num">≤ 1/semana</td><td class="num">0 vistos</td></tr>
+          <tr><td>Evaluaciones pass@1</td><td>evals</td><td class="num">—</td><td class="num">≥ 60 %</td><td class="num">≥ 75 %</td><td class="num yes">100 % (último); mínimo 95 %</td></tr>
+          <tr><td>Falsos positivos de los hooks</td><td>transcripciones</td><td class="num">—</td><td class="num">medir</td><td class="num">&lt; 1 por run</td><td class="num">1 de 21 en lobby; 5 menores en finance</td></tr>
+          <tr><td>Incidentes de seguridad por agentes</td><td>auditoría</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num yes">0</td></tr>
         </tbody>
       </table></div>
     </section>
@@ -1137,6 +1364,8 @@ flowchart TB
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/panorama.md">docs/panorama.md</a><span>Competencia, alternativas, recursos y mejoras</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/evals/README.md">evals/</a><span>Banco de 20 evaluaciones</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/decisiones">docs/decisiones/</a><span>ADR 0001–0013; prevalecen sobre el plan</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/auditoria-f1-f3.md">docs/auditoria-f1-f3.md</a><span>Plan frente a realidad, con hallazgos H1–H11</span></li>
+          <li><a href="https://github.com/AlvaroM99/enjambre-publico/tree/main/docs/fases">docs/fases/</a><span>Planes de F4 (datos y BI) y F5 (endurecimiento)</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/riesgos-y-soluciones.md">docs/riesgos-y-soluciones.md</a><span>Retos y riesgos con solución y estado</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/operacion.md">docs/operacion.md</a><span>Entorno, publicación, secretos por repo, renovar el token, evals en Actions y Pixel Agents</span></li>
           <li><a href="https://github.com/AlvaroM99/enjambre-publico/blob/main/docs/PLAN.md">docs/PLAN.md</a><span>Plan original: vías, roadmap y métricas</span></li>
@@ -1147,7 +1376,9 @@ flowchart TB
           <li><a href="https://code.claude.com/docs/en/hooks">Hooks</a><span><code>agent_type</code> y hooks dentro de subagentes</span></li>
           <li><a href="https://code.claude.com/docs/en/skills">Skills</a><span>SKILL.md y precarga</span></li>
           <li><a href="https://code.claude.com/docs/en/github-actions">GitHub Actions</a><span>Base de la fase 2</span></li>
-          <li><a href="https://github.com/anthropics/claude-code-action">claude-code-action</a><span>Entradas <code>plugins</code>, <code>claude_args</code>, OAuth</span></li>
+          <li><a href="https://github.com/anthropics/claude-code-action">claude-code-action</a><span>Entradas <code>plugins</code>, <code>plugin_marketplaces</code>, <code>settings</code>, <code>execution_file</code></span></li>
+          <li><a href="https://code.claude.com/docs/en/settings-reference.md">Referencia de settings</a><span><code>attribution</code> vacío para no firmar como Claude</span></li>
+          <li><a href="https://code.claude.com/docs/en/monitoring-usage">Monitorización</a><span>OpenTelemetry, opción de F4</span></li>
           <li><a href="https://github.com/anthropics/claude-plugins-official">Marketplace oficial</a><span>context7, playwright, github, security-guidance</span></li>
         </ul></div>
         <div class="src"><h3>Diseño de agentes y visualización</h3><ul>
@@ -1165,7 +1396,8 @@ flowchart TB
           <li><a href="https://scorecard.dev/">OpenSSF Scorecard</a></li>
         </ul></div>
         <div class="src"><h3>Entrega y gobernanza</h3><ul>
-          <li><a href="https://dora.dev/guides/dora-metrics/">Métricas DORA</a></li>
+          <li><a href="https://dora.dev/guides/dora-metrics-four-keys/">Métricas DORA</a><span>Cinco métricas, guía de 5-1-2026</span></li>
+          <li><a href="https://github.com/duckdb/dbt-duckdb">dbt-duckdb</a><span>Base de F4</span></li>
           <li><a href="https://www.conventionalcommits.org/en/v1.0.0/">Conventional Commits</a></li>
           <li><a href="https://adr.github.io/madr/">ADR / MADR</a></li>
           <li><a href="https://choosealicense.com/licenses/">Licencias de código abierto</a></li>
@@ -1177,7 +1409,7 @@ flowchart TB
           <li><a href="https://www.finops.org/wg/token-economics/">FinOps para IA</a></li>
         </ul></div>
       </div>
-      <footer>Generado desde <code>docs/PLAN.md</code>, ADR 0001–0007, <code>docs/panorama.md</code>, <code>evals/</code>, <code>docs/organigrama.md</code>, <code>docs/riesgos-y-soluciones.md</code>, <code>docs/operacion.md</code> y las definiciones de <code>plugins/enjambre/</code>, a 21-11-2026. Lo marcado «por confirmar» en esos documentos no se ha comprobado en una sesión real.</footer>
+      <footer>Generado a 23-11-2026 desde <code>docs/PLAN.md</code>, los ADR 0001–0013, <code>docs/auditoria-f1-f3.md</code>, <code>docs/fases/</code>, <code>docs/operacion.md</code>, <code>docs/panorama.md</code>, <code>evals/</code>, las definiciones de <code>plugins/enjambre/</code> y la API de GitHub (runs, PR, issues, variables y logs de Actions de lobby, finance_tracker, enjambre y enjambre-publico). Los costes son estimaciones del cliente de Claude Code. Lo marcado [POR CONFIRMAR] no se ha comprobado.</footer>
     </section>
   </main>
 </div>
@@ -1186,9 +1418,9 @@ flowchart TB
 (function () {
   var AGENTES = [
     { id: 'alvaro', sala: 'dir', ini: 'ÁL', nombre: 'Álvaro', rol: 'propietario de producto', estado: 'wait',
-      mision: 'Decide qué se hace, aprueba planes y carriles (puerta 1), fusiona y despliega (puerta 2).',
+      mision: 'Decide qué se hace, aprueba planes y carriles (puerta 1), es el único que aprueba y fusiona PR y despliega (puerta 2), y elige qué versión del plugin usan los proyectos.',
       recibe: 'planes, informes, PR verificados', entrega: 'aprobaciones, fusiones, despliegues',
-      tools: ['GitHub', 'npm run deploy'], bash: 'sin límite', modelo: 'humano', turnos: '—', skills: [] },
+      tools: ['GitHub', 'npx wrangler deploy (local)', 'gh variable set ENJAMBRE_VERSION'], bash: 'sin límite', modelo: 'humano', turnos: '—', skills: [] },
     { id: 'coordinador', sala: 'dir', ini: 'CO', nombre: 'Coordinador', rol: 'sesión principal', estado: 'on',
       mision: 'Hace cumplir el flujo: lanza a cada agente en su momento, lleva el tablero de carriles y avisa de lo que espera a Álvaro. No planifica ni escribe.',
       recibe: 'issue y órdenes de Álvaro', entrega: 'tablero de carriles y avisos de puerta',
@@ -1196,15 +1428,15 @@ flowchart TB
     { id: 'analista', sala: 'desc', ini: 'AN', nombre: 'Analista', rol: 'investigación previa', estado: 'on',
       mision: 'Analiza la petición e investiga en internet el estándar, las bibliotecas, los repos públicos y la competencia. Recomienda reutilizar, partir de, integrar o construir.',
       recibe: 'petición', entrega: 'informe de investigación con fuentes',
-      tools: ['Read', 'Grep', 'Glob', 'Bash', 'WebSearch', 'WebFetch'], bash: 'lista blanca', modelo: 'sonnet', turnos: '25', skills: ['investigar-estado-del-arte', 'referencias-estandar', 'tomar-decisiones', 'pedir-detalles'] },
+      tools: ['Read', 'Grep', 'Glob', 'Bash', 'WebSearch', 'WebFetch'], bash: 'lista blanca', modelo: 'sonnet', turnos: '25 (35 en Actions)', skills: ['investigar-estado-del-arte', 'referencias-estandar', 'tomar-decisiones', 'pedir-detalles'] },
     { id: 'jefe', sala: 'desc', ini: 'JP', nombre: 'Jefe de proyecto', rol: 'plan y arquitectura', estado: 'wait',
       mision: 'Convierte la petición en historias S o M con plan comprobable, reparte los carriles y tría las propuestas de QA, seguridad y gobernanza.',
       recibe: 'issue + informe del analista', entrega: 'plan, tabla de carriles, ADR propuesto',
-      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca', modelo: 'opus', turnos: '20', skills: ['planificar', 'tomar-decisiones', 'pedir-detalles', 'referencias-estandar', 'arnes-claude-code'] },
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca', modelo: 'opus', turnos: '20 (30 en Actions)', skills: ['planificar', 'tomar-decisiones', 'pedir-detalles', 'referencias-estandar', 'arnes-claude-code'] },
     { id: 'impl', sala: 'cons', ini: 'IM', nombre: 'Implementador ×N', rol: 'un carril cada uno', estado: 'on',
       mision: 'Ejecuta exactamente un plan aprobado en su worktree: rama, pruebas, documentación y PR en borrador de menos de 400 líneas.',
       recibe: 'plan aprobado', entrega: 'rama y PR en borrador',
-      tools: ['Read', 'Edit', 'Write', 'Grep', 'Glob', 'Bash'], bash: 'completo con hooks', modelo: 'sonnet', turnos: '30', skills: ['git-enjambre', 'pruebas', 'documentar', 'pedir-detalles', 'referencias-estandar'] },
+      tools: ['Read', 'Edit', 'Write', 'Grep', 'Glob', 'Bash'], bash: 'completo con hooks', modelo: 'sonnet', turnos: '30 (60 en Actions)', skills: ['git-enjambre', 'pruebas', 'documentar', 'pedir-detalles', 'referencias-estandar'] },
     { id: 'plataforma', sala: 'cons', ini: 'PL', nombre: 'Plataforma', rol: 'CI/CD y entorno', estado: 'idle',
       mision: 'Workflows de Actions, devcontainer y procedimiento de despliegue y rollback. Nunca despliega a producción ni toca secretos.',
       recibe: 'plan aprobado', entrega: 'rama y PR de workflows',
@@ -1212,7 +1444,7 @@ flowchart TB
     { id: 'revisor', sala: 'cal', ini: 'RV', nombre: 'Revisor ×N', rol: 'revisión independiente', estado: 'on',
       mision: 'Revisa cada PR frente a su plan y devuelve APROBAR, CAMBIOS o BLOQUEAR con hallazgos fichero:línea y severidad.',
       recibe: 'PR + plan', entrega: 'veredicto estructurado',
-      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca', modelo: 'opus', turnos: '15', skills: ['pruebas', 'documentar', 'referencias-estandar'] },
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca', modelo: 'opus', turnos: '15 (20 en Actions)', skills: ['pruebas', 'documentar', 'referencias-estandar'] },
     { id: 'seguridad', sala: 'cal', ini: 'SG', nombre: 'Seguridad', rol: 'revisión de seguridad', estado: 'idle',
       mision: 'Revisa los PR sensibles (auth, entradas, dependencias, workflows, configuración de agentes) y audita dependencias con referencias OWASP.',
       recibe: 'PR sensible', entrega: 'veredicto de seguridad y propuestas',
@@ -1224,11 +1456,11 @@ flowchart TB
     { id: 'investigador', sala: 'mej', ini: 'IN', nombre: 'Investigador QA', rol: 'QA exploratorio', estado: 'idle',
       mision: 'Explora lo fusionado buscando fallos, casos límite y pruebas que faltan. Abre como máximo cinco propuestas reproducibles y da retroalimentación a los implementadores.',
       recibe: 'alcance', entrega: 'issues enjambre:propuesta + patrones',
-      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca + pruebas', modelo: 'sonnet', turnos: '25', skills: ['pruebas', 'pedir-detalles', 'referencias-estandar'] },
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca + pruebas', modelo: 'sonnet', turnos: '25 (35 en Actions)', skills: ['pruebas', 'pedir-detalles', 'referencias-estandar'] },
     { id: 'gobernanza', sala: 'mej', ini: 'GO', nombre: 'Gobernanza', rol: 'orden de código y datos', estado: 'idle',
       mision: 'Audita estructura, documentación, ADR, código, dependencias, agentes y CI, datos y trazabilidad, con nota de 0 a 3 por área. Propone; no mueve ficheros.',
       recibe: 'repositorio', entrega: 'informe de gobernanza + propuestas',
-      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca + auditorías', modelo: 'sonnet', turnos: '20', skills: ['gobernanza', 'documentar', 'referencias-estandar'] }
+      tools: ['Read', 'Grep', 'Glob', 'Bash'], bash: 'lista blanca + auditorías', modelo: 'sonnet', turnos: '20 (45 en Actions)', skills: ['gobernanza', 'documentar', 'referencias-estandar'] }
   ];
   var ESTADOS = { on: 'trabajando', wait: 'esperando', idle: 'libre' };
   var detalle = document.getElementById('detail');
