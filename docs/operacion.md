@@ -44,7 +44,15 @@ lobby no tiene CI todavía; se añade en la historia S14.
 | Analista | 6 | 0,10 USD | **0** | Informe publicado por el agente, con aviso de privacidad (no copiar la URL de despliegue de `tracker/README.md`) |
 | Jefe de proyecto | 6 | 0,31 USD | **0** | Plan con 8 criterios verificables y decisiones por defecto P1–P5 |
 | Investigador QA (alcance: crates de Rust) | 24 | 0,41 USD | 3 | Informe #17 y 2 propuestas: `ticker_a_yahoo` duplicada y divergente (#15) y falta de cobertura en CI (#16) |
-| Puerta 1 | — | — | — | Pendiente de Álvaro |
+| Puerta 1 (#11 y #15) | — | — | — | Aprobada por Álvaro («apruebo ambas») |
+| Jefe en #15 (propuesta de QA) | 10 | 0,31 USD | 1 | Plan: unificar `ticker_a_yahoo` en `comun`, 7 criterios |
+| Implementador #11 (carril 1) | 8 | 0,12 USD | 1 | **PR abierto por el agente**: [finance_tracker#18](https://github.com/AlvaroM99/finance_tracker/pull/18) |
+| Implementador #15 (carril 2, en paralelo) | 9 | 0,14 USD | 1 | **PR abierto por el agente**: [finance_tracker#19](https://github.com/AlvaroM99/finance_tracker/pull/19) |
+| CI (Rust + wasm) | — | — | — | Verde en los dos |
+| Revisor | — | — | — | **APROBAR en los dos, sin cambios** (seguridad se omite: no tocan ficheros sensibles) |
+| Atribución | — | — | — | Ningún commit con `Co-Authored-By: Claude` (corrección de lobby#6 confirmada) |
+
+Primera vez con **dos carriles a la vez** (`enjambre:en-curso` en #11 y #15, WIP 3) y primera vez sin ningún ciclo de cambios. Falta la fusión de Álvaro (puerta 2).
 
 Los bloqueos del investigador fueron `xargs` (correcto), `git -C` y un subshell `( cargo test … )`, estos dos falsos positivos menores de la siguiente tanda.
 

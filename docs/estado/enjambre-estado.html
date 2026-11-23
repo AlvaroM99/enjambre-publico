@@ -815,10 +815,10 @@ flowchart TB
         <tbody>
           <tr><td>Coordinador</td><td class="c-ok">2/2 ×6</td><td class="c-na">no aplica (sesión local)</td><td class="c-na">no aplica</td><td class="c-no">sin probar</td></tr>
           <tr><td>Analista</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · lobby#8</td><td class="c-ok">1 · #11 (0 bloqueos)</td><td class="c-no">sin probar</td></tr>
-          <tr><td>Jefe de proyecto</td><td class="c-pa">2/2 ×4 · 1/2 ×2</td><td class="c-ok">2 · #2, #8</td><td class="c-ok">1 · #11 (0 bloqueos)</td><td class="c-no">sin probar</td></tr>
-          <tr><td>Implementador</td><td class="c-ok">2/2 ×6</td><td class="c-ok">4 · PR #5 y #16</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Jefe de proyecto</td><td class="c-pa">2/2 ×4 · 1/2 ×2</td><td class="c-ok">2 · #2, #8</td><td class="c-ok">2 · #11, #15</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Implementador</td><td class="c-ok">2/2 ×6</td><td class="c-ok">4 · PR #5 y #16</td><td class="c-ok">2 · PR #18 y #19 (en paralelo)</td><td class="c-no">sin probar</td></tr>
           <tr><td>Plataforma</td><td class="c-ok">1/1 ×6</td><td class="c-no">0</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
-          <tr><td>Revisor</td><td class="c-ok">4/4 ×6</td><td class="c-ok">10</td><td class="c-ok">3</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Revisor</td><td class="c-ok">4/4 ×6</td><td class="c-ok">10</td><td class="c-ok">5 · APROBAR en #18 y #19</td><td class="c-no">sin probar</td></tr>
           <tr><td>Seguridad</td><td class="c-ok">2/2 ×6</td><td class="c-ok">9</td><td class="c-ok">3</td><td class="c-no">sin probar</td></tr>
           <tr><td>Verificador</td><td class="c-ok">1/1 ×6</td><td class="c-no">0 (sin workflow, S69)</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
           <tr><td>Investigador QA</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · #12</td><td class="c-ok">1 · #15–#17</td><td class="c-no">sin probar</td></tr>
@@ -863,7 +863,7 @@ flowchart TB
         <li><span class="badge b-todo">F3</span><div>Coordinador con dos carriles en una sesión local<small>S76: necesita <code>claude</code> con sesión iniciada en tu equipo.</small></div></li>
         <li><span class="badge b-todo">F3</span><div>Plataforma de punta a punta<small>S75: una historia de CI. Ojo: sus PR tocan <code>.github/workflows/</code>, que el token de Actions no puede subir.</small></div></li>
         <li><span class="badge b-todo">F5</span><div>Verificador en CI<small>S69: hoy solo corre en evaluaciones; los PR los verifica la CI con <code>prueba.mjs</code>.</small></div></li>
-        <li><span class="badge b-wip">en curso</span><div>Historia completa en finance_tracker<small><a href="https://github.com/AlvaroM99/finance_tracker/issues/11">#11</a> (README raíz y formato de commit). Analista (6 turnos, 0,10 $) y jefe (6 turnos, 0,31 $) sin un solo bloqueo; el investigador encontró un fallo real (#15). Falta tu puerta 1.</small></div></li>
+        <li><span class="badge b-wip">en curso</span><div>Dos historias en paralelo en finance_tracker<small><a href="https://github.com/AlvaroM99/finance_tracker/issues/11">#11</a> (README) y <a href="https://github.com/AlvaroM99/finance_tracker/issues/15">#15</a> (fallo de <code>ticker_a_yahoo</code> que encontró QA). Los dos PR los abrió el implementador (<a href="https://github.com/AlvaroM99/finance_tracker/pull/18">#18</a>, <a href="https://github.com/AlvaroM99/finance_tracker/pull/19">#19</a>), con CI verde y revisor APROBAR sin cambios. Falta tu fusión.</small></div></li>
         <li><span class="badge b-todo">F5</span><div>Retirada real de una aprobación ajena<small>El job <code>aprobaciones</code> corre en cada revisión (0 retiradas). El camino de retirar está [POR CONFIRMAR], porque nunca ha habido una aprobación de bot.</small></div></li>
         <li><span class="badge b-risk">Álvaro</span><div>Workflow de producción<small>Necesita <code>CLOUDFLARE_API_TOKEN</code> y <code>CLOUDFLARE_ACCOUNT_ID</code>; mientras, despliegas con <code>wrangler</code> en local.</small></div></li>
       </ul>
@@ -1225,7 +1225,7 @@ flowchart TB
             <li><span class="badge b-risk">Álvaro</span><div>Decisiones de F4 (D-F4-1 a D-F4-4)</div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Siguiente tanda de falsos positivos<small><code>cmp</code>, <code>git -C</code>, <code>for-each-ref</code>, <code>timeout</code>, <code>grep -vi secret</code>, subshell <code>( … )</code></small></div></li>
             <li><span class="badge b-todo">F3</span><div>Probar plataforma, verificador y coordinador en real</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Puerta 1 de <a href="https://github.com/AlvaroM99/finance_tracker/issues/11">finance_tracker#11</a><small>Primera historia allí; plan con 8 criterios y P1–P5 por defecto</small></div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Fusionar <a href="https://github.com/AlvaroM99/finance_tracker/pull/18">finance_tracker#18</a> y <a href="https://github.com/AlvaroM99/finance_tracker/pull/19">#19</a> (puerta 2)<small>Mejor con squash (M17)</small></div></li>
             <li><span class="badge b-todo">F5</span><div>Revisor: subir de 20 turnos<small>Agotó el límite en lobby#16, aunque publicó</small></div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Secretos de Cloudflare para <code>produccion.yml</code><small>Opcional: hoy despliegas en local</small></div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
