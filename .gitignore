@@ -5,3 +5,4 @@ node_modules/
 *.log
 evals/resultados/
 .claude/settings.local.json
+.metricas/

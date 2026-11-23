@@ -64,7 +64,8 @@ Primera vez con **dos carriles a la vez** (`enjambre:en-curso` en #11 y #15, WIP
 | lobby#8 | 14 h 16 min (incluye la noche hasta la fusión) | 1 (los arregló la sesión) |
 | finance_tracker#11 | 1 h 59 min | **0** |
 | finance_tracker#15 | 1 h 50 min | **0** |
-| **Mediana (n = 4)** | **3 h 15 min** | 4 de 4 con ≤ 1 ciclo |
+| lobby#10 (primera con revisión automática) | **17 min** | **0** |
+| **Mediana (n = 5)** | **1 h 59 min** | 5 de 5 con ≤ 1 ciclo |
 
 **Pasos que aún hizo una persona** entre el PR y la fusión:
 - Álvaro pulsó «Approve workflows to run» para que corriera la CI.
@@ -81,6 +82,58 @@ Primera vez con **dos carriles a la vez** (`enjambre:en-curso` en #11 y #15, WIP
 **Coste por historia:** #11 ≈ 0,81 USD (analista, jefe, implementador y revisor); #15 ≈ 0,74 USD (jefe, implementador y revisor), sin contar la ejecución de QA que la encontró (0,41 USD).
 
 Los bloqueos del investigador fueron `xargs` (correcto), `git -C` y un subshell `( cargo test … )`, estos dos falsos positivos menores de la siguiente tanda.
+
+## Medir sin hacerlo a mano (F4, S60, 23-11-2026)
+
+```
+node herramientas/extraer.mjs --repo AlvaroM99/lobby --repo AlvaroM99/finance_tracker --desde 2026-11-20
+node herramientas/metricas.mjs
+```
+
+- `extraer.mjs` usa tu sesión de `gh` (solo lectura). Escribe un JSON por repo en `.metricas/`, que no se sube al repositorio. Solo guarda números, fechas, identificadores y nombres de agente; los títulos sirven para enlazar y no se guardan. Con dos repos tardó 1 min 23 s.
+- `metricas.mjs` imprime una tabla por historia y otra por agente, y escribe `.metricas/metricas.json`.
+
+Primera ejecución, el 23-11-2026: las mismas cifras que a mano.
+- 5 historias, lead time mediano 1 h 59 min, 5 de 5 con ≤ 1 ciclo.
+- Coste conocido: 7,94 USD. Es parcial: las transcripciones duran 7 días y las de lobby#2 son de antes del ADR 0012.
+
+**Primer dato nuevo, permisos denegados por agente** (de las transcripciones de esos días):
+
+| Agente | Ejecuciones | Permisos denegados |
+|---|---|---|
+| Gobernanza | 2 | 27 |
+| Implementador | 5 | 13 |
+| Investigador | 2 | 6 |
+| Analista | 2 | 4 |
+| Jefe de proyecto | 4 | 4 |
+| Seguridad | 2 | 2 |
+| Revisor | 5 | 1 |
+
+Son el insumo de la siguiente tanda de falsos positivos (S65); los cambios de hooks los aprueba Álvaro.
+
+**Dos ajustes tras compararlo con la medición a mano** (con pruebas en `pruebas/metricas.test.mjs`):
+- revisor y seguridad en la misma ronda cuentan un ciclo, no dos;
+- la revisión lanzada por `workflow_dispatch` se enlaza con su PR por el veredicto que publicó durante la ejecución.
+
+## Primera historia con revisión automática: lobby#10 → lobby#20 (23-11-2026)
+
+Era una propuesta de gobernanza: README al día y los scripts de migración marcados como históricos. Sirvió para probar el [ADR 0014](decisiones/0014-revision-automatica.md).
+
+| Paso | Turnos | Coste | Resultado |
+|---|---|---|---|
+| Jefe de proyecto | 11 | 0,52 USD | Plan de 10 criterios. Encontró dos cosas que la propuesta no decía: faltaban `semilla/` y `.claude/`, y mover los scripts habría dejado de comprobarlos en `npm run check` |
+| Puerta 1 | — | — | «Approved, implement» |
+| Implementador | 11 | 0,16 USD | Abrió [lobby#20](https://github.com/AlvaroM99/lobby/pull/20) solo (+20/−7) |
+| `pedir-revision` | — | — | Borró la ejecución pendiente de aprobación y lanzó la CI (actor `github-actions[bot]`, en verde). **Falló al lanzar la revisión**: le faltaba `--ref` |
+| Revisor | 6 | 0,24 USD | APROBAR. Lo lanzó la sesión con `workflow_dispatch` |
+| `listo` | — | — | Pidió la revisión de Álvaro. **No** quitó el borrador: le faltaba `contents: write` (comprobado con un experimento) |
+| Puerta 2 | — | — | Álvaro lo marcó listo y lo fusionó a las 11:32 |
+
+Lead time: **17 min**, desde `enjambre:planificar` hasta la fusión. 0 ciclos de cambios. Coste ≈ 0,92 USD.
+
+Los tres huecos (el `--ref` de la revisión, `contents: write` en `listo` y la CI invisible en el PR) se corrigieron en el plugin `v0.6.4` ([lobby#21](https://github.com/AlvaroM99/lobby/pull/21), [finance_tracker#21](https://github.com/AlvaroM99/finance_tracker/pull/21)). El job nuevo `estado-en-el-pr` ya se probó: dejó `ci (Enjambre): success` en el commit.
+
+Falta probar en una historia de punta a punta, sin ninguna intervención, que la revisión arranca sola y que el PR llega listo.
 
 ## Segunda historia: lobby#8 → lobby#16 (23-11-2026)
 
