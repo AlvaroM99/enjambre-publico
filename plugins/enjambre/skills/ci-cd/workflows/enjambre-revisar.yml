@@ -67,10 +67,14 @@ jobs:
     needs: preparar
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # checks y statuses de lectura: sin ellos `gh pr view <n>` y `gh pr checks` fallan (statusCheckRollup, «Resource not
+    # accessible by integration»), hallazgo del propio revisor en finance_tracker#27.
     permissions:
+      checks: read
       contents: read
       issues: read
       pull-requests: write
+      statuses: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -180,10 +184,14 @@ jobs:
     if: needs.sensible.outputs.toca == 'si'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # checks y statuses de lectura: sin ellos `gh pr view <n>` y `gh pr checks` fallan (statusCheckRollup, «Resource not
+    # accessible by integration»), hallazgo del propio revisor en finance_tracker#27.
     permissions:
+      checks: read
       contents: read
       issues: read
       pull-requests: write
+      statuses: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
