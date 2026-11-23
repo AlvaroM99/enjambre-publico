@@ -45,9 +45,10 @@ lobby no tiene CI todavía; se añade en la historia S14.
 | Implementador, 1.er intento | Hizo el trabajo, pero el push se rechazó porque tocaba `ci.yml`, y se quedó sin turnos (30). Corregido en lobby#15: no toca workflows y tiene 60 turnos |
 | Implementador, 2.º intento | **Abrió el PR él solo** ([lobby#16](https://github.com/AlvaroM99/lobby/pull/16)): 41 turnos, 0,85 USD |
 | Sesión | Paso de `ci.yml` y correcciones de las revisiones: `LOBBY_BASE` solo local (seguridad alta), recuento de hábitos, protección de la semilla, demos. Además, estabilización de `prueba.mjs` (grupos de la lista, cajón que se cierra, espera a la API) |
-| Resultado | Revisor y seguridad APROBAR; CI 60/60 tres veces seguidas. Falta que Álvaro fusione (puerta 2) |
+| Resultado | Revisor y seguridad APROBAR; CI 60/60 tres veces seguidas. **Fusionado por Álvaro** |
+| Ejecución local (23-11-2026) | Clon limpio con credenciales sintéticas, `wrangler dev` en el puerto 8833 (el `wrangler dev` de Álvaro ocupaba el 8787) y Playwright con Chrome: humo 8/8, prueba **60/60**, repetición 60/60, y `LOBBY_BASE` no local rechazada. Clon borrado |
 
-Pendiente F5: el revisor agotó sus 20 turnos en la segunda revisión, aunque publicó el veredicto. Hay que subirle el límite como al implementador.
+Workflows de finance_tracker al día con [finance_tracker#14](https://github.com/AlvaroM99/finance_tracker/pull/14) (implementador). Pendiente F5: el revisor agotó sus 20 turnos en la segunda revisión, aunque publicó el veredicto. Hay que subirle el límite como al implementador.
 
 ## Segunda prueba con rastro y falsos positivos de los hooks (ADR 0013, 22-11-2026)
 
