@@ -156,12 +156,16 @@ jobs:
     permissions:
       actions: write
       pull-requests: read
+      statuses: write
     steps:
       - name: Lanzar la CI y la revisión del PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           ISSUE: ${{ github.event.issue.number }}
+          # Sin --ref, `gh workflow run` pide la rama por defecto por GraphQL, y este token (sin contents) no puede leerla
+          # («Resource not accessible by integration», primera historia con ADR 0014, lobby#10).
+          RAMA_PRINCIPAL: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
           datos=$(gh pr list --state open --json number,headRefName,headRefOid \
@@ -173,9 +177,17 @@ jobs:
             gh run delete "$id" && echo "Borrada la ejecución pendiente de aprobación $id."
           done
           if gh workflow view ci.yml > /dev/null 2>&1; then
-            gh workflow run ci.yml --ref "$rama" && echo "CI lanzada en $rama." || echo "No se pudo lanzar ci.yml (¿tiene workflow_dispatch?)."
+            if gh workflow run ci.yml --ref "$rama"; then
+              echo "CI lanzada en $rama."
+              # El PR no muestra las ejecuciones de workflow_dispatch: el estado «pendiente» lo cierra el job
+              # estado-en-el-pr de ci.yml con el resultado.
+              gh api -X POST "repos/$GH_REPO/statuses/$sha" -f state=pending -f context="ci (Enjambre)" \
+                -f description="CI lanzada por Enjambre" > /dev/null || true
+            else
+              echo "No se pudo lanzar ci.yml (¿tiene workflow_dispatch?)."
+            fi
           fi
-          gh workflow run enjambre-revisar.yml -f pr="$pr"
+          gh workflow run enjambre-revisar.yml --ref "$RAMA_PRINCIPAL" -f pr="$pr"
           echo "Revisión lanzada para el PR #$pr."
 
   liberar:

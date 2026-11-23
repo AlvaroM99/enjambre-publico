@@ -72,6 +72,12 @@ Primera vez con **dos carriles a la vez** (`enjambre:en-curso` en #11 y #15, WIP
 
 Álvaro pidió quitarlos («no quiero tener que aprobar yo el workflow de revisión») y quedar solo como último confirmador: [ADR 0014](decisiones/0014-revision-automatica.md). Los workflows nuevos llegan por [lobby#17](https://github.com/AlvaroM99/lobby/pull/17) y [finance_tracker#20](https://github.com/AlvaroM99/finance_tracker/pull/20).
 
+**Fallo intermitente del e2e de lobby (23-11-2026).** El e2e de [lobby#17](https://github.com/AlvaroM99/lobby/pull/17) falló dos veces en las comprobaciones de Tareas, aunque ese PR solo cambia workflows. Igual que en lobby#16.
+- En local pasó 9 de 9, y en CI con trazas, 7 de 7.
+- Con una traza permanente en el propio test, el primer fallo dio la causa: la tarea se guardaba con el título «Tarea de pruebaprueba, lobby». El cajón pone el foco en el primer campo 60 ms después de abrirse (`public/js/ui.js`). En el runner, más lento, ese foco llegaba mientras Playwright escribía las etiquetas.
+- Corregido en la app (el foco diferido ya no quita el cursor) y en el test, que ahora busca los campos dentro de su cajón, comprueba por el id que devuelve el POST e imprime `DIAG` si falla: [lobby#19](https://github.com/AlvaroM99/lobby/pull/19), CI en verde 4 de 4.
+- Lección: un fallo intermitente sin traza no se arregla a ciegas. Primero hay que hacer que el test explique lo que ve.
+
 **Coste por historia:** #11 ≈ 0,81 USD (analista, jefe, implementador y revisor); #15 ≈ 0,74 USD (jefe, implementador y revisor), sin contar la ejecución de QA que la encontró (0,41 USD).
 
 Los bloqueos del investigador fueron `xargs` (correcto), `git -C` y un subshell `( cargo test … )`, estos dos falsos positivos menores de la siguiente tanda.

@@ -255,7 +255,11 @@ jobs:
       (needs.seguridad.result == 'success' || needs.seguridad.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # `gh pr ready` (markPullRequestReadyForReview) con GITHUB_TOKEN necesita también contents: write; con solo
+    # pull-requests: write da «Resource not accessible by integration» (probado en un experimento, ADR 0014).
+    # Sin checkout ni agente: el job solo ejecuta estos comandos.
     permissions:
+      contents: write
       pull-requests: write
     steps:
       - name: Marcar listo y pedir la revisión de Álvaro
@@ -281,7 +285,7 @@ jobs:
             echo "Sin APROBAR en todas las revisiones: el PR sigue en borrador."
             exit 0
           fi
-          gh pr ready "$PR" || true
+          gh pr ready "$PR"
           # REST en lugar de `gh pr edit --add-reviewer`, que con GITHUB_TOKEN puede fallar al leer proyectos clásicos.
           gh api -X POST "repos/$GH_REPO/pulls/$PR/requested_reviewers" -f "reviewers[]=$PROPIETARIO" > /dev/null ||
             echo "No se pudo pedir la revisión a $PROPIETARIO."

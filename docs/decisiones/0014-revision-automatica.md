@@ -1,7 +1,7 @@
 # 0014. La revisión arranca sola; Álvaro solo confirma y fusiona
 
 - **Fecha:** 23-11-2026
-- **Estado:** **Aceptada.** Álvaro lo pidió el 23-11-2026: «no quiero tener que aprobar yo el workflow de revisión. Eso sí, quiero ser el último confirmador de la revisión sobre el total de la PR que se encargue de confirmar y mergear manualmente la PR». Aplicada en las plantillas del plugin `v0.6.3`; llega a lobby y finance_tracker por PR, que fusiona Álvaro.
+- **Estado:** **Aceptada.** Álvaro lo pidió el 23-11-2026: «no quiero tener que aprobar yo el workflow de revisión. Eso sí, quiero ser el último confirmador de la revisión sobre el total de la PR que se encargue de confirmar y mergear manualmente la PR». Aplicada en las plantillas del plugin `v0.6.3` y corregida en `v0.6.4` tras la primera historia; llega a lobby y finance_tracker por PR, que fusiona Álvaro.
 - **Decide:** Álvaro
 
 ## Contexto
@@ -45,6 +45,20 @@ Fuente del primer punto: https://docs.github.com/en/actions/concepts/security/gi
 | Que el agente del implementador use `actions: write` | Ese permiso está solo en `pedir-revision`, que es un job aparte, en otra máquina y sin checkout. El job del agente sigue con `contents`, `pull-requests` e `issues` |
 | Borrar ejecuciones que sí importan | Solo borra las del commit del PR en estado `action_required`, que nunca corrieron |
 | Que la CI lanzada a mano no salga en el PR | La ejecución va sobre el commit de la rama, y GitHub asocia los checks al commit [POR CONFIRMAR en la primera historia con este flujo] |
+
+## Primera historia con este flujo: lobby#10 → lobby#20 (23-11-2026)
+
+| Paso | Resultado |
+|---|---|
+| Implementador | Abrió [lobby#20](https://github.com/AlvaroM99/lobby/pull/20) solo |
+| Aviso «Approve workflows to run» | `pedir-revision` borró la ejecución pendiente (45164478136) |
+| CI lanzada por el bot | Corrió en verde. Actor `github-actions[bot]`, como espera `preparar` |
+| Revisión lanzada por el bot | **Falló.** Sin `--ref`, `gh workflow run` pide la rama por defecto por GraphQL, y el token del job no puede leerla. Arreglado: `--ref` con `github.event.repository.default_branch`. Esa vez la lanzó la sesión con la cuenta de Álvaro |
+| Revisor | APROBAR; seguridad omitida (solo documentación) |
+| `listo` | Pidió la revisión de Álvaro, pero **no** quitó el borrador. `markPullRequestReadyForReview` necesita `contents: write` además de `pull-requests: write`. Se comprobó con un experimento en el repo de Enjambre (job con solo `pull-requests: write`: falla; con `contents: write`: funciona). `listo` lleva ahora los dos permisos y ya no oculta el error |
+| Checks en el PR | **No se veían.** GitHub no asocia al PR las ejecuciones de `workflow_dispatch`. Arreglado: `pedir-revision` pone el estado `ci (Enjambre)` en «pendiente» en el commit del PR, y el job nuevo `estado-en-el-pr` de `ci.yml` lo cierra con el resultado. Los estados de commit sí salen en el PR |
+
+Los tres arreglos van en el plugin `v0.6.4`. Llegan a los proyectos por PR, porque tocan workflows.
 
 ## Sin comprobar
 

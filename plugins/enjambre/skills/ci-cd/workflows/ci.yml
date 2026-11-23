@@ -61,3 +61,22 @@ jobs:
           npx wrangler dev --port 8787 &
           for i in $(seq 1 60); do curl -fs http://127.0.0.1:8787 >/dev/null && break; sleep 1; done
           node herramientas/prueba.mjs
+
+  estado-en-el-pr:
+    # Cuando la CI la lanza enjambre-implementar (workflow_dispatch, ADR 0014), GitHub no asocia la ejecución al PR y
+    # el PR no muestra sus checks (lobby#20). Este job publica el resultado como estado del commit, que sí sale en el PR.
+    needs: [comprobar, e2e]
+    if: always() && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      statuses: write
+    steps:
+      - name: Publicar el resultado en el commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RESULTADO: ${{ contains(needs.*.result, 'failure') && 'failure' || contains(needs.*.result, 'cancelled') && 'error' || 'success' }}
+        run: |
+          gh api -X POST "repos/$GH_REPO/statuses/$GITHUB_SHA" -f state="$RESULTADO" -f context="ci (Enjambre)" \
+            -f description="CI lanzada por Enjambre: $RESULTADO" -f target_url="$GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID" > /dev/null

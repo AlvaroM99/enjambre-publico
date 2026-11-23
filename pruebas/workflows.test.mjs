@@ -190,11 +190,13 @@ test('implementar lanza la CI y la revisión sin pasar por Álvaro, con workflow
   const job = jobsDe(texto)['pedir-revision'];
   assert.ok(job, 'falta el job pedir-revision');
   assert.match(job, /needs: implementar\n/);
-  assert.match(job, /permissions:\n\s+actions: write\n\s+pull-requests: read\n\s+steps:/, 'solo lanzar workflows y leer PR');
+  assert.match(job, /permissions:\n\s+actions: write\n\s+pull-requests: read\n\s+statuses: write\n\s+steps:/, 'lanzar workflows, leer PR y poner el estado del commit');
+  assert.match(job, /context="ci \(Enjambre\)"/, 'estado pendiente en el commit del PR');
   assert.doesNotMatch(job, /actions\/checkout|claude-code-action/, 'sin checkout ni agente');
   assert.match(job, /gh run list --commit "\$sha" --status action_required/, 'quita el aviso «Approve workflows to run»');
   assert.match(job, /gh workflow run ci\.yml --ref "\$rama"/);
-  assert.match(job, /gh workflow run enjambre-revisar\.yml -f pr="\$pr"/);
+  assert.match(job, /gh workflow run enjambre-revisar\.yml --ref "\$RAMA_PRINCIPAL" -f pr="\$pr"/, '--ref explícito: el token no puede leer la rama por defecto');
+  assert.match(job, /RAMA_PRINCIPAL: \$\{\{ github\.event\.repository\.default_branch \}\}/);
   assert.match(texto, /no\s+#?\s*etiquetes el PR/, 'el prompt no pide etiquetar');
 });
 
@@ -226,13 +228,24 @@ test('revisar marca el PR como listo solo con APROBAR y nunca aprueba ni fusiona
   assert.match(listo, /needs\.seguridad\.result == 'success' \|\| needs\.seguridad\.result == 'skipped'/);
   assert.match(listo, /\[ "\$revisor" != APROBAR \]/);
   assert.match(listo, /select\(\.user\.login == \\"github-actions\[bot\]\\"/, 'solo veredictos del bot');
-  assert.match(listo, /gh pr ready "\$PR"/);
+  assert.match(listo, /gh pr ready "\$PR"\n/, 'sin || true: si falla, se ve');
+  assert.match(listo, /permissions:\n\s+contents: write\n\s+pull-requests: write\n/, 'gh pr ready necesita contents: write');
   assert.match(listo, /requested_reviewers" -f "reviewers\[\]=\$PROPIETARIO"/);
   assert.doesNotMatch(listo, /actions\/checkout|claude-code-action/);
   assert.match(jobsDe(texto).aprobaciones, /needs: \[[^\]]*listo[^\]]*\]/, 'la guardia va después de listo');
   for (const { nombre, texto: t } of workflows) {
     assert.doesNotMatch(lineas(t).join('\n'), /gh pr merge|--approve\b|event=APPROVE/, `${nombre}: ningún workflow aprueba ni fusiona`);
   }
+});
+
+test('la CI lanzada por Enjambre publica su resultado como estado del commit (ADR 0014)', () => {
+  const { texto } = workflows.find((w) => w.nombre === 'ci-cd/ci.yml');
+  const job = jobsDe(texto)['estado-en-el-pr'];
+  assert.ok(job, 'falta el job estado-en-el-pr');
+  assert.match(job, /if: always\(\) && github\.event_name == 'workflow_dispatch'/);
+  assert.match(job, /permissions:\n\s+statuses: write\n\s+steps:/);
+  assert.match(job, /context="ci \(Enjambre\)"/);
+  assert.doesNotMatch(job, /actions\/checkout/);
 });
 
 test('todo job con agente y pull-requests: write va seguido del job aprobaciones (ADR 0011)', () => {
