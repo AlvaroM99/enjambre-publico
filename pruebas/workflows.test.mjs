@@ -218,6 +218,13 @@ test('revisar admite workflow_dispatch solo del bot (ramas enjambre/) o de Álva
     assert.doesNotMatch(jobs[n], /github\.event\.pull_request/, `${n}: el PR sale de preparar`);
   }
   assert.match(jobs.sensible, /needs: preparar\n/);
+  for (const n of ['revisor', 'seguridad']) {
+    assert.match(jobs[n], /allowed_bots: github-actions\[bot\]\n/, `${n}: la Action admite el bot que lanza la revisión`);
+  }
+  for (const { nombre, texto: w } of workflows) {
+    assert.doesNotMatch(lineas(w).join('\n'), /allowed_bots:\s*['"]?\*/, `${nombre}: nunca allowed_bots '*'`);
+    if (!/enjambre-revisar/.test(nombre)) assert.doesNotMatch(lineas(w).join('\n'), /allowed_bots:/, `${nombre}: solo revisar admite bots`);
+  }
 });
 
 test('revisar marca el PR como listo solo con APROBAR y nunca aprueba ni fusiona (ADR 0011 y 0014)', () => {

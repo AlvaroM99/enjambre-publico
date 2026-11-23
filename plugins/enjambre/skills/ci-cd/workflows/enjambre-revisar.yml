@@ -105,6 +105,10 @@ jobs:
           # https://code.claude.com/docs/en/settings-reference.md (attribution)
           settings: '{"attribution": {"commit": "", "pr": "", "sessionUrl": false}}'
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # La revisión la lanza el implementador (workflow_dispatch como github-actions[bot], ADR 0014), y la Action
+          # rechaza por defecto los runs iniciados por bots. Solo se admite ese bot, nunca '*'; preparar ya limita sus
+          # peticiones a ramas enjambre/ de este repositorio (lobby#22). action.yml@acfe799, input allowed_bots.
+          allowed_bots: github-actions[bot]
           plugin_marketplaces: ${{ runner.temp }}/enjambre-plugin
           plugins: enjambre@enjambre
           claude_args: --agent enjambre:enjambre-revisor --max-turns 20
@@ -210,6 +214,10 @@ jobs:
           # https://code.claude.com/docs/en/settings-reference.md (attribution)
           settings: '{"attribution": {"commit": "", "pr": "", "sessionUrl": false}}'
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # La revisión la lanza el implementador (workflow_dispatch como github-actions[bot], ADR 0014), y la Action
+          # rechaza por defecto los runs iniciados por bots. Solo se admite ese bot, nunca '*'; preparar ya limita sus
+          # peticiones a ramas enjambre/ de este repositorio (lobby#22). action.yml@acfe799, input allowed_bots.
+          allowed_bots: github-actions[bot]
           plugin_marketplaces: ${{ runner.temp }}/enjambre-plugin
           plugins: enjambre@enjambre
           claude_args: --agent enjambre:enjambre-seguridad --max-turns 15

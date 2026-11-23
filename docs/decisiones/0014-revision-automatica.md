@@ -1,7 +1,7 @@
 # 0014. La revisión arranca sola; Álvaro solo confirma y fusiona
 
 - **Fecha:** 23-11-2026
-- **Estado:** **Aceptada.** Álvaro lo pidió el 23-11-2026: «no quiero tener que aprobar yo el workflow de revisión. Eso sí, quiero ser el último confirmador de la revisión sobre el total de la PR que se encargue de confirmar y mergear manualmente la PR». Aplicada en las plantillas del plugin `v0.6.3` y corregida en `v0.6.4` tras la primera historia; llega a lobby y finance_tracker por PR, que fusiona Álvaro.
+- **Estado:** **Aceptada.** Álvaro lo pidió el 23-11-2026: «no quiero tener que aprobar yo el workflow de revisión. Eso sí, quiero ser el último confirmador de la revisión sobre el total de la PR que se encargue de confirmar y mergear manualmente la PR». Aplicada en las plantillas del plugin `v0.6.3` y corregida en `v0.6.4` y `v0.6.5` tras las dos primeras historias; llega a lobby y finance_tracker por PR, que fusiona Álvaro.
 - **Decide:** Álvaro
 
 ## Contexto
@@ -59,6 +59,17 @@ Fuente del primer punto: https://docs.github.com/en/actions/concepts/security/gi
 | Checks en el PR | **No se veían.** GitHub no asocia al PR las ejecuciones de `workflow_dispatch`. Arreglado: `pedir-revision` pone el estado `ci (Enjambre)` en «pendiente» en el commit del PR, y el job nuevo `estado-en-el-pr` de `ci.yml` lo cierra con el resultado. Los estados de commit sí salen en el PR |
 
 Los tres arreglos van en el plugin `v0.6.4`. Llegan a los proyectos por PR, porque tocan workflows.
+
+## Segunda historia: lobby#9 → lobby#22 (23-11-2026), sin ninguna intervención
+
+| Paso | Resultado |
+|---|---|
+| Implementador | Abrió [lobby#22](https://github.com/AlvaroM99/lobby/pull/22) (+286/−13) |
+| `pedir-revision` | Borró la ejecución pendiente de aprobación, lanzó la CI y lanzó la revisión con `--ref` (arreglo de v0.6.4). **Funcionó** |
+| CI | En verde. El estado `ci (Enjambre): success` **sale en el PR** (arreglo de v0.6.4) |
+| `preparar` | Aceptó el `workflow_dispatch` de `github-actions[bot]` |
+| Revisor | **No arrancó.** `claude-code-action` rechaza por defecto los runs iniciados por un bot: «Workflow initiated by non-human actor: github-actions (type: Bot). Add bot to allowed_bots list». Arreglado en `v0.6.5`: `allowed_bots: github-actions[bot]` solo en revisor y seguridad, nunca `'*'`, con una prueba que lo exige. Fuente: `action.yml` y `src/github/validation/actor.ts` de la Action en `acfe799` |
+| `listo` | No corrió, porque falló el revisor |
 
 ## Sin comprobar
 
