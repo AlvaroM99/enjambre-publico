@@ -312,10 +312,11 @@ test('ci: estado-en-el-pr no hereda el working-directory del workflow (no hace c
   assert.match(job, /defaults:\n\s+run:\n\s+working-directory: \$\{\{ github\.workspace \}\}/);
 });
 
-test('revisar: revisor y seguridad pueden leer checks y estados (gh pr view y gh pr checks; finance_tracker#27)', () => {
+test('revisar: revisor y seguridad pueden leer ejecuciones, checks y estados (gh pr view y gh pr checks; finance_tracker#27)', () => {
   const texto = readFileSync(join(RAIZ, 'plugins/enjambre/skills/ci-cd/workflows/enjambre-revisar.yml'), 'utf8');
   for (const job of ['revisor', 'seguridad']) {
     const bloque = jobsDe(texto)[job];
-    assert.match(bloque, /permissions:\n\s+checks: read\n\s+contents: read\n\s+issues: read\n\s+pull-requests: write\n\s+statuses: read\n/, job);
+    // statusCheckRollup.checkSuite.workflowRun pide actions: read; checks y statuses solos no bastan (segunda revisión de #27).
+    assert.match(bloque, /permissions:\n\s+actions: read\n\s+checks: read\n\s+contents: read\n\s+issues: read\n\s+pull-requests: write\n\s+statuses: read\n/, job);
   }
 });

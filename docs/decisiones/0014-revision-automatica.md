@@ -106,3 +106,5 @@ Lo pidió Álvaro: «la PR debe abrirse ya lista para review (no la abras en dra
    - No se activa `--permission-mode auto`. Con el bot en el circuito, la lista estrecha es lo más prudente.
 
 **Comprobación real y v0.7.2.** La revisión lanzada desde la rama del arreglo sobre finance_tracker#27 terminó en verde, con 11 turnos y un solo permiso denegado (un comando compuesto). El propio revisor encontró un hueco: sin `checks: read` y `statuses: read`, `gh pr view <n>` y `gh pr checks` fallan con «Resource not accessible by integration» (statusCheckRollup). La v0.7.2 añade esos dos permisos, solo de lectura, a `revisor` y `seguridad`, con prueba. La CI de esa rama también salió en verde, con `estado-en-el-pr` incluido.
+
+**v0.7.3.** La segunda revisión de finance_tracker#27, ya con la v0.7.2 cargada desde la rama, mostró que `checks` y `statuses` no bastan. Sigue fallando el campo `statusCheckRollup…checkSuite.workflowRun`, que pide `actions: read`. Se añade a `revisor` y `seguridad` (solo lectura).
