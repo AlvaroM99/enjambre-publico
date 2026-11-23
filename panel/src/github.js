@@ -111,6 +111,7 @@ export class GitHub {
       },
       body: cuerpo ? JSON.stringify(cuerpo) : undefined,
     });
+    this.anotarLimite(r);
     const texto = await r.text();
     let datos = null;
     try {
@@ -118,8 +119,16 @@ export class GitHub {
     } catch {
       datos = null;
     }
-    if (!r.ok) throw new ErrorGitHub(r.status, datos?.message ?? `GitHub respondió ${r.status}`);
+    if (!r.ok) throw new ErrorGitHub(r.status, traducir(r.status, datos?.message ?? `GitHub respondió ${r.status}`));
     return datos;
+  }
+
+  /** Límite de la API que queda (cabeceras x-ratelimit-*), para enseñarlo en la salud del panel. */
+  anotarLimite(r) {
+    const quedan = Number(r.headers?.get?.('x-ratelimit-remaining'));
+    if (Number.isFinite(quedan) && r.headers.get('x-ratelimit-remaining') !== null) {
+      this.limiteApi = { quedan, total: Number(r.headers.get('x-ratelimit-limit')) || null, reinicio: Number(r.headers.get('x-ratelimit-reset')) || null };
+    }
   }
 
   get(ruta) {
@@ -131,13 +140,55 @@ export class GitHub {
   put(ruta, cuerpo) {
     return this.pedir('PUT', ruta, cuerpo ?? {});
   }
+  patch(ruta, cuerpo) {
+    return this.pedir('PATCH', ruta, cuerpo ?? {});
+  }
   delete(ruta) {
     return this.pedir('DELETE', ruta);
   }
+
+  /** GraphQL (lo que la API REST no tiene, p. ej. marcar un PR listo para revisión). */
+  async graphql(consulta, variables) {
+    const d = await this.post('/graphql', { query: consulta, variables });
+    if (d?.errors?.length) throw new ErrorGitHub(422, traducir(403, d.errors.map((e) => e.message).join('; ')));
+    return d?.data;
+  }
+
+  /**
+   * Texto de un recurso que GitHub sirve con una redirección (registros de un job). La redirección va a un almacén
+   * firmado: se sigue a mano y sin el token, para no mandarlo a otro dominio.
+   */
+  async texto(ruta, maxBytes = 200_000) {
+    if (this.usadas + 2 > this.limite) throw new ErrorGitHub(0, 'Presupuesto de peticiones agotado');
+    this.usadas += 2;
+    const r = await this.f(this.api + ruta, {
+      headers: { authorization: `Bearer ${this.token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', 'user-agent': 'enjambre-panel' },
+      redirect: 'manual',
+    });
+    this.anotarLimite(r);
+    let final = r;
+    if (r.status >= 300 && r.status < 400 && r.headers.get('location')) {
+      final = await this.f(r.headers.get('location'), { headers: { 'user-agent': 'enjambre-panel' } });
+    }
+    if (!final.ok) throw new ErrorGitHub(final.status, traducir(final.status, `GitHub respondió ${final.status} al pedir ${ruta}`));
+    const t = await final.text();
+    return t.length > maxBytes ? t.slice(-maxBytes) : t;
+  }
+}
+
+/** Mensajes de GitHub que, sin contexto, no dicen qué hacer. */
+export function traducir(estado, mensaje) {
+  if (estado === 403 && /not accessible by integration/i.test(mensaje)) {
+    return 'La GitHub App no tiene permiso para esto. En la app, sube el permiso que haga falta (p. ej. «Actions: Read and write») y acepta los permisos nuevos en la instalación (docs/panel.md).';
+  }
+  if (estado === 405 && /merge/i.test(mensaje)) return `GitHub no deja fusionarlo: ${mensaje}`;
+  return mensaje;
 }
 
 /** Valida «dueño/repo». */
 export const repoValido = (r) =>
   typeof r === 'string' && /^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/.test(r) && !r.split('/').some((s) => /^\.+$/.test(s));
 export const numeroValido = (n) => Number.isInteger(n) && n > 0 && n < 1e9;
+// Ids de ejecuciones y jobs de GitHub Actions: pasan de 10^10 (p. ej. 45232925905 y 137896975655, finance_tracker 23-11-2026).
+export const idValido = (n) => Number.isSafeInteger(n) && n > 0;
 export const shaValido = (s) => typeof s === 'string' && /^[0-9a-f]{40}$/.test(s);

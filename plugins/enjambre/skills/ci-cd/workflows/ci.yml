@@ -69,6 +69,11 @@ jobs:
     if: always() && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Sin checkout: no puede heredar un working-directory del workflow (en finance_tracker es tracker/ y el paso ni
+    # arrancaba, finance_tracker#26). Se queda en el espacio de trabajo, que siempre existe.
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
     permissions:
       statuses: write
     steps:

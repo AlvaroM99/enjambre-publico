@@ -162,7 +162,7 @@ JavaScript ESM sin framework, igual que lobby. La prueba e2e local usa `wrangler
   - `/login`: avisa de que faltan los secretos;
   - `/webhook`: rechaza todo hasta tener `WEBHOOK_SECRET`.
 - **Puesta en marcha (23-11-2026, 16:54–17:05 UTC):**
-  - **Primer login:** falló con `incorrect_client_credentials`. Se había puesto como client secret la huella de la clave privada. El panel ahora dice la causa en vez de «Error interno».
+  - **Primer login:** falló con `incorrect_client_credentials`. Álvaro volvió a poner `GITHUB_CLIENT_SECRET` y entró. No se sabe qué valor tenía antes, porque los secretos de Cloudflare no se pueden leer. Ahora una prueba con un código falso da `bad_verification_code`: las credenciales son buenas. El panel ya dice la causa del fallo en vez de «Error interno».
   - **Con el client secret correcto:** Álvaro entró y puso una etiqueta en finance_tracker#16 desde el panel. Arrancó `enjambre-analizar`.
   - **Webhooks:** en el primer minuto llegaron 133, todos con 200. Incluían `check_run`: GitHub sí los entrega a una app que solo lee checks.
 - **Sin comprobar** [POR CONFIRMAR]: el límite real de subpeticiones del plan gratuito. La conciliación gasta como mucho 40 peticiones por tic y concilia un repo cada vez.
@@ -196,6 +196,86 @@ JavaScript ESM sin framework, igual que lobby. La prueba e2e local usa `wrangler
 - **Pruebas:**
   - unitarias: 38 del panel, 410 en total;
   - e2e: 30 de 30, con el plan publicado, el aviso, la lectura y la aprobación desde el panel.
+
+## Hive: rediseño y funciones nuevas (23-11-2026)
+
+**Petición de Álvaro.** Mejorar la app en diseño, funcionalidad y conexión con GitHub, y añadir lo que falte.
+
+**Diseño:**
+- **Estructura:** barra lateral con 6 vistas (En vivo, Bandeja, Issues, Pull requests, Actividad, Repos) y rutas por `#`.
+- **Cabecera:** búsqueda y filtro por repo, que se recuerda.
+- **Agentes:** cada uno tiene un hexágono con sus iniciales y su color.
+- **Tema y móvil:** tema claro u oscuro, y en el móvil la navegación pasa abajo.
+- **Código del navegador:** módulos ES en `panel/public/js/`, sin dependencias y con la misma CSP. Las vistas derivadas (`datos.js`) son funciones puras con pruebas.
+
+**Funciones nuevas** (`panel/src/acciones.js`, con validación de todo lo que llega):
+
+| Qué | API de GitHub |
+|---|---|
+| Crear issue, con la opción de pedir el plan; la etiqueta va aparte para que salte el evento | `POST /issues` y `POST /issues/{n}/labels` |
+| Comentar en issues y PR | `POST /issues/{n}/comments` |
+| Cerrar como completada o descartada, o reabrir | `PATCH /issues/{n}` (`state_reason`) |
+| Reseña: aprobar, pedir cambios o comentar, sobre el SHA visto | `POST /pulls/{n}/reviews` |
+| Actualizar la rama del PR con la base | `PUT /pulls/{n}/update-branch` (`expected_head_sha`) |
+| Marcar listo un borrador | GraphQL `markPullRequestReadyForReview` |
+| Borrar la rama tras fusionar: nunca la rama por defecto, `main`, `master`, `develop` ni `release/*`, ni ramas de otro repo | `DELETE /git/refs/heads/{rama}` |
+| Reintentar, reintentar los fallidos o cancelar una ejecución | `POST /actions/runs/{id}/rerun`, `/rerun-failed-jobs`, `/cancel` |
+| Lanzar al investigador | `POST /actions/workflows/enjambre-investigar.yml/dispatches` |
+| Registro de un job | `GET /actions/jobs/{id}/logs`. La redirección al almacén se sigue a mano y sin el token |
+| Bandeja, rendimiento por agente, avisos del navegador y límite de la API en la salud | Datos que el panel ya tenía, más la cabecera `x-ratelimit-remaining` |
+
+**Conexión:**
+- **Instalación:** los eventos `installation` e `installation_repositories` hacen releer qué repos tiene la app.
+- **Repos ajenos:** las acciones se rechazan en un repo donde la app no está instalada.
+- **Permisos:** un 403 «Resource not accessible by integration» se explica: qué permiso subir en la app.
+
+**Permiso nuevo.** Reintentar, cancelar e investigar necesitan **Actions: Read and write** en la app. Hasta que Álvaro lo cambie y lo acepte, esos botones dan ese aviso y lo demás funciona igual.
+
+**Pruebas:**
+- unitarias: `pruebas/hive.test.mjs` (10) y `pruebas/panel.test.mjs` (40); 421 en total;
+- e2e: 44 de 44, recorriendo las 6 vistas y los 3 cajones con el GitHub falso. Al principio se contaron 41 por error.
+
+## Prueba en los repos reales (23-11-2026, 19:00–19:40 UTC)
+
+Álvaro dio a la app **Actions: Read and write** y pidió probarlo todo de punta a punta en lobby, finance_tracker y enjambre. Lo acordado:
+- **Agentes:** uno barato.
+- **Escrituras de prueba:** en `enjambre`.
+- **Aprobar y fusionar:** quedan para él (ADR 0011).
+
+**Lo comprobado contra `gh`:**
+
+| Qué | Resultado |
+|---|---|
+| Login real, WebSocket, 3 repos instalados, límite de la API (4416 de 5000) | ✔ |
+| Issues, PR y ejecuciones abiertos de los 3 repos | ✔ idénticos. Las 9 ejecuciones del implementador en 24 h, con sus resultados, tras el arreglo 3 |
+| PR real finance_tracker#25: 4 ficheros con diff, reseña APPROVED y checks | ✔ |
+| Registro real de un job de CI (315 líneas), sin el token en la redirección | ✔ |
+| enjambre#2: crear (a nombre de AlvaroM99, vía la app), comentar dos veces, poner y quitar etiqueta, cerrar como «not planned» | ✔ cada paso visto en GitHub y de vuelta por webhook |
+| Validación: pedir el plan en un repo sin `enjambre:planificar` | ✔ rechazado con mensaje, sin crear nada |
+| **Agente real:** «Planificar» en finance_tracker#17 | ✔ El jefe arrancó (19:29:20), se vio su paso en vivo (2/10, luego 7/12) y terminó en bien (19:34:02). El plan llegó por webhook (19:33:45): «plan listo en #17», la Bandeja pide aprobarlo y el cajón lo marca con ★. No se aprobó: es la puerta 1 de Álvaro |
+
+**Fallos que el GitHub falso no veía, corregidos y desplegados:**
+1. **Ids de ejecuciones y jobs.** Pasan de 10⁹ (45232925905, 137896975655) y se rechazaban, así que fallaban registro, reintentar y cancelar. Ahora se aceptan con `idValido`.
+2. **Ejecuciones «skipped».** Cada etiqueta dispara los tres workflows de agentes y dos terminan «skipped», y se contaban como trabajo: el analista salía con 8 ejecuciones de 1 s. Ahora se excluyen y se podan.
+3. **Historial corto.** La conciliación leía 20 ejecuciones por repo y la CI las llenaba: salían 4 del implementador en lugar de 9. Ahora lee 100 y guarda hasta 150.
+4. **CI «pending» falso.**
+   - GitHub da «pending» como estado combinado de un commit sin estados, aunque sus checks estén en verde.
+   - Además se contaba el intento cancelado de un check relanzado.
+   - **Arreglo:** cuenta el último intento de cada check (`ultimosChecks`) y calcula el estado global (`estadoGlobalCi`).
+5. **Repintados.** Con avisos cada pocos segundos, el repintado borraba un comentario a medio escribir y cerraba el formulario de etiquetas. Ahora los borradores y el editor de etiquetas sobreviven, y el cajón se recarga al comentar.
+6. **Avisos desordenados.** GitHub no garantiza el orden: el «completed/skipped» llegó antes que su «requested», y dos ejecuciones podadas resucitaron como «en marcha».
+   - **Arreglo:** una ejecución terminada no retrocede, salvo un reintento.
+   - Las «skipped» podadas se recuerdan por id (lápidas), y la conciliación quita las que se colaran.
+7. **Registro de un job en marcha.** GitHub solo da el registro de un job terminado; mientras corre responde 404. Ahora se anuncia «registro al terminar» y el 404 se explica.
+8. **Fallos en la Bandeja.** Salían fallos de issues y PR ya cerrados. Ahora solo cuentan si su objetivo sigue abierto.
+
+**Pruebas tras los arreglos:** 427 unitarias y 46 comprobaciones e2e, todas en verde.
+
+**Sin probar en real:**
+- **Aprobar y fusionar:** son de Álvaro, y no había PR abiertos.
+- **Reintentar e investigar:** cuestan dinero.
+- **Cancelar:** no había ejecuciones largas que cancelar.
+- Las tres funcionan con el GitHub falso.
 
 ## Fase 2 (otro ADR, no incluida)
 

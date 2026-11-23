@@ -292,3 +292,22 @@ test('QA y gobernanza buscan su informe por su propio título, no por «Informe�
     assert.match(texto, /--title "\$TITULO \(/, nombre);
   }
 });
+
+test('revisar: revisor y seguridad tienen una lista estrecha de gh porque allowed_bots desactiva el modo auto (finance_tracker#26)', () => {
+  const texto = readFileSync(join(RAIZ, 'plugins/enjambre/skills/ci-cd/workflows/enjambre-revisar.yml'), 'utf8');
+  for (const agente of ['enjambre-revisor', 'enjambre-seguridad']) {
+    const linea = texto.split('\n').find((l) => l.includes(`claude_args: --agent enjambre:${agente}`));
+    assert.ok(linea, agente);
+    const lista = /--allowedTools "([^"]+)"/.exec(linea)?.[1] ?? '';
+    for (const necesario of ['Bash(gh pr view:*)', 'Bash(gh pr diff:*)', 'Bash(gh issue view:*)', 'Bash(gh pr comment:*)']) assert.ok(lista.includes(necesario), `${agente}: ${necesario}`);
+    // Nada que apruebe, fusione, edite o llame a la API a mano.
+    assert.doesNotMatch(lista, /merge|review|approve|edit|close|gh api|Bash\(\*\)|Bash\(gh:\*\)|Bash\(gh pr:\*\)/, agente);
+    assert.ok(Number(/--max-turns (\d+)/.exec(linea)[1]) >= 20, `${agente}: turnos suficientes`);
+  }
+});
+
+test('ci: estado-en-el-pr no hereda el working-directory del workflow (no hace checkout; finance_tracker#26)', () => {
+  const texto = readFileSync(join(RAIZ, 'plugins/enjambre/skills/ci-cd/workflows/ci.yml'), 'utf8');
+  const job = texto.slice(texto.indexOf('  estado-en-el-pr:'));
+  assert.match(job, /defaults:\n\s+run:\n\s+working-directory: \$\{\{ github\.workspace \}\}/);
+});

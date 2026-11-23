@@ -111,7 +111,11 @@ jobs:
           allowed_bots: github-actions[bot]
           plugin_marketplaces: ${{ runner.temp }}/enjambre-plugin
           plugins: enjambre@enjambre
-          claude_args: --agent enjambre:enjambre-revisor --max-turns 20
+          # Con allowed_bots, la Action no usa el modo auto: mantiene el modo por defecto y deniega lo que ninguna regla
+          # cubre (docs/usage.md de la Action en acfe799, «When auto mode doesn't apply»). Sin esta lista, en
+          # finance_tracker#26 le denegaron 6 veces `gh pr view/diff`, `gh issue view` y `gh pr comment` y agotó los turnos.
+          # Solo lectura del PR y de la issue, y publicar su veredicto: nunca aprobar ni fusionar.
+          claude_args: --agent enjambre:enjambre-revisor --max-turns 30 --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh pr comment:*)"
           # Informe del agente en el resumen del run (repos privados; solo dispara el propietario).
           display_report: true
           prompt: |
@@ -220,7 +224,11 @@ jobs:
           allowed_bots: github-actions[bot]
           plugin_marketplaces: ${{ runner.temp }}/enjambre-plugin
           plugins: enjambre@enjambre
-          claude_args: --agent enjambre:enjambre-seguridad --max-turns 15
+          # Con allowed_bots, la Action no usa el modo auto: mantiene el modo por defecto y deniega lo que ninguna regla
+          # cubre (docs/usage.md de la Action en acfe799, «When auto mode doesn't apply»). Sin esta lista, en
+          # finance_tracker#26 le denegaron 6 veces `gh pr view/diff`, `gh issue view` y `gh pr comment` y agotó los turnos.
+          # Solo lectura del PR y de la issue, y publicar su veredicto: nunca aprobar ni fusionar.
+          claude_args: --agent enjambre:enjambre-seguridad --max-turns 20 --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh pr comment:*)"
           display_report: true
           prompt: |
             Haz la revisión de seguridad del PR #${{ needs.preparar.outputs.pr }} de ${{ github.repository }}.

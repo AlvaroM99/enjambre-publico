@@ -40,19 +40,21 @@ En GitHub: **Settings → Developer settings → GitHub Apps → New GitHub App*
 | Webhook secret | uno nuevo: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Guárdalo para el paso 3 |
 | Where can this GitHub App be installed? | **Only on this account** |
 
-**Ojo con el client secret:** no es la clave privada (`.pem`) ni su huella SHA. Si pones la huella, el login falla con `incorrect_client_credentials`, que es lo que pasó la primera vez.
+**Ojo con el client secret:** es el de **Credentials → Client secrets**, no la clave privada (`.pem`) ni su huella SHA. Si el login falla con `incorrect_client_credentials`, vuelve a ponerlo con `npx wrangler secret put GITHUB_CLIENT_SECRET` desde `panel/`. Eso es lo que lo arregló la primera vez.
 
 **Permisos del repositorio** (el resto, «No access»):
 
 | Permiso | Acceso | Para qué |
 |---|---|---|
-| Actions | Read-only | ejecuciones, jobs y pasos de los agentes |
+| Actions | **Read and write** | ejecuciones, jobs, pasos y registros de los agentes; reintentar o cancelar una ejecución y lanzar al investigador. Con «Read-only» se ve todo, pero esos tres botones dan un aviso de permiso |
 | Checks | Read-only | checks del PR |
 | Commit statuses | Read-only | estado `ci (Enjambre)` |
-| Contents | Read and write | fusionar |
-| Issues | Read and write | etiquetas |
+| Contents | Read and write | fusionar, actualizar la rama del PR y borrarla tras fusionar |
+| Issues | Read and write | crear, comentar, cerrar y reabrir issues, y etiquetas |
 | Metadata | Read-only | obligatorio |
-| Pull requests | Read and write | leer y aprobar |
+| Pull requests | Read and write | leer, aprobar, pedir cambios, comentar y marcar listo |
+
+**Si cambias un permiso** después de instalar la app, GitHub pide aceptarlo. Ve a **Settings → Applications → Installed GitHub Apps → la app → Review request**. Hasta entonces sigue valiendo el permiso de antes.
 
 **Eventos a los que suscribirse:**
 - Check run
@@ -109,7 +111,7 @@ Pulsa el título de una issue en el tablero. Se abre su cajón con:
 |---|---|---|
 | 1 | **Planificar** | El jefe de proyecto escribe el plan como comentario. La tarjeta avisa «Plan listo: revísalo y apruébalo» y el cajón lo marca con ★ |
 | 2 (puerta 1) | **Aprobar plan e implementar** → **Confirmar** | Pone `enjambre:implementar` y arranca el implementador. Solo se activa si hay plan y ningún implementador trabajando |
-| 3 | (solo) | El implementador abre el PR en borrador. La CI y la revisión arrancan solas ([ADR 0014](decisiones/0014-revision-automatica.md)) y el PR aparece en el cajón |
+| 3 | (solo) | El implementador abre el PR **listo para revisión** (v0.7.0). La CI y la revisión arrancan solas ([ADR 0014](decisiones/0014-revision-automatica.md)) y el PR aparece en el cajón |
 | 4 (puerta 2) | **Revisar PR** → **Aprobar** → **Fusionar…** | Lees el diff, los checks y los veredictos, y fusionas atado al commit que ves. **Pedir otra revisión** vuelve a lanzar revisor y seguridad |
 
 También está **Analizar**, para pedir un informe al analista.
@@ -125,6 +127,43 @@ Los botones lo resuelven así:
 - **Etiquetas:** quitan y vuelven a poner la etiqueta, y antes quitan las que sobran. Nunca tocan `enjambre:en-curso`, que la gestiona el workflow.
 - **Plan:** antes de implementar comprueban que hay un plan.
 - **«+ etiqueta»:** ya no ofrece `enjambre:en-curso` ni, en una issue, `enjambre:revisar`, que solo sirve en un PR.
+
+## Qué hay en Hive
+
+| Vista | Para qué | Atajo |
+|---|---|---|
+| **En vivo** | Cifras del momento: agentes trabajando, PR que esperan tu revisión, planes por aprobar, fallos, issues y PR abiertos. Debajo, una tarjeta por agente con su paso actual y su barra de pasos, lo que espera de ti, lo terminado en 2 h y la cronología | `1` |
+| **Bandeja** | Todo lo que espera una decisión tuya, en orden: fusionar, revisar, aprobar planes, revisiones con cambios y fallos. Cada fila abre el sitio donde se resuelve | `2` |
+| **Issues** | Tablero por etapa: propuestas, análisis, plan, implementando, PR abierto y otras. Etiquetas en la tarjeta y **Nueva issue** | `3` |
+| **Pull requests** | PR abiertos (y, si quieres, los fusionados en 24 h) con CI, veredictos y si ya lo aprobaste | `4` |
+| **Actividad** | Rendimiento por agente en 24 h (ejecuciones, fallos y duración mediana), la tabla de ejecuciones y la cronología completa | `5` |
+| **Repos** | Repos de la app con sus cifras, el enlace para añadir repos y **Pedir una investigación** al investigador | `6` |
+
+**Cajones:**
+- **Issue:**
+  - el flujo de 4 pasos con sus botones;
+  - plan y comentarios con formato (títulos, listas, tablas, código);
+  - comentar;
+  - cerrar como completada o descartada, o reabrir;
+  - etiquetas;
+  - PR y ejecuciones de la issue.
+- **PR:**
+  - pestañas **Resumen**, **Ficheros** (diff), **Conversación** y **Checks**;
+  - **Aprobar**, **Pedir cambios** o **Solo comentar**, sobre el commit que ves;
+  - **Fusionar…** con confirmación y la opción, marcada por defecto, de borrar la rama;
+  - **Marcar listo** si es borrador, **Actualizar rama** si va por detrás de la base, y **Pedir otra revisión**.
+- **Ejecución:**
+  - jobs y pasos en vivo;
+  - **Ver registro**: las últimas 400 líneas del job, sin colores ni horas;
+  - **Cancelar**, **Reintentar fallidos** o **Reintentar todo**.
+
+**Además:**
+- búsqueda (`/`) en issues, PR y cronología;
+- **Nueva issue** (`n`), con la opción de pedir el plan al crearla;
+- filtro por repo, que se recuerda;
+- tema claro u oscuro;
+- **avisos del navegador** (campana) para plan listo, PR para ti y fallos;
+- en el móvil, la navegación pasa abajo.
 
 ## Cómo es de fiable
 

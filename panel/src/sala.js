@@ -2,7 +2,7 @@
 // atiende el login y las acciones, y empuja cada cambio a los navegadores conectados por WebSocket (con hibernación).
 
 import {
-  aplicarJobs, aplicarLectura, aplicarWebhook, enCurso, estadoVacio, notasDeComentarios, podar,
+  aplicarJobs, aplicarLectura, aplicarWebhook, enCurso, estadoGlobalCi, estadoVacio, notasDeComentarios, podar, ultimosChecks,
 } from './estado.js';
 import {
   bases, canjearCodigo, ErrorGitHub, firmaValida, GitHub, numeroValido, renovarToken, repoValido, shaValido, urlAutorizar,
@@ -10,6 +10,21 @@ import {
 import {
   cifrar, cookie, descifrar, esPropietario, huella, idAleatorio, importarClave, leerCookies, mismoOrigen,
 } from './sesion.js';
+import * as acciones from './acciones.js';
+
+// Rutas de acciones de acciones.js: [método, ruta] → función.
+const RUTAS_ACCIONES = {
+  'POST /api/issue/crear': acciones.crearIssue,
+  'POST /api/comentar': acciones.comentar,
+  'POST /api/issue/estado': acciones.estadoIssue,
+  'POST /api/pr/resena': acciones.resena,
+  'POST /api/pr/actualizar': acciones.actualizarRama,
+  'POST /api/pr/listo': acciones.marcarListo,
+  'POST /api/pr/borrar-rama': acciones.borrarRama,
+  'POST /api/ejecucion': acciones.ejecucion,
+  'POST /api/investigar': acciones.investigar,
+  'GET /api/registro': acciones.registro,
+};
 
 const SESION = 'panel_sesion';
 const ESTADO_LOGIN = 'panel_login';
@@ -178,6 +193,11 @@ export class Sala {
     }
     await this.cargar();
     const cambio = aplicarWebhook(this.estado, tipo, p, new Date(this.ahora()).toISOString());
+    if (tipo === 'installation' || tipo === 'installation_repositories') {
+      this.estado.reposInstalados = [];
+      this.estado.conciliarYa = true;
+      await this.programar(1000);
+    }
     await this.guardar();
     this.difundir();
     if (cambio && (tipo === 'workflow_job' || tipo === 'workflow_run')) await this.programar(2000);
@@ -288,9 +308,23 @@ export class Sala {
       return json({ ok: true });
     }
 
+    if (ruta === '/api/repos' && !escritura) {
+      await this.cargar();
+      return json({ repos: this.estado.reposInstalados ?? Object.keys(this.estado.repos), app: this.estado.appSlug ?? null, limiteApi: this.estado.limiteApi ?? null });
+    }
+
     const repo = datos.repo;
     if (!repoValido(repo)) return json({ error: 'Repo no válido' }, 400);
+    await this.cargar();
+    // Solo repos donde está instalada la app (el token tampoco llegaría a otros, pero así el error es claro).
+    if (this.estado.reposInstalados?.length && !this.estado.reposInstalados.includes(repo)) return json({ error: `La app no está instalada en ${repo}` }, 403);
     const gh = await this.github(s, 20);
+    const accionLibre = RUTAS_ACCIONES[`${request.method} ${ruta}`];
+    if (accionLibre) {
+      const [estado, cuerpo] = await accionLibre(gh, repo, datos);
+      if (gh.limiteApi) this.estado.limiteApi = gh.limiteApi;
+      return json(cuerpo, estado);
+    }
 
     if (ruta === '/api/etiquetas' && !escritura) {
       const ls = await gh.get(`/repos/${repo}/labels?per_page=100`);
@@ -435,8 +469,8 @@ export class Sala {
       comentarios: comentarios.map((c) => ({ autor: c.user?.login, fecha: c.created_at, cuerpo: c.body ?? '', url: c.html_url })),
       resenas: resenas.map((r) => ({ autor: r.user?.login, estado: r.state, fecha: r.submitted_at, sha: r.commit_id, cuerpo: r.body ?? '' })),
       estados: estados.statuses.map((x) => ({ contexto: x.context, estado: x.state, url: x.target_url })),
-      combinado: estados.state,
-      checks: checks.check_runs.map((c) => ({ nombre: c.name, estado: c.status, conclusion: c.conclusion, url: c.html_url })),
+      combinado: estadoGlobalCi(estados.statuses, checks.check_runs),
+      checks: ultimosChecks(checks.check_runs).map((c) => ({ nombre: c.name, estado: c.status, conclusion: c.conclusion, url: c.html_url })),
     };
   }
 
@@ -460,17 +494,23 @@ export class Sala {
     let cambio = false;
     try {
       const gh = await this.github(s, 40);
+      this.ultimoLimite = null;
       cambio = (await this.actualizarPasos(gh)) || cambio;
       const ultima = Date.parse(this.estado.ultimaConciliacion ?? 0);
       if (this.estado.conciliarYa || this.estado.cursor || this.ahora() - ultima > CONCILIAR_MS) {
         cambio = (await this.conciliarSiguiente(gh)) || cambio;
       }
+      this.ultimoLimite = gh.limiteApi ?? null;
       if (this.estado.error) {
         this.estado.error = null;
         cambio = true;
       }
     } catch (e) {
       this.estado.error = e instanceof ErrorGitHub ? e.message : 'Error al leer GitHub';
+      cambio = true;
+    }
+    if (this.ultimoLimite) {
+      this.estado.limiteApi = this.ultimoLimite;
       cambio = true;
     }
     if (cambio) {
@@ -501,6 +541,7 @@ export class Sala {
         for (const x of r.repositories ?? []) repos.push(x.full_name);
       }
       this.estado.reposInstalados = repos.sort();
+      this.estado.appSlug = inst.installations?.[0]?.app_slug ?? this.estado.appSlug ?? null;
       cursor = 0;
     }
     const nombre = this.estado.reposInstalados[cursor];
@@ -513,7 +554,7 @@ export class Sala {
     const [issues, prs, recientes, corriendo] = await Promise.all([
       gh.get(`/repos/${nombre}/issues?state=open&per_page=100`),
       gh.get(`/repos/${nombre}/pulls?state=open&per_page=50`),
-      gh.get(`/repos/${nombre}/actions/runs?per_page=20`),
+      gh.get(`/repos/${nombre}/actions/runs?per_page=100`),
       gh.get(`/repos/${nombre}/actions/runs?status=in_progress&per_page=30`),
     ]);
     const detalles = {};

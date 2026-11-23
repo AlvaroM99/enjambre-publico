@@ -1213,11 +1213,11 @@ flowchart TB
         <div class="meter-label"><span>Backlog S1–S77 (77 historias)</span><span>44 hechas · 3 a medias (S77: falta revisor y <code>listo</code> de punta a punta con v0.6.5) · 30 pendientes: 18 de F4 y F5, el resto aplazadas (Jira, GitHub App, preview) o por probar en real</span></div>
         <div class="grid2">
           <ul class="status-list">
-            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks, 404 pruebas<small>Plugin <code>v0.6.5</code> · 17 versiones publicadas</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>10 agentes, 13 skills, 4 hooks, 404 pruebas<small>Plugin <code>v0.7.0</code> · 17 versiones publicadas</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Seis historias de punta a punta<small>lobby#2 → #5, #8 → #16, #10 → #20, #9 → #22 · finance_tracker#11 → #18, #15 → #19 (en paralelo). Lead time mediano 1 h 54 min; 6 de 6 con ≤ 1 ciclo; coste conocido 9,12 USD</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Revisión automática; tú solo confirmas y fusionas<small>ADR 0014 · v0.6.3 y sus correcciones v0.6.4 y v0.6.5. CI y revisión sin aviso de aprobación ni etiqueta; con APROBAR, el PR llega listo y con tu revisión pedida</small></div></li>
             <li><span class="badge b-done">hecho</span><div>E2E de lobby estable<small>Causa encontrada con una traza en el test: el foco diferido del cajón metía las etiquetas en el título (lobby#19)</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Panel en vivo en Cloudflare<small>S78 · ADR 0015. Worker + Durable Object: agentes en paralelo por repo con su paso actual, tablero por etiquetas, PR con CI y veredictos, cronología; etiquetar, aprobar y fusionar atado al SHA. 32 pruebas y e2e 25/25 con datos sintéticos. En marcha desde el 23-11: con tu GitHub App en los 3 repos. El primer uso real fue etiquetar finance_tracker#16 desde el panel; los webhooks llegan todos con 200</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Hive: el panel en vivo en Cloudflare<small>S78 · ADR 0015. Seis vistas (En vivo, Bandeja, Issues, PR, Actividad, Repos). Puedes planificar, aprobar el plan, revisar el PR entero (diff, aprobar, pedir cambios, fusionar y borrar la rama), crear y comentar issues, ver el registro de cada job, reintentar o cancelar ejecuciones y lanzar al investigador sin ir a GitHub. 421 pruebas y e2e 41/41</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Métricas sin hacerlo a mano<small>F4 · S60: <code>extraer.mjs</code> y <code>metricas.mjs</code>, con 8 pruebas</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Runbooks R1–R4<small>S73 · <code>docs/runbooks.md</code>: token, agente fuera de su papel, rollback y subir de versión</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Solo Álvaro aprueba PR; Actions puede abrirlos<small>Hook <code>gh-pr-aprobar</code> y job <code>aprobaciones</code> (ADR 0011)</small></div></li>
@@ -1248,6 +1248,8 @@ flowchart TB
           <tr><td class="num">12:19–12:22</td><td>lobby#9 → #22 (ADR de lobby), tras tu puerta 1</td><td>PR, CI y dispatch como bot sin intervención; el revisor no arrancó (<code>allowed_bots</code>)</td></tr>
           <tr><td class="num">12:31</td><td>v0.6.5: <code>allowed_bots: github-actions[bot]</code> en revisor y seguridad</td><td>lobby#23 y finance_tracker#22, fusionados. Fusionaste #22 antes, sin veredicto del revisor: 34 min, ≈ 1,18 USD</td></tr>
           <tr><td class="num">12:45</td><td>Cierre de lobby#9 con <code>extraer.mjs</code></td><td>Etiquetas y ramas limpias; 6 historias, mediana 1 h 54 min</td></tr>
+          <tr><td class="num">tarde</td><td>finance_tracker#16 desde el panel</td><td>PR #23 fusionado (carril 16-A). El workflow no reconoció la rama <code>16a</code>: arreglado en v0.7.0, que además abre los PR listos para revisión (lobby#24 y finance_tracker#24, para que los fusiones)</td></tr>
+          <tr><td class="num">tarde</td><td>Hive: rediseño y funciones nuevas</td><td>Desplegado. Para reintentar, cancelar e investigar, sube «Actions» a «Read and write» en la GitHub App</td></tr>
           <tr><td class="num">tarde</td><td>Panel en vivo (ADR 0015, S78), aprobado por ti</td><td>Código en <code>panel/</code>, 32 pruebas, e2e 25/25 con GitHub falso; en marcha con tu GitHub App; primer uso: finance_tracker#16</td></tr>
         </tbody>
       </table></div>

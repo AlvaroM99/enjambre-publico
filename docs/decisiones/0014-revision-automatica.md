@@ -91,3 +91,16 @@ Lo pidió Álvaro: «la PR debe abrirse ya lista para review (no la abras en dra
 - **Ramas con sufijo de carril.** En finance_tracker#16 el implementador abrió la rama `enjambre/16a-iguales-longitud`, como proponía el plan. El job `implementar` buscaba `enjambre/16-…`, no la encontró y liberó el hueco WIP. `pedir-revision` no corrió, así que no se lanzaron ni la CI ni la revisión.
   - **Arreglo:** el patrón ahora es `^enjambre/(issue-)?<n>[a-z]?-`, en los workflows, el panel y `extraer.mjs`, con pruebas.
 - **Plan dividido en carriles.** El prompt ahora pide hacer el plan entero en un solo PR, salvo que el plan diga expresamente lo contrario. En #16 el implementador solo hizo el carril A.
+
+## Corrección del 23-11-2026 (v0.7.1): finance_tracker#26
+
+**Qué pasó.** El implementador abrió finance_tracker#26 (plan de #17) y la CI y la revisión arrancaron solas, pero las dos salieron en rojo. Álvaro pudo aprobar y fusionar igualmente. Había dos causas, y ninguna estaba en el código del PR: `rust` pasó en la rama y otra vez en `main` tras fusionar.
+
+1. **CI en rojo por el job que publica el estado.** `estado-en-el-pr` no hace checkout. En finance_tracker, el `ci.yml` tiene `defaults.run.working-directory: tracker`, así que el paso ni arrancaba: «An error occurred trying to start process '/usr/bin/bash' with working directory '…/tracker'. No such file or directory».
+   - **Arreglo:** el job fija `working-directory: ${{ github.workspace }}`, en la plantilla y en los dos proyectos.
+2. **Revisor sin turnos, por una causa que introdujo la v0.6.5.** La documentación de la Action (`docs/usage.md` en `acfe799`, apartado «When auto mode doesn't apply») dice que con `allowed_bots` la sesión no usa el modo auto: mantiene el modo por defecto y deniega lo que ninguna regla cubre.
+   - Las transcripciones lo confirman: las revisiones anteriores a la v0.6.5 corrían en `auto`, y la de #26 en `default`.
+   - En #26 le denegaron 6 veces `gh pr view`, `gh pr diff`, `gh issue view` y `gh pr comment`, y llegó a 21 turnos con un límite de 20. Su veredicto (APROBAR) lo publicó el paso de respaldo, pero el job quedó en rojo y `listo` no corrió.
+   - **Arreglo:** una lista estrecha con `--allowedTools`: leer el PR y la issue, ver los checks y comentar. No incluye aprobar, fusionar ni `gh api`, y hay una prueba que lo exige.
+   - Turnos: revisor de 20 a 30 y seguridad de 15 a 20.
+   - No se activa `--permission-mode auto`. Con el bot en el circuito, la lista estrecha es lo más prudente.

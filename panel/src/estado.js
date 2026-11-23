@@ -3,7 +3,7 @@
 
 export const BOT = 'github-actions[bot]';
 export const MAX_EVENTOS = 500;
-const MAX_EJECUCIONES = 60;
+const MAX_EJECUCIONES = 150;
 const DIA = 24 * 3600 * 1000;
 
 export function estadoVacio() {
@@ -197,6 +197,29 @@ function vincularRevision(repo, pr, fecha) {
   }
 }
 
+// ------------------------------------------------------------------ orden de los avisos
+
+const MAX_LAPIDAS = 400;
+
+/**
+ * GitHub no garantiza el orden de los webhooks (en finance_tracker#17, 23-11-2026, el «completed/skipped» de
+ * enjambre-analizar llegó antes que su «requested»). Una ejecución terminada no vuelve atrás, y las «skipped» que ya
+ * se podaron se recuerdan por id para que un aviso tardío no las resucite como si estuvieran en marcha.
+ */
+function omitidaYa(estado, id) {
+  return (estado.omitidas ?? []).includes(id);
+}
+function recordarOmitida(estado, id) {
+  estado.omitidas ??= [];
+  if (!estado.omitidas.includes(id)) estado.omitidas.push(id);
+  if (estado.omitidas.length > MAX_LAPIDAS) estado.omitidas.splice(0, estado.omitidas.length - MAX_LAPIDAS);
+}
+function retrocede(previo, r) {
+  if (!previo) return false;
+  if (previo.estado === 'completed' && r.status !== 'completed' && (previo.intento ?? 1) >= (r.run_attempt ?? 1)) return true;
+  return Boolean(previo.actualizado && r.updated_at && r.updated_at < previo.actualizado && (previo.intento ?? 1) >= (r.run_attempt ?? 1));
+}
+
 // ------------------------------------------------------------------ webhooks
 
 export function anadirEvento(estado, evento) {
@@ -300,6 +323,8 @@ export function aplicarWebhook(estado, tipo, p, ahora = new Date().toISOString()
     }
     case 'workflow_run': {
       const r = p.workflow_run;
+      if (omitidaYa(estado, r.id) || retrocede(repo.ejecuciones[r.id], r)) return false;
+      if (r.status === 'completed' && r.conclusion === 'skipped') recordarOmitida(estado, r.id);
       const e = (repo.ejecuciones[r.id] = ejecucionDesdeApi(r, repo.ejecuciones[r.id]));
       e.vinculo = vinculoDe(repo, e);
       numero = e.vinculo?.pr ?? e.vinculo?.issue ?? null;
@@ -312,6 +337,7 @@ export function aplicarWebhook(estado, tipo, p, ahora = new Date().toISOString()
     }
     case 'workflow_job': {
       const j = p.workflow_job;
+      if (omitidaYa(estado, j.run_id)) return false;
       const e = (repo.ejecuciones[j.run_id] ??= {
         id: j.run_id, workflow: j.workflow_name, agente: agenteDeWorkflow(j.workflow_name), titulo: null, evento: null,
         estado: 'in_progress', conclusion: null, rama: j.head_branch, actor: null, url: j.run_url?.replace('api.github.com/repos', 'github.com') ?? null,
@@ -351,6 +377,34 @@ export function aplicarWebhook(estado, tipo, p, ahora = new Date().toISOString()
   }
   if (texto) anadirEvento(estado, { t, repo: nombre, tipo, actor, texto, numero, url });
   return true;
+}
+
+/**
+ * Último intento de cada check por nombre: si la CI se relanza, el intento cancelado ya no cuenta
+ * (finance_tracker#25: «rust» cancelado y luego en verde).
+ */
+export function ultimosChecks(checks) {
+  const m = new Map();
+  for (const c of checks ?? []) {
+    const previo = m.get(c.name);
+    if (!previo || (c.started_at ?? '') >= (previo.started_at ?? '')) m.set(c.name, c);
+  }
+  return [...m.values()];
+}
+
+/**
+ * Estado global de la CI de un commit a partir de los estados de commit y del último intento de cada check.
+ * GitHub da «pending» como estado combinado cuando el commit no tiene estados, aunque los checks estén en verde.
+ */
+export function estadoGlobalCi(estados, checks) {
+  const valores = [
+    ...(estados ?? []).map((s) => s.state),
+    ...ultimosChecks(checks).filter((c) => c.conclusion !== 'skipped' && c.conclusion !== 'neutral').map((c) => c.conclusion ?? 'pending'),
+  ];
+  if (!valores.length) return null;
+  if (valores.some((v) => ['failure', 'error', 'timed_out', 'cancelled', 'action_required'].includes(v))) return 'failure';
+  if (valores.some((v) => v === 'pending' || v === 'queued' || v === 'in_progress')) return 'pending';
+  return 'success';
 }
 
 // ------------------------------------------------------------------ conciliación con la API
@@ -396,7 +450,7 @@ export function aplicarLectura(estado, nombre, lectura, ahora = new Date().toISO
     const d = lectura.detalles?.[p.number];
     if (d) {
       nuevo.ci = Object.fromEntries((d.estados ?? []).map((s) => [s.context, { estado: s.state, url: s.target_url ?? null, descripcion: s.description ?? null }]));
-      nuevo.checks = Object.fromEntries((d.checks ?? []).map((c) => [c.name, c.conclusion ?? c.status]));
+      nuevo.checks = Object.fromEntries(ultimosChecks(d.checks).map((c) => [c.name, c.conclusion ?? c.status]));
       const veredictos = { ...nuevo.veredictos };
       for (const c of d.comentarios ?? []) {
         const v = c.user?.login === BOT ? veredictoDe(c.body) : null;
@@ -415,6 +469,13 @@ export function aplicarLectura(estado, nombre, lectura, ahora = new Date().toISO
 
   const listadas = new Set();
   for (const r of lectura.ejecuciones ?? []) {
+    if (r.status === 'completed' && r.conclusion === 'skipped') {
+      recordarOmitida(estado, r.id);
+      // Si un aviso desordenado la dejó «en marcha», la lectura de la API la quita.
+      delete repo.ejecuciones[r.id];
+      continue;
+    }
+    if (omitidaYa(estado, r.id)) continue;
     const previo = repo.ejecuciones[r.id];
     if (previo && previo.estado !== r.status) correcciones++;
     const e = (repo.ejecuciones[r.id] = ejecucionDesdeApi(r, previo));
@@ -453,6 +514,13 @@ export function podar(estado, ahora = Date.now()) {
   for (const repo of Object.values(estado.repos)) {
     for (const [n, i] of Object.entries(repo.issues)) if (i.estado !== 'open' && ahora - Date.parse(i.actualizado ?? 0) > DIA) delete repo.issues[n];
     for (const [n, p] of Object.entries(repo.prs)) if (p.estado !== 'open' && ahora - Date.parse(p.actualizado ?? 0) > DIA) delete repo.prs[n];
+    // Las «skipped» (workflows que no tocaban con esa etiqueta) no se guardan: no son trabajo de un agente.
+    for (const [id, e] of Object.entries(repo.ejecuciones)) {
+      if (e.estado === 'completed' && e.conclusion === 'skipped') {
+        recordarOmitida(estado, e.id);
+        delete repo.ejecuciones[id];
+      }
+    }
     const terminadas = Object.values(repo.ejecuciones)
       .filter((e) => e.estado === 'completed')
       .sort((a, b) => (b.actualizado ?? '').localeCompare(a.actualizado ?? ''));
