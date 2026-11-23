@@ -37,6 +37,17 @@ lobby no tiene CI todavía; se añade en la historia S14.
 - Claude Code con el sandbox activo dentro del contenedor, de punta a punta. Hace falta iniciar sesión en Claude dentro del contenedor, y lo hace Álvaro.
 - Los hooks cargados de verdad por Claude Code al instalar el plugin en un proyecto. Las pruebas ejecutan los scripts con la misma entrada JSON que documenta Claude Code, pero no a través de Claude Code.
 
+## Primera historia en finance_tracker: #11 (23-11-2026)
+
+| Paso | Turnos | Coste | Bloqueos | Resultado |
+|---|---|---|---|---|
+| Analista | 6 | 0,10 USD | **0** | Informe publicado por el agente, con aviso de privacidad (no copiar la URL de despliegue de `tracker/README.md`) |
+| Jefe de proyecto | 6 | 0,31 USD | **0** | Plan con 8 criterios verificables y decisiones por defecto P1–P5 |
+| Investigador QA (alcance: crates de Rust) | 24 | 0,41 USD | 3 | Informe #17 y 2 propuestas: `ticker_a_yahoo` duplicada y divergente (#15) y falta de cobertura en CI (#16) |
+| Puerta 1 | — | — | — | Pendiente de Álvaro |
+
+Los bloqueos del investigador fueron `xargs` (correcto), `git -C` y un subshell `( cargo test … )`, estos dos falsos positivos menores de la siguiente tanda.
+
 ## Segunda historia: lobby#8 → lobby#16 (23-11-2026)
 
 | Paso | Resultado |

@@ -444,7 +444,7 @@ footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--lin
       </table></div>
       <div class="grid2" style="margin-top:14px">
         <div class="panel"><h3>¿Están completas todas las fases?</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><b>No.</b> Para dar F3 por cerrada con datos, faltan más historias y que el panel de F4 mida lead time y retrabajo de forma continua. F4 no ha empezado. F5 no se termina: es el ciclo de mantenimiento del arnés.</p></div>
-        <div class="panel"><h3>¿Está probado el sistema entero?</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><b>Casi.</b> En el repo de Enjambre, los 10 agentes pasan sus 20 evaluaciones. En lobby han trabajado de verdad 7 de los 10 agentes; en finance_tracker, 3. Faltan plataforma, verificador y coordinador en real, el workflow de producción y una historia completa en finance_tracker. Detalle en la <a href="#pruebas">matriz de pruebas</a>.</p></div>
+        <div class="panel"><h3>¿Está probado el sistema entero?</h3><p style="margin-top:6px;color:var(--muted);font-size:.9rem"><b>Casi.</b> En el repo de Enjambre, los 10 agentes pasan sus 20 evaluaciones. En lobby han trabajado de verdad 7 de los 10 agentes; en finance_tracker, 6 (desde el 23-11, con la primera historia en curso, <a href="https://github.com/AlvaroM99/finance_tracker/issues/11">#11</a>). Faltan plataforma, verificador y coordinador en real, el workflow de producción y que el implementador cierre #11 en finance_tracker. Detalle en la <a href="#pruebas">matriz de pruebas</a>.</p></div>
       </div>
     </section>
 
@@ -814,14 +814,14 @@ flowchart TB
         <thead><tr><th>Agente</th><th>Enjambre · evaluaciones</th><th>lobby · Actions</th><th>finance_tracker · Actions</th><th>Sesión local con el plugin</th></tr></thead>
         <tbody>
           <tr><td>Coordinador</td><td class="c-ok">2/2 ×6</td><td class="c-na">no aplica (sesión local)</td><td class="c-na">no aplica</td><td class="c-no">sin probar</td></tr>
-          <tr><td>Analista</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · lobby#8</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
-          <tr><td>Jefe de proyecto</td><td class="c-pa">2/2 ×4 · 1/2 ×2</td><td class="c-ok">2 · #2, #8</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Analista</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · lobby#8</td><td class="c-ok">1 · #11 (0 bloqueos)</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Jefe de proyecto</td><td class="c-pa">2/2 ×4 · 1/2 ×2</td><td class="c-ok">2 · #2, #8</td><td class="c-ok">1 · #11 (0 bloqueos)</td><td class="c-no">sin probar</td></tr>
           <tr><td>Implementador</td><td class="c-ok">2/2 ×6</td><td class="c-ok">4 · PR #5 y #16</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
           <tr><td>Plataforma</td><td class="c-ok">1/1 ×6</td><td class="c-no">0</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
           <tr><td>Revisor</td><td class="c-ok">4/4 ×6</td><td class="c-ok">10</td><td class="c-ok">3</td><td class="c-no">sin probar</td></tr>
           <tr><td>Seguridad</td><td class="c-ok">2/2 ×6</td><td class="c-ok">9</td><td class="c-ok">3</td><td class="c-no">sin probar</td></tr>
           <tr><td>Verificador</td><td class="c-ok">1/1 ×6</td><td class="c-no">0 (sin workflow, S69)</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
-          <tr><td>Investigador QA</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · #12</td><td class="c-no">0</td><td class="c-no">sin probar</td></tr>
+          <tr><td>Investigador QA</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · #12</td><td class="c-ok">1 · #15–#17</td><td class="c-no">sin probar</td></tr>
           <tr><td>Gobernanza</td><td class="c-ok">2/2 ×6</td><td class="c-ok">2 · #9, #10, #14</td><td class="c-ok">1 · #8–#13</td><td class="c-no">sin probar</td></tr>
         </tbody>
       </table></div>
@@ -833,11 +833,11 @@ flowchart TB
         <tbody>
           <tr><td><code>ci</code></td><td class="c-ok">33 verdes</td><td class="c-ok">26 verdes</td><td class="c-ok">33 verdes · e2e 60/60</td><td class="c-ok">22 verdes · Rust + wasm</td></tr>
           <tr><td><code>evals</code></td><td class="c-ok">11</td><td class="c-na">—</td><td class="c-na">—</td><td class="c-na">—</td></tr>
-          <tr><td><code>enjambre-analizar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-no">0</td></tr>
-          <tr><td><code>enjambre-planificar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-no">0</td></tr>
+          <tr><td><code>enjambre-analizar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-ok">1</td></tr>
+          <tr><td><code>enjambre-planificar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-ok">1</td></tr>
           <tr><td><code>enjambre-implementar</code> (WIP, liberar, aprobaciones)</td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">4 (2 fallos de diseño, corregidos)</td><td class="c-no">0</td></tr>
           <tr><td><code>enjambre-revisar</code> (sensible, respaldo, aprobaciones)</td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">10</td><td class="c-ok">3</td></tr>
-          <tr><td><code>enjambre-investigar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-no">0</td></tr>
+          <tr><td><code>enjambre-investigar</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-ok">1</td></tr>
           <tr><td><code>enjambre-gobernanza</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-ok">2</td><td class="c-ok">1</td></tr>
           <tr><td><code>produccion</code></td><td class="c-na">—</td><td class="c-na">—</td><td class="c-no">0 (faltan secretos de Cloudflare)</td><td class="c-na">sin workflow</td></tr>
           <tr><td>Dependabot</td><td class="c-pa">1 fallo histórico</td><td class="c-pa">1 fallo histórico</td><td class="c-na">—</td><td class="c-na">—</td></tr>
@@ -863,7 +863,7 @@ flowchart TB
         <li><span class="badge b-todo">F3</span><div>Coordinador con dos carriles en una sesión local<small>S76: necesita <code>claude</code> con sesión iniciada en tu equipo.</small></div></li>
         <li><span class="badge b-todo">F3</span><div>Plataforma de punta a punta<small>S75: una historia de CI. Ojo: sus PR tocan <code>.github/workflows/</code>, que el token de Actions no puede subir.</small></div></li>
         <li><span class="badge b-todo">F5</span><div>Verificador en CI<small>S69: hoy solo corre en evaluaciones; los PR los verifica la CI con <code>prueba.mjs</code>.</small></div></li>
-        <li><span class="badge b-todo">F3</span><div>Historia completa en finance_tracker<small>Analista, jefe, implementador e investigador aún no han trabajado allí.</small></div></li>
+        <li><span class="badge b-wip">en curso</span><div>Historia completa en finance_tracker<small><a href="https://github.com/AlvaroM99/finance_tracker/issues/11">#11</a> (README raíz y formato de commit). Analista (6 turnos, 0,10 $) y jefe (6 turnos, 0,31 $) sin un solo bloqueo; el investigador encontró un fallo real (#15). Falta tu puerta 1.</small></div></li>
         <li><span class="badge b-todo">F5</span><div>Retirada real de una aprobación ajena<small>El job <code>aprobaciones</code> corre en cada revisión (0 retiradas). El camino de retirar está [POR CONFIRMAR], porque nunca ha habido una aprobación de bot.</small></div></li>
         <li><span class="badge b-risk">Álvaro</span><div>Workflow de producción<small>Necesita <code>CLOUDFLARE_API_TOKEN</code> y <code>CLOUDFLARE_ACCOUNT_ID</code>; mientras, despliegas con <code>wrangler</code> en local.</small></div></li>
       </ul>
@@ -1223,9 +1223,9 @@ flowchart TB
           <ul class="status-list">
             <li><span class="badge b-risk">Álvaro</span><div>Triar propuestas<small>lobby: <a href="https://github.com/AlvaroM99/lobby/issues/14">#14</a>, #9, #10, #12 · finance_tracker: <a href="https://github.com/AlvaroM99/finance_tracker/issues/8">#8</a>–#13</small></div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Decisiones de F4 (D-F4-1 a D-F4-4)</div></li>
-            <li><span class="badge b-risk">Álvaro</span><div>Siguiente tanda de falsos positivos<small><code>cmp</code>, <code>git -C</code>, <code>for-each-ref</code>, <code>timeout</code>, <code>grep -vi secret</code></small></div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Siguiente tanda de falsos positivos<small><code>cmp</code>, <code>git -C</code>, <code>for-each-ref</code>, <code>timeout</code>, <code>grep -vi secret</code>, subshell <code>( … )</code></small></div></li>
             <li><span class="badge b-todo">F3</span><div>Probar plataforma, verificador y coordinador en real</div></li>
-            <li><span class="badge b-todo">F3</span><div>Primera historia en finance_tracker</div></li>
+            <li><span class="badge b-risk">Álvaro</span><div>Puerta 1 de <a href="https://github.com/AlvaroM99/finance_tracker/issues/11">finance_tracker#11</a><small>Primera historia allí; plan con 8 criterios y P1–P5 por defecto</small></div></li>
             <li><span class="badge b-todo">F5</span><div>Revisor: subir de 20 turnos<small>Agotó el límite en lobby#16, aunque publicó</small></div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Secretos de Cloudflare para <code>produccion.yml</code><small>Opcional: hoy despliegas en local</small></div></li>
             <li><span class="badge b-risk">Álvaro</span><div>Instalar Pixel Agents</div></li>
