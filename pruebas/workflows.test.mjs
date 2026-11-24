@@ -320,3 +320,28 @@ test('revisar: revisor y seguridad pueden leer ejecuciones, checks y estados (gh
     assert.match(bloque, /permissions:\n\s+actions: read\n\s+checks: read\n\s+contents: read\n\s+issues: read\n\s+pull-requests: write\n\s+statuses: read\n/, job);
   }
 });
+
+test('agentes: cada lista --allowedTools es estrecha y nunca aprueba, fusiona, edita ni llama a gh api', () => {
+  const vistos = [];
+  for (const { nombre, texto } of workflows) {
+    for (const linea of texto.split('\n').filter((l) => l.includes('claude_args:') && l.includes('--allowedTools'))) {
+      const lista = /--allowedTools "([^"]+)"/.exec(linea)?.[1];
+      assert.ok(lista, `${nombre}: --allowedTools entre comillas`);
+      for (const regla of lista.split(',')) assert.match(regla, /^Bash\(gh (issue|pr|label) (view|list|diff|checks|comment|create):\*\)$/, `${nombre}: ${regla}`);
+      vistos.push(nombre);
+    }
+  }
+  for (const w of ['planificar', 'analizar', 'gobernanza', 'investigar', 'revisar']) assert.ok(vistos.some((n) => n.includes(w)), w);
+});
+
+test('agentes: cada uno puede dejar su resultado y leer lo que su token necesita (transcripciones de 7 días, 23-11-2026)', () => {
+  const de = (w) => workflows.find((x) => x.nombre === `ci-cd/enjambre-${w}.yml`).texto;
+  const lista = (w, agente) => /--allowedTools "([^"]+)"/.exec(de(w).split('\n').find((l) => l.includes(`--agent enjambre:enjambre-${agente}`)))?.[1] ?? '';
+  assert.match(lista('planificar', 'jefe-proyecto'), /Bash\(gh issue comment:\*\)/);
+  assert.match(lista('analizar', 'analista'), /Bash\(gh issue comment:\*\)/);
+  assert.match(lista('gobernanza', 'gobernanza'), /Bash\(gh issue create:\*\)/);
+  assert.match(lista('investigar', 'investigador'), /Bash\(gh issue create:\*\)/);
+  for (const w of ['planificar', 'gobernanza']) assert.match(de(w), /permissions:\n\s+contents: read\n\s+issues: write\n\s+pull-requests: read\n/, w);
+  // Los compuestos con cd o ; son lo que más se deniega: todos los prompts de agentes lo avisan.
+  for (const w of ['planificar', 'analizar', 'gobernanza', 'investigar', 'implementar', 'revisar']) assert.match(de(w), /sin `cd` delante ni encadenado/, w);
+});

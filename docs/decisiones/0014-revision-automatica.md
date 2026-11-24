@@ -108,3 +108,20 @@ Lo pidió Álvaro: «la PR debe abrirse ya lista para review (no la abras en dra
 **Comprobación real y v0.7.2.** La revisión lanzada desde la rama del arreglo sobre finance_tracker#27 terminó en verde, con 11 turnos y un solo permiso denegado (un comando compuesto). El propio revisor encontró un hueco: sin `checks: read` y `statuses: read`, `gh pr view <n>` y `gh pr checks` fallan con «Resource not accessible by integration» (statusCheckRollup). La v0.7.2 añade esos dos permisos, solo de lectura, a `revisor` y `seguridad`, con prueba. La CI de esa rama también salió en verde, con `estado-en-el-pr` incluido.
 
 **v0.7.3.** La segunda revisión de finance_tracker#27, ya con la v0.7.2 cargada desde la rama, mostró que `checks` y `statuses` no bastan. Sigue fallando el campo `statusCheckRollup…checkSuite.workflowRun`, que pide `actions: read`. Se añade a `revisor` y `seguridad` (solo lectura).
+
+## v0.7.4 (24-11-2026): permisos del resto de agentes, con datos
+
+Álvaro pidió revisar los permisos de todos los workflows de agentes. Se recorrieron las transcripciones de los últimos 7 días en lobby y finance_tracker: 11 del revisor, 10 del implementador, 7 del jefe, 5 de seguridad, 3 del analista, 2 del investigador y 2 de gobernanza.
+
+| Agente | Lo que fallaba | Cambio |
+|---|---|---|
+| Jefe de proyecto | Token sin lectura de PR: «Resource not accessible by integration (repository.pullRequests)», 3 veces. Además le denegaron `gh issue comment` (su salida) | `pull-requests: read`. Lista `gh issue view/comment` y `gh pr list/view` |
+| Analista | `gh issue comment` (su salida) denegado 2 veces | Lista `gh issue view/comment` |
+| Gobernanza | `gh issue create` (su salida) denegado 5 veces. Token sin lectura de PR, 2 veces | `pull-requests: read`. Lista `gh issue create/list/view`, `gh pr list` y `gh label list` |
+| Investigador | Comandos compuestos | Lista `gh issue create/list/view` |
+| Revisor y seguridad | `cat … \| gh pr comment` (seguridad, 4 veces) | Ya permitido en la v0.7.3. El prompt pide la forma directa |
+| Implementador | Sin errores de token; denegaciones sueltas de compuestos | Solo la línea común del prompt |
+
+**Línea común en todos los prompts:** «Lanza cada comando solo, sin `cd` delante ni encadenado con `;` o `&&`». Es lo que más se denegaba.
+
+**Prueba** (`pruebas/workflows.test.mjs`): toda regla de `--allowedTools` debe ser `Bash(gh issue|pr|label view|list|diff|checks|comment|create:*)`. Nunca aprobar, fusionar, editar, `gh api` ni comodines anchos.

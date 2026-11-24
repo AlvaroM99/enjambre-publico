@@ -71,10 +71,13 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           plugin_marketplaces: ${{ runner.temp }}/enjambre-plugin
           plugins: enjambre@enjambre
-          claude_args: --agent enjambre:enjambre-investigador --max-turns 35
+          # Lista estrecha de lo que este agente necesita para dejar su resultado (transcripciones de 7 días, 23-11-2026:
+          # crea issues y lee las abiertas para no duplicar). En modo auto, una regla estrecha se salta la revisión; nunca aprobar, fusionar ni gh api.
+          claude_args: --agent enjambre:enjambre-investigador --max-turns 35 --allowedTools "Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh issue view:*)"
           prompt: |
             Investiga en ${{ github.repository }} el alcance que indica la variable de entorno ALCANCE.
-            Abre como máximo 5 issues con la etiqueta enjambre:propuesta, solo con hallazgos reproducibles,
+            Abre como máximo 5 issues con la etiqueta enjambre:propuesta (`gh issue create --body-file -`), solo con hallazgos
+            reproducibles. Lanza cada comando solo, sin `cd` delante ni encadenado con `;` o `&&`: ya estás en la raíz del repositorio.
             y termina con la tabla de retroalimentación para los implementadores (el workflow la publica como issue
             «Informe de investigación QA de Enjambre»).
       # Rastro (ADR 0012): la Action oculta la salida del agente. La transcripción queda 7 días como artefacto del run
