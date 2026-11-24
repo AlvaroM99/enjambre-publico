@@ -125,3 +125,10 @@ Lo pidió Álvaro: «la PR debe abrirse ya lista para review (no la abras en dra
 **Línea común en todos los prompts:** «Lanza cada comando solo, sin `cd` delante ni encadenado con `;` o `&&`». Es lo que más se denegaba.
 
 **Prueba** (`pruebas/workflows.test.mjs`): toda regla de `--allowedTools` debe ser `Bash(gh issue|pr|label view|list|diff|checks|comment|create:*)`. Nunca aprobar, fusionar, editar, `gh api` ni comodines anchos.
+
+**v0.7.5.** La revisión de finance_tracker#29, lanzada desde su rama, dio CAMBIOS con tres hallazgos válidos:
+- la frase nueva partía en dos la instrucción de la tabla en el prompt del investigador;
+- el investigador también puede tener un PR como alcance, así que pasa a tener `pull-requests: read` y `gh pr view/diff/list`;
+- faltaba la nota en la documentación del proyecto.
+
+Los «errores de token» que se contaron en esa prueba eran falsos positivos de la herramienta de medida: el texto «Resource not accessible by integration» aparecía dentro del diff que leía el revisor.

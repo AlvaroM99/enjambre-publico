@@ -25,9 +25,12 @@ jobs:
     if: github.actor == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # pull-requests de lectura: ALCANCE puede ser un PR, y sin él gh falla con «Resource not accessible by integration
+    # (repository.pullRequests)», igual que pasaba al jefe y a gobernanza (revisión de finance_tracker#29).
     permissions:
       contents: read
       issues: write
+      pull-requests: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -73,13 +76,13 @@ jobs:
           plugins: enjambre@enjambre
           # Lista estrecha de lo que este agente necesita para dejar su resultado (transcripciones de 7 días, 23-11-2026:
           # crea issues y lee las abiertas para no duplicar). En modo auto, una regla estrecha se salta la revisión; nunca aprobar, fusionar ni gh api.
-          claude_args: --agent enjambre:enjambre-investigador --max-turns 35 --allowedTools "Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh issue view:*)"
+          claude_args: --agent enjambre:enjambre-investigador --max-turns 35 --allowedTools "Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr list:*)"
           prompt: |
             Investiga en ${{ github.repository }} el alcance que indica la variable de entorno ALCANCE.
             Abre como máximo 5 issues con la etiqueta enjambre:propuesta (`gh issue create --body-file -`), solo con hallazgos
-            reproducibles. Lanza cada comando solo, sin `cd` delante ni encadenado con `;` o `&&`: ya estás en la raíz del repositorio.
-            y termina con la tabla de retroalimentación para los implementadores (el workflow la publica como issue
-            «Informe de investigación QA de Enjambre»).
+            reproducibles, y termina con la tabla de retroalimentación para los implementadores (el workflow la publica como
+            issue «Informe de investigación QA de Enjambre»).
+            Lanza cada comando solo, sin `cd` delante ni encadenado con `;` o `&&`: ya estás en la raíz del repositorio.
       # Rastro (ADR 0012): la Action oculta la salida del agente. La transcripción queda 7 días como artefacto del run
       # (repos privados) para entender permisos denegados y paradas sin respuesta.
       - name: Guardar la transcripción del agente

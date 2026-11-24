@@ -341,7 +341,10 @@ test('agentes: cada uno puede dejar su resultado y leer lo que su token necesita
   assert.match(lista('analizar', 'analista'), /Bash\(gh issue comment:\*\)/);
   assert.match(lista('gobernanza', 'gobernanza'), /Bash\(gh issue create:\*\)/);
   assert.match(lista('investigar', 'investigador'), /Bash\(gh issue create:\*\)/);
-  for (const w of ['planificar', 'gobernanza']) assert.match(de(w), /permissions:\n\s+contents: read\n\s+issues: write\n\s+pull-requests: read\n/, w);
+  for (const w of ['planificar', 'gobernanza', 'investigar']) assert.match(de(w), /permissions:\n\s+contents: read\n\s+issues: write\n\s+pull-requests: read\n/, w);
+  // ALCANCE del investigador puede ser un PR, y su prompt no deja la instrucción de la tabla colgando (revisión de finance_tracker#29).
+  assert.match(lista('investigar', 'investigador'), /Bash\(gh pr diff:\*\)/);
+  assert.match(de('investigar'), /reproducibles, y termina con la tabla/);
   // Los compuestos con cd o ; son lo que más se deniega: todos los prompts de agentes lo avisan.
   for (const w of ['planificar', 'analizar', 'gobernanza', 'investigar', 'implementar', 'revisar']) assert.match(de(w), /sin `cd` delante ni encadenado/, w);
 });
