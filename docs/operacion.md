@@ -433,3 +433,46 @@ Las plantillas (`plan.md`, `pr.md`, `adr.md`, `informe-qa.md`) están en `planti
 - **Nombres de skills en `skills:`.** Se usan con espacio de nombres (`enjambre:reglas-enjambre`), que es como las lista `claude plugin validate`. La documentación no dice si un agente de plugin también las encuentra sin prefijo [POR CONFIRMAR en una sesión real].
 - **`${CLAUDE_SKILL_DIR}`** en las skills para localizar las plantillas: no se ha comprobado que se sustituya cuando la skill se precarga en un subagente. Si no, el agente ve el nombre del fichero y la carpeta de la skill igualmente [POR CONFIRMAR].
 - **Una ejecución real de los cuatro agentes** (plan → PR → revisión → informe QA) en una sesión con el plugin instalado. Es la primera tarea del piloto en lobby (S9–S12, criterio «2 planes aceptados»).
+
+## Evaluación de la v0.7.5 en los dos proyectos (25-11-2026)
+
+Álvaro pidió relanzarlo todo en lobby y finance_tracker para evaluar la última versión:
+- los 6 agentes en cada repo, más el banco de 20 evaluaciones;
+- issues pequeñas de prueba;
+- la puerta 1 aprobada por Claude desde Hive, solo para esta evaluación. Fusionar sigue siendo de Álvaro.
+
+Las cifras salen de las transcripciones (`transcripcion-*`) de cada ejecución.
+
+**Banco de evaluaciones** (Actions, `evals.yml`): **20/20, pass@1 100 %**, en 9 min. Cubre los 10 agentes, con las mismas tareas que la v0.6.1.
+
+**Flujo completo:**
+
+| Repo | Agente | Resultado | Turnos | Coste | Denegados | Errores del token |
+|---|---|---|---|---|---|---|
+| lobby (#28) | analista | ✔ | 11 | 0,18 USD | 0 | 0 |
+| lobby | jefe de proyecto | ✔ plan «## Plan de Enjambre» | 15 | 0,48 USD | 0 | 0 |
+| lobby | implementador (puerta 1 desde Hive) | ✔ lobby#29 **listo para revisión** | 12 | 0,17 USD | 0 | 0 |
+| lobby | CI lanzada sola | ✔ `ci (Enjambre): success` en el PR | — | — | — | — |
+| lobby | revisor | ✔ **APROBAR** y revisión pedida a Álvaro | 15 | 0,35 USD | 0 | 0 |
+| lobby | investigador | ✔ informe lobby#31 | 9 | 0,16 USD | 1 (`node -e`) | 0 |
+| lobby | gobernanza | ✖ job en rojo por turnos (46/45), con el informe lobby#32 y 5 issues publicados | 46 | 0,38 USD | 1 (`gh variable list`) | 0 |
+| finance_tracker (#30) | analista | ✔ | 10 | 0,11 USD | 0 | 0 |
+| finance_tracker | jefe de proyecto | ⚠ plan titulado «# Plan» (dos veces) | 13 y 14 | 0,35 + 0,35 USD | 0 | 0 |
+| finance_tracker | investigador | ✔ informe finance_tracker#32 | 10 | 0,18 USD | 0 | 0 |
+| finance_tracker | gobernanza | ✔ informe #34 y 1 issue (#33) | 42 | 0,37 USD | 3 (`git grep` de datos) | 0 |
+
+**Total:** ≈ 3,1 USD sin contar el banco.
+
+**Cambios respecto a antes de la v0.7.x:**
+- **Errores del token:** cero en todos los agentes. Antes los había en el jefe, en gobernanza y en el revisor.
+- **Comandos de salida:** ningún agente tuvo denegado el suyo. Antes se denegaban `gh issue comment` del analista y del jefe, `gh issue create` de gobernanza y `gh pr comment` del revisor.
+- **PR del implementador:** sale listo para revisión, con la CI y la revisión arrancadas solas.
+- **Hive:** sirvió para todo el flujo (crear las issues, pedir el análisis y el plan, aprobar el plan). Además se negó a implementar finance_tracker#30 sin un plan reconocible.
+
+**Hallazgos, corregidos:**
+- **v0.7.6:** el jefe debe empezar el plan por «## Plan de Enjambre», y el implementador y Hive aceptan «# Plan» o «## Plan».
+- **v0.7.7:** gobernanza pasa de 45 a 60 turnos.
+
+**Pendiente:**
+- **finance_tracker#30:** el implementador y la revisión, cuando Álvaro fusione la v0.7.6 y la v0.7.7 (finance_tracker#31).
+- **Investigar desde Hive:** dio 403. La app tiene «Actions: Read and write» en su configuración, pero la instalación aún no ha aceptado el cambio.

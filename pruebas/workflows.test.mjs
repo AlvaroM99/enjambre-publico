@@ -354,3 +354,8 @@ test('plan: el jefe empieza por «## Plan de Enjambre» y el implementador acept
   assert.match(de('planificar'), /empieza exactamente por la línea «## Plan de Enjambre»/);
   assert.match(de('implementar'), /empieza por «## Plan» o «# Plan»/);
 });
+
+test('gobernanza: turnos suficientes para el informe y sus issues (46 en lobby, evaluación v0.7.5)', () => {
+  const texto = workflows.find((x) => x.nombre === 'ci-cd/enjambre-gobernanza.yml').texto;
+  assert.ok(Number(/enjambre-gobernanza --max-turns (\d+)/.exec(texto)[1]) >= 60);
+});

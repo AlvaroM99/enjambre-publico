@@ -256,5 +256,10 @@ function reposVista(cont) {
               } catch (e) { aviso(e.message, true); } finally { ev.target.disabled = false; }
             } }, 'Investigar'))));
     })),
-    h('p', { class: 'nota' }, app.estado.limiteApi ? `API de GitHub: quedan ${app.estado.limiteApi.quedan} de ${app.estado.limiteApi.total ?? '?'} peticiones esta hora.` : ''));
+    h('p', { class: 'nota' }, app.estado.limiteApi ? `API de GitHub: quedan ${app.estado.limiteApi.quedan} de ${app.estado.limiteApi.total ?? '?'} peticiones esta hora.` : ''),
+    app.estado.appPermisos && h('div', { class: 'bloque permisos-app' },
+      h('h3', {}, 'Permisos que GitHub ha aceptado para la app'),
+      h('p', { class: 'nota' }, 'Si cambias un permiso en la app y no lo aceptas en la instalación, sigue valiendo el de antes.'),
+      h('div', { class: 'etiquetas' }, Object.entries(app.estado.appPermisos).sort().map(([k, v]) =>
+        h('span', { class: `etiqueta${v === 'write' ? ' enjambre' : ''}` }, `${k}: ${v === 'write' ? 'escritura' : v === 'read' ? 'lectura' : v}`)))));
 }

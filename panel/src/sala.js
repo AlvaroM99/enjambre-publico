@@ -542,6 +542,8 @@ export class Sala {
       }
       this.estado.reposInstalados = repos.sort();
       this.estado.appSlug = inst.installations?.[0]?.app_slug ?? this.estado.appSlug ?? null;
+      // Permisos que GitHub ha aceptado para la instalación: si se cambian en la app y no se aceptan, siguen los de antes.
+      this.estado.appPermisos = inst.installations?.[0]?.permissions ?? null;
       cursor = 0;
     }
     const nombre = this.estado.reposInstalados[cursor];

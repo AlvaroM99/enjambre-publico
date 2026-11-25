@@ -69,7 +69,9 @@ jobs:
           plugins: enjambre@enjambre
           # Lista estrecha de lo que este agente necesita para dejar su resultado (transcripciones de 7 días, 23-11-2026:
           # gh issue create denegado 5 veces y token sin pull-requests). En modo auto, una regla estrecha se salta la revisión; nunca aprobar, fusionar ni gh api.
-          claude_args: --agent enjambre:enjambre-gobernanza --max-turns 45 --allowedTools "Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh pr list:*),Bash(gh label list:*)"
+          # 60 turnos: en la evaluación de la v0.7.5 (25-11-2026) necesitó 46 en lobby y 42 en finance_tracker; con 45 el job
+          # quedó en rojo aunque había publicado el informe y las 5 issues.
+          claude_args: --agent enjambre:enjambre-gobernanza --max-turns 60 --allowedTools "Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh pr list:*),Bash(gh label list:*)"
           prompt: |
             Audita la gobernanza de código y datos de ${{ github.repository }} con la skill gobernanza.
             Publica el informe como issue titulado «Informe de gobernanza de Enjambre (<fecha>)» con las etiquetas gobernanza y
