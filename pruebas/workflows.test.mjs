@@ -348,3 +348,9 @@ test('agentes: cada uno puede dejar su resultado y leer lo que su token necesita
   // Los compuestos con cd o ; son lo que más se deniega: todos los prompts de agentes lo avisan.
   for (const w of ['planificar', 'analizar', 'gobernanza', 'investigar', 'implementar', 'revisar']) assert.match(de(w), /sin `cd` delante ni encadenado/, w);
 });
+
+test('plan: el jefe empieza por «## Plan de Enjambre» y el implementador acepta «## Plan» o «# Plan» (finance_tracker#30)', () => {
+  const de = (w) => workflows.find((x) => x.nombre === `ci-cd/enjambre-${w}.yml`).texto;
+  assert.match(de('planificar'), /empieza exactamente por la línea «## Plan de Enjambre»/);
+  assert.match(de('implementar'), /empieza por «## Plan» o «# Plan»/);
+});

@@ -213,3 +213,10 @@ test('bandeja: un fallo sobre una issue cerrada o sin objetivo conocido no pide 
   aplicarWebhook(e, 'workflow_run', { action: 'completed', workflow_run: run(900, 'enjambre-implementar', { status: 'completed', conclusion: 'failure', updated_at: '2026-11-23T17:00:00Z', display_title: 'Otra' }), repository: repo }, AHORA);
   assert.equal(datos.bandeja(e, { ahora }).some((x) => x.tipo === 'fallo'), true, 'con la issue abierta, sí');
 });
+
+test('plan con «# Plan» o «## Plan»: los dos cuentan (finance_tracker#30, 25-11-2026)', async () => {
+  const { notaDe } = await import('../panel/src/estado.js');
+  assert.equal(notaDe('# Plan (revisado): pruebas de importar', 'github-actions[bot]', 'AlvaroM99').plan, true);
+  assert.equal(notaDe('## Plan de Enjambre', 'github-actions[bot]', 'AlvaroM99').plan, true);
+  assert.equal(notaDe('### Plan', 'github-actions[bot]', 'AlvaroM99'), null);
+});

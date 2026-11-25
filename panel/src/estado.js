@@ -62,10 +62,11 @@ export function veredictoDe(cuerpo) {
 
 /**
  * Comentario de un agente en una issue: { plan: bool, titulo }. El implementador sigue el comentario que empieza por
- * «## Plan» publicado por el bot o por el propietario (plugins/enjambre/skills/ci-cd/workflows/enjambre-implementar.yml).
+ * «## Plan» (o «# Plan») publicado por el bot o por el propietario (plugins/enjambre/skills/ci-cd/workflows/enjambre-implementar.yml).
+ * Se acepta «# » además de «## »: en finance_tracker#30 el jefe tituló su plan dos veces con «# Plan» (25-11-2026).
  */
 export function notaDe(cuerpo, autor, propietario) {
-  const titulo = /^## ([^\n]+)/.exec(cuerpo ?? '')?.[1]?.trim();
+  const titulo = /^#{1,2} ([^\n]+)/.exec(cuerpo ?? '')?.[1]?.trim();
   if (!titulo) return null;
   const deAgente = autor === BOT;
   const plan = /^Plan\b/.test(titulo) && (deAgente || (propietario && autor?.toLowerCase() === propietario.toLowerCase()));

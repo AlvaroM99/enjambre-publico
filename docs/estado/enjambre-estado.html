@@ -745,7 +745,7 @@ flowchart TB
         <div class="hop" role="listitem"><span class="k">6</span><b>Plantillas</b><p>Los workflows se copian por PR, porque el token no puede tocarlos.</p></div>
         <div class="hop go" role="listitem"><span class="k">7</span><b>Siguiente run</b><p>Los agentes usan ese SHA exacto.</p></div>
       </div>
-      <p class="note">Hoy: plugin <code>v0.6.5</code> publicado; los proyectos tienen el SHA de <code>v0.6.1</code> (agentes y hooks iguales). <code>v0.6.2</code>–<code>v0.6.5</code> solo cambian plantillas de workflows, que llegan por PR: implementador (lobby#15, finance_tracker#14), revisión automática (lobby#17, finance_tracker#20) y sus correcciones tras la primera historia (lobby#21 y #23, finance_tracker#21 y #22). 17 etiquetas: de <code>v0.2.0</code> a <code>v0.6.5</code>.</p>
+      <p class="note">Hoy (25-11-2026): plugin <code>v0.7.5</code> publicado y fijado en lobby y finance_tracker (<code>ENJAMBRE_VERSION</code> = <code>8dd8dff…</code>). Desde la v0.7.0 los PR se abren listos para revisión; de la v0.7.1 a la v0.7.5 se ajustaron los permisos de los workflows de agentes con los datos de sus transcripciones (ADR 0014). Las plantillas de workflows llegan por PR que fusiona Álvaro.</p>
 
       <h3 class="sub">Por qué los agentes no tocan los workflows</h3>
       <div class="grid2">
@@ -783,7 +783,7 @@ flowchart TB
       <div class="table-wrap"><table>
         <thead><tr><th>Ajuste</th><th>lobby</th><th>finance_tracker</th><th>Para qué</th></tr></thead>
         <tbody>
-          <tr><td><code>ENJAMBRE_VERSION</code></td><td><code>5636418…</code> (v0.6.1)</td><td><code>5636418…</code> (v0.6.1)</td><td>SHA del plugin que usan los agentes</td></tr>
+          <tr><td><code>ENJAMBRE_VERSION</code></td><td><code>8dd8dff…</code> (v0.7.5)</td><td><code>8dd8dff…</code> (v0.7.5)</td><td>SHA del plugin que usan los agentes</td></tr>
           <tr><td><code>ENJAMBRE_WIP</code></td><td>3</td><td>3</td><td>Historias a la vez (máx. 6)</td></tr>
           <tr><td>Actions puede crear PR</td><td class="yes">sí (22-11)</td><td class="yes">sí (22-11)</td><td>El implementador abre su PR; aprobar lo impiden el hook y el job <code>aprobaciones</code></td></tr>
           <tr><td>Permisos por defecto del token</td><td>lectura</td><td>lectura</td><td>Cada job pide solo lo que necesita</td></tr>
@@ -1206,7 +1206,7 @@ flowchart TB
       <div class="sec-head">
         <span class="n">ESTADO ACTUAL · 23-11-2026</span>
         <h2>Sistema operativo en dos proyectos; nada abierto, falta probar la revisión del bot entera</h2>
-        <p>Todo está fusionado: lobby#17 y #19 a #23, y finance_tracker#18 a #22. No hay PR abiertos ni agentes trabajando. Los dos proyectos tienen las plantillas de workflows de v0.6.5 y el plugin v0.6.1 fijado por SHA (agentes y hooks no han cambiado). Lo abierto es tuyo: elegir la próxima historia, las decisiones de F4 y la siguiente tanda de falsos positivos.</p>
+        <p>Plugin v0.7.5 fijado en los dos proyectos (25-11-2026). Hive, el panel en vivo, está en marcha en Cloudflare. Abiertos para tu revisión: lobby#27 y finance_tracker#29 (permisos estrechos para cada agente). Pendiente de decisión tuya: el ADR 0016 (no aprobar ni fusionar con la CI en rojo; GitHub Pro).</p>
       </div>
       <div class="panel">
         <div class="meter-bar" aria-label="Historias del backlog: 44 hechas, 3 a medias, 30 pendientes"><i style="width:57.1%;background:var(--done)"></i><i style="width:3.9%;background:var(--wip)"></i></div>
@@ -1222,7 +1222,7 @@ flowchart TB
             <li><span class="badge b-done">hecho</span><div>Runbooks R1–R4<small>S73 · <code>docs/runbooks.md</code>: token, agente fuera de su papel, rollback y subir de versión</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Solo Álvaro aprueba PR; Actions puede abrirlos<small>Hook <code>gh-pr-aprobar</code> y job <code>aprobaciones</code> (ADR 0011)</small></div></li>
             <li><span class="badge b-done">hecho</span><div>Plugin fijado por SHA; rastro de cada agente; 16 de 17 falsos positivos resueltos<small>ADR 0009, 0012 y 0013</small></div></li>
-            <li><span class="badge b-done">hecho</span><div>Banco de evaluaciones en Actions<small>20/20 en el último banco (v0.6.1; los agentes no han cambiado desde entonces)</small></div></li>
+            <li><span class="badge b-done">hecho</span><div>Banco de evaluaciones en Actions<small>20/20 en el último banco (v0.6.1). Desde la v0.7.0 cambian el implementador y los prompts: toca repetir el banco con la v0.7.5</small></div></li>
           </ul>
           <ul class="status-list">
                         <li><span class="badge b-risk">Álvaro</span><div>Elegir la próxima historia<small>Será la prueba de S77 con v0.6.5. Candidata: <a href="https://github.com/AlvaroM99/finance_tracker/issues/16">finance_tracker#16</a> (plataforma, S75) o una propuesta de lobby</small></div></li>

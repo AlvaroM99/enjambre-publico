@@ -132,3 +132,10 @@ Lo pidió Álvaro: «la PR debe abrirse ya lista para review (no la abras en dra
 - faltaba la nota en la documentación del proyecto.
 
 Los «errores de token» que se contaron en esa prueba eran falsos positivos de la herramienta de medida: el texto «Resource not accessible by integration» aparecía dentro del diff que leía el revisor.
+
+## v0.7.6 (25-11-2026): el encabezado del plan
+
+En la evaluación de la v0.7.5, el jefe de proyecto de finance_tracker#30 tituló su plan «# Plan…» (nivel 1) dos veces seguidas. La plantilla de la skill dice «## Plan de Enjambre», y el implementador y Hive buscaban «## Plan». Hive no mostró el plan y se negó a implementar sin él, lo que evitó una ejecución inútil.
+
+- **Jefe:** el prompt del workflow exige empezar exactamente por «## Plan de Enjambre».
+- **Lectores:** el implementador y Hive aceptan «## Plan» o «# Plan», y el más reciente si hay varios.
